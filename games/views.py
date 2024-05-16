@@ -1,8 +1,8 @@
 from django.shortcuts import render,get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Game
-from .serializers import GameListSerializer, GameCreateSerializer,GameDetailSerializer
+from .models import Game, Comment
+from .serializers import GameListSerializer, GameCreateSerializer,GameDetailSerializer,CommentSerializer
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 
@@ -96,3 +96,46 @@ class GameLikeAPIView(APIView):
         else:
             game.like.add(request.user)
             return Response("좋아요", status=status.HTTP_200_OK)
+
+class CommentAPIView(APIView):
+    def get_permissions(self):  # 로그인 인증토큰
+        permissions = super().get_permissions()
+
+        if self.request.method.lower() == 'post':  # 포스트할때만 로그인
+            permissions.append(IsAuthenticated())
+
+        return permissions
+
+    def get(self, request, game_pk):
+        comments = Comment.objects.all().filter(game=game_pk)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, game_pk):
+        game = get_object_or_404(Game, pk=game_pk)
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(author=request.user,game=game)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CommentDetailAPIView(APIView):
+    pass
+    # permission_classes = [IsAuthenticated]
+    # def put(self, request, pk, comment_id):
+    #     comment = get_object_or_404(Comment, pk=comment_id)
+    #     if request.user == comment.user:
+    #         serializer = CommentSerializer(comment, data=request.data, partial=True)
+    #         print(serializer)
+    #         if serializer.is_valid():
+    #             serializer.save()
+    #             return Response(serializer.data)
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    # def delete(self, request, pk, comment_id):
+    #     comment = get_object_or_404(Comment, pk=comment_id)
+    #     if request.user == comment.user:
+    #         comment.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
+    #     return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -44,7 +44,7 @@ class Comment(models.Model):
     game = models.ForeignKey(
         Game, on_delete=models.CASCADE, related_name="comments"
     )
-    root=models.ForeignKey("self", on_delete=models.CASCADE, related_name="reply")
+    root=models.ForeignKey("self",null=True ,on_delete=models.CASCADE, related_name="reply")
     author=models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
     )
