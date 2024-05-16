@@ -25,9 +25,7 @@ class Game(models.Model):
     gamefile = models.FileField(
         upload_to="zips/"
     )
-    gamepath = models.FileField(
-        upload_to="games/"
-    )
+    gamepath = models.CharField(blank=True,null=True,max_length=511)
     register_state = models.IntegerField(default=0)
     tag = models.ManyToManyField(
         Tag, related_name="games"
