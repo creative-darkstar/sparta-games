@@ -60,3 +60,16 @@ class GameDetailView(APIView):
         game.save()  # 아티클 뷰수 조회
         serializer = GameDetailSerializer(game)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    """
+    게임 수정
+    """
+    def put(self, request, game_pk):
+        game = self.get_object(game_pk)
+        if game.maker == request.user:
+            serializer = GameDetailSerializer(game, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
