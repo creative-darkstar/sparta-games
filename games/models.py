@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Tag(models.Model):
-    pass
+    name=models.CharField(max_length=20)
 
 
 class Game(models.Model):
@@ -25,9 +25,7 @@ class Game(models.Model):
     gamefile = models.FileField(
         upload_to="zips/"
     )
-    gamepath = models.FileField(
-        upload_to="games/"
-    )
+    gamepath = models.CharField(blank=True,null=True,max_length=511)
     register_state = models.IntegerField(default=0)
     tag = models.ManyToManyField(
         Tag, related_name="games"
@@ -38,12 +36,34 @@ class Game(models.Model):
 
 
 class Comment(models.Model):
-    pass
-
+    content=models.TextField()
+    is_visible=models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name="comments"
+    )
+    root=models.ForeignKey("self", on_delete=models.CASCADE, related_name="reply")
+    author=models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
+    )
 
 class Screenshot(models.Model):
-    pass
+    src=models.ImageField(
+        upload_to="images/screenshot/",
+        blank=True,
+        null=True,
+    )
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name="screenshots"
+    )
 
 
 class Star(models.Model):
-    pass
+    star=models.IntegerField(null=True)
+    user=models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="stars"
+    )
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name="stars"
+    )

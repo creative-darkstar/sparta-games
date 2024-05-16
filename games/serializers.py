@@ -11,10 +11,11 @@ class GameCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model=Game
         fields="__all__"
-        readonly_fields =('like','tag')
+        read_only_fields =('like','tag')
 
 class GameDetailSerializer(serializers.ModelSerializer):
     # screenshot
     class Meta:
         model=Game
         fields="__all__"
+        read_only_fields =('like','tag','maker')

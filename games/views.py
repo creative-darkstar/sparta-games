@@ -22,7 +22,7 @@ class GameListAPIView(APIView):
     게임 목록 조회
     """
     def get(self, request):
-        games = Game.objects.all()
+        games = Game.objects.filter(is_visible=True)
         serializer = GameListSerializer(games, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
@@ -30,10 +30,10 @@ class GameListAPIView(APIView):
     게임 등록
     """
     def post(self, request):
-        # request.data["username"] = request.user.username
+        request.data["maker"] = request.user.pk
         serializer = GameCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(maker=request.user.username)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
 class GameDetailView(APIView):
@@ -49,7 +49,7 @@ class GameDetailView(APIView):
         return permissions
     
     def get_object(self, game_pk):
-        return get_object_or_404(Game, pk=game_pk)
+        return get_object_or_404(Game, pk=game_pk, is_visible=True)
 
     """
     게임 상세 조회
@@ -67,7 +67,7 @@ class GameDetailView(APIView):
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
-            serializer = GameDetailSerializer(game, data=request.data)
+            serializer = GameDetailSerializer(game, data=request.data,partial=True)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -80,7 +80,8 @@ class GameDetailView(APIView):
     def delete(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
-            game.delete()
+            game.is_visible=False
+            game.save()
             return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
