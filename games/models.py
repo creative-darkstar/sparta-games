@@ -19,7 +19,7 @@ class Game(models.Model):
     )
     content = models.TextField()
     like = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, related_name="games"
+        settings.AUTH_USER_MODEL, related_name="games_like"
     )
     view_cnt = models.IntegerField(default=0)
     gamefile = models.FileField(
