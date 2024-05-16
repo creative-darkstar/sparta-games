@@ -35,7 +35,7 @@ class GameListAPIView(APIView):
             serializer.save(maker=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
-class GameDetailView(APIView):
+class GameDetailAPIView(APIView):
     """
     포스트일 때 로그인 인증을 위한 함수
     """
@@ -84,3 +84,15 @@ class GameDetailView(APIView):
             return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
+
+class GameLikeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, game_pk):
+        game=get_object_or_404(Game,pk=game_pk)
+        if game.like.filter(pk=request.user.pk).exists():
+            game.like.remove(request.user)
+            return Response("안좋아요", status=status.HTTP_200_OK)
+        else:
+            game.like.add(request.user)
+            return Response("좋아요", status=status.HTTP_200_OK)
