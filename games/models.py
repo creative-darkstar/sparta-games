@@ -28,7 +28,8 @@ class Game(models.Model):
     gamepath = models.CharField(blank=True,null=True,max_length=511)
     register_state = models.IntegerField(default=0)
     tag = models.ManyToManyField(
-        Tag, related_name="games"
+        Tag, related_name="games",
+        null=True,
     )
     is_visible = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

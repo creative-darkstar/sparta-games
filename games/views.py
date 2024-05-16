@@ -30,10 +30,9 @@ class GameListAPIView(APIView):
     게임 등록
     """
     def post(self, request):
-        request.data["maker"] = request.user.pk
         serializer = GameCreateSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            serializer.save(maker=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
 class GameDetailView(APIView):
