@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Game
-from .serializers import GameListSerializer
+from .serializers import GameListSerializer, GameCreateSerializer
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 
@@ -25,3 +25,13 @@ class GameListAPIView(APIView):
         games = Game.objects.all()
         serializer = GameListSerializer(games, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
+
+    """
+    게임 등록
+    """
+    def post(self, request):
+        # request.data["username"] = request.user.username
+        serializer = GameCreateSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(maker=request.user.username)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)

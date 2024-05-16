@@ -6,3 +6,9 @@ class GameListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = ("thumbnail","title","maker",)
+
+class GameCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Game
+        fields="__all__"
+        readonly_fields =('like','tag')
