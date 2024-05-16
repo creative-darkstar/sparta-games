@@ -73,3 +73,14 @@ class GameDetailView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
+
+    """
+    게임 삭제
+    """
+    def delete(self, request, game_pk):
+        game = self.get_object(game_pk)
+        if game.maker == request.user:
+            game.delete()
+            return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
