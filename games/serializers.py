@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Game
+from .models import Game,Comment
 
 
 class GameListSerializer(serializers.ModelSerializer):
@@ -21,3 +21,9 @@ class GameDetailSerializer(serializers.ModelSerializer):
         model = Game
         fields = "__all__"
         read_only_fields = ('like', 'tag', 'maker')
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Comment
+        fields = "__all__"
+        read_only_fields = ('is_visible', 'game', 'author',)
