@@ -1,4 +1,7 @@
+import zipfile
+
 from django.shortcuts import render,get_object_or_404
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Game, Comment
@@ -68,7 +71,7 @@ class GameDetailAPIView(APIView):
         if game.maker == request.user:
             serializer = GameDetailSerializer(game, data=request.data,partial=True)
             if serializer.is_valid(raise_exception=True):
-                serializer.save()
+                serializer.save(register_state=0)
                 return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
@@ -140,3 +143,73 @@ class CommentDetailAPIView(APIView):
             return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+def game_register(request, game_pk):
+    # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
+    row = get_object_or_404(Game, pk=game_pk, is_visible=True, register_state=0)
+
+    # gamefile 필드에 저장한 경로값을 'path' 변수에 저장
+    path = row.gamefile.url
+
+    # ~/<업로드시각>_<압축파일명>.zip 에서 '<업로드시각>_<압축파일명>' 추출
+    game_folder = path.split('/')[-1].split('.')[0]
+
+    # 게임 폴더 경로(압축을 풀 경로): './media/games/<업로드시각>_<압축파일명>'
+    game_folder_path = f"./media/games/{game_folder}"
+
+    # index.html 우선 압축 해제
+    zipfile.ZipFile(f"./{path}").extract("index.html", game_folder_path)
+
+    """
+    index.html 내용 수정
+    <link> 태그 href 값 수정 (line: 7, 8)
+    var buildUrl 변수 값 수정 (line: 59)
+    
+    new_lines: 덮어쓸 내용 저장
+    is_check_build: Build 키워드 찾은 후 True로 변경 (이후 라인에서 Build 찾는 것을 피하기 위함)
+    """
+
+    new_lines = str()
+    is_check_build = False
+
+    # 덮어쓸 내용 담기
+    with open(f"{game_folder_path}/index.html", 'r') as f:
+        for line in f.readlines():
+            if line.find('link') > -1:
+                cursor = line.find('TemplateData')
+                new_lines += line[:cursor] + f'/media/games/{game_folder}/' + line[cursor:]
+            elif line.find('buildUrl') > -1 and not is_check_build:
+                is_check_build = True
+                cursor = line.find('Build')
+                new_lines += line[:cursor] + f'/media/games/{game_folder}/' + line[cursor:]
+            else:
+                new_lines += line
+
+    # 덮어쓰기
+    with open(f'{game_folder_path}/index.html', 'w') as f:
+        f.write(new_lines)
+
+    # index.html 외 다른 파일들 압축 해제
+    zipfile.ZipFile(f"./{path}").extractall(
+        path=game_folder_path,
+        members=[item for item in zipfile.ZipFile(f"./{path}").namelist() if item != "index.html"]
+    )
+
+    # 게임 폴더 경로를 저장하고, 등록 상태 1로 변경(등록 성공)
+    row.gamepath = game_folder_path[1:]
+    row.register_state = 1
+    row.save()
+
+    # 알맞은 HTTP Response 리턴
+    return Response({"message": f"등록을 성공했습니다. (게시물 id: {game_pk})"}, status=status.HTTP_200_OK)
+
+
+# 게임 등록 Api 테스트용 페이지 렌더링
+def game_detail_view(request, game_pk):
+    # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
+    row = Game.objects.get(pk=game_pk, is_visible=True)
+
+    # context에 폴더명 담아서 render
+    return render(request, "games/game_detail.html", context={"gamepath": row.gamepath})
