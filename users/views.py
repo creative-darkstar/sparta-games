@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -9,11 +11,51 @@ from rest_framework.views import APIView
 class ProfileAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    # 유효성 검사 정규식 패턴
+    EMAIL_PATTERN = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+
+    def put(self, request, user_pk):
+        check_password = self.request.data.get("password")
+        user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
+
+        # 현재 로그인한 유저와 수정 대상 회원이 일치하는지 확인
+        if request.user.id != user.pk:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # 유저 비밀번호가 일치하지 않으면
+        if user.check_password(check_password) is False:
+            return Response(
+                {"message": "비밀번호가 일치하지 않습니다."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 이메일 검증
+        email = self.request.data.get('email', user.email)
+        if not self.EMAIL_PATTERN.match(email):
+            return Response({"error_message": "올바른 email을 입력해주세요."})
+        elif get_user_model().objects.filter(email=email).exists():
+            return Response({"error_message": "이미 존재하는 email입니다.."})
+
+        user.email = email
+        user.image = self.request.data.get('image', user.image)
+        user.save()
+
+        return Response(
+            {
+                "message": "회원 정보 수정 완료",
+                "data": {
+                    "email": user.email,
+                    "image": user.image.url
+                }
+            },
+            status=status.HTTP_202_ACCEPTED
+        )
+
     def delete(self, request, user_pk):
         check_password = self.request.data.get("password")
         user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
 
-        # 탈퇴하려는 유저와 정보가 일치하는지 확인
+        # 현재 로그인한 유저와 탈퇴 대상 회원이 일치하는지 확인
         if request.user.id != user.pk:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
