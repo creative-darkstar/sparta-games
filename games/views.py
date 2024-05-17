@@ -8,6 +8,7 @@ from .models import (
     Game,
     Comment,
     Screenshot,
+    Tag,
 )
 from .serializers import (
     GameListSerializer,
@@ -42,7 +43,6 @@ class GameListAPIView(APIView):
     게임 등록
     """
     def post(self, request):
-
         # Game model에 우선 저장
         game = Game.objects.create(
             title=request.data.get('title'),
@@ -52,6 +52,12 @@ class GameListAPIView(APIView):
             content=request.data.get('content'),
             gamefile=request.data.get('gamefile'),
         )
+
+        # 태그 저장
+        tag_data = request.data.get('tag')
+        if tag_data:
+            for item in tag_data.split(','):
+                game.tag.add(Tag.objects.get(name=item))
 
         # 이후 Screenshot model에 저장
         screenshots = list()
