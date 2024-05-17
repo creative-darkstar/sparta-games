@@ -4,10 +4,19 @@ from django.shortcuts import render,get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Game, Comment
-from .serializers import GameListSerializer, GameCreateSerializer,GameDetailSerializer,CommentSerializer
+from .models import (
+    Game,
+    Comment,
+    Screenshot,
+)
+from .serializers import (
+    GameListSerializer,
+    GameDetailSerializer,
+    CommentSerializer,
+)
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
+
 
 class GameListAPIView(APIView):
     """
@@ -33,11 +42,38 @@ class GameListAPIView(APIView):
     게임 등록
     """
     def post(self, request):
-        serializer = GameCreateSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(maker=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
+        # Game model에 우선 저장
+        game = Game.objects.create(
+            title=request.data.get('title'),
+            thumbnail=request.data.get('thumbnail'),
+            youtube_url=request.data.get('youtube_url'),
+            maker=request.user,
+            content=request.data.get('content'),
+            gamefile=request.data.get('gamefile'),
+        )
+
+        # 이후 Screenshot model에 저장
+        screenshots = list()
+        for item in request.data.getlist("screenshots"):
+            Screenshot.objects.create(
+                src=item,
+                game=game
+            )
+            screenshots.append(item.name)
+
+        # 확인용 response
+        return Response(
+            {
+                "game": {
+                    "title": game.title,
+                },
+                "screenshots": screenshots
+             },
+            status=status.HTTP_201_CREATED
+        )
+
+
 class GameDetailAPIView(APIView):
     """
     포스트일 때 로그인 인증을 위한 함수
@@ -88,6 +124,7 @@ class GameDetailAPIView(APIView):
         else:
             return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
 
+
 class GameLikeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -99,6 +136,7 @@ class GameLikeAPIView(APIView):
         else:
             game.like.add(request.user)
             return Response("좋아요", status=status.HTTP_200_OK)
+
 
 class CommentAPIView(APIView):
     def get_permissions(self):  # 로그인 인증토큰
