@@ -107,7 +107,7 @@ class CommentAPIView(APIView):
         return permissions
 
     def get(self, request, game_pk):
-        comments = Comment.objects.all().filter(game=game_pk)
+        comments = Comment.objects.all().filter(game=game_pk,is_visible=True)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
 
@@ -120,22 +120,23 @@ class CommentAPIView(APIView):
 
 
 class CommentDetailAPIView(APIView):
-    pass
-    # permission_classes = [IsAuthenticated]
-    # def put(self, request, pk, comment_id):
-    #     comment = get_object_or_404(Comment, pk=comment_id)
-    #     if request.user == comment.user:
-    #         serializer = CommentSerializer(comment, data=request.data, partial=True)
-    #         print(serializer)
-    #         if serializer.is_valid():
-    #             serializer.save()
-    #             return Response(serializer.data)
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
+    permission_classes = [IsAuthenticated]
+    def put(self, request, comment_id):
+        comment = get_object_or_404(Comment, pk=comment_id)
+        if request.user == comment.author:
+            serializer = CommentSerializer(comment, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data,status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
 
-    # def delete(self, request, pk, comment_id):
-    #     comment = get_object_or_404(Comment, pk=comment_id)
-    #     if request.user == comment.user:
-    #         comment.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
-    #     return Response(status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, comment_id):
+        comment = get_object_or_404(Comment, pk=comment_id)
+        if request.user == comment.author:
+            comment.is_visible=False
+            comment.save()
+            return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
