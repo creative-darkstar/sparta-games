@@ -1,18 +1,21 @@
 from rest_framework import serializers
-from .models import Game,Comment,Star
-from django.db.models import Avg
+from .models import Game, Comment
+
 
 class GameListSerializer(serializers.ModelSerializer):
+    star = serializers.FloatField(read_only=True)
+
     class Meta:
         model = Game
-        fields = ("pk","title","maker" , "thumbnail",)
+        fields = ("pk", "title", "maker", "thumbnail", "star")
 
 
 class GameCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = "__all__"
-        read_only_fields = ('like', 'tag', 'maker','is_visible','view_cnt','register_state')
+        read_only_fields = ('like', 'tag', 'maker',
+                            'is_visible', 'view_cnt', 'register_state')
 
 
 class GameDetailSerializer(serializers.ModelSerializer):
@@ -21,8 +24,9 @@ class GameDetailSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ('like', 'tag', 'maker')
 
+
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Comment
+        model = Comment
         fields = "__all__"
         read_only_fields = ('is_visible', 'game', 'author',)

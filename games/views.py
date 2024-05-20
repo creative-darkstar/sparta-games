@@ -1,7 +1,6 @@
 import zipfile
 
-from django.forms import IntegerField
-from django.shortcuts import render,get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -28,6 +27,7 @@ class GameListAPIView(APIView):
     """
     포스트일 때 로그인 인증을 위한 함수
     """
+
     def get_permissions(self):  # 로그인 인증토큰
         permissions = super().get_permissions()
 
@@ -35,40 +35,45 @@ class GameListAPIView(APIView):
             permissions.append(IsAuthenticated())
 
         return permissions
-    
+
     """
     게임 목록 조회
     """
+
     def get(self, request):
         rows = Game.objects.filter(is_visible=True)
-        
+
         tag_q = request.query_params.get('tag-q')
         game_q = request.query_params.get('game-q')
         maker_q = request.query_params.get('maker-q')
         order = request.query_params.get('order')
-        
+
         if tag_q:
             rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True)
         elif game_q:
-            rows= rows.filter(title__icontains=game_q)
+            rows = rows.filter(title__icontains=game_q)
         elif maker_q:
-            rows = get_user_model().objects.get(username__icontains=maker_q).games.filter(is_visible=True)
+            rows = get_user_model().objects.get(
+                username__icontains=maker_q).games.filter(is_visible=True)
+
+        rows = rows.annotate(star=Avg('stars__star'))
 
         if order == 'new':
             rows = rows.order_by('-created_at')
         elif order == 'view':
             rows = rows.order_by('-view_cnt')
         elif order == 'star':
-            rows = rows.annotate(star=Avg('stars__star')).order_by('-star')
+            rows = rows.order_by('-star')
         else:
             rows = rows.order_by('-created_at')
 
         serializer = GameListSerializer(rows, many=True)
-        return Response(serializer.data,status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     """
     게임 등록
     """
+
     def post(self, request):
         # Game model에 우선 저장
         game = Game.objects.create(
@@ -102,7 +107,7 @@ class GameListAPIView(APIView):
                     "title": game.title,
                 },
                 "screenshots": screenshots
-             },
+            },
             status=status.HTTP_201_CREATED
         )
 
@@ -111,45 +116,48 @@ class GameDetailAPIView(APIView):
     """
     포스트일 때 로그인 인증을 위한 함수
     """
+
     def get_permissions(self):  # 로그인 인증토큰
         permissions = super().get_permissions()
 
-        if self.request.method.lower() == ('put'or'delete'):  # 포스트할때만 로그인
+        if self.request.method.lower() == ('put' or 'delete'):  # 포스트할때만 로그인
             permissions.append(IsAuthenticated())
 
         return permissions
-    
+
     def get_object(self, game_pk):
         return get_object_or_404(Game, pk=game_pk, is_visible=True)
 
     """
     게임 상세 조회
     """
+
     def get(self, request, game_pk):
-        game=self.get_object(game_pk)
+        game = self.get_object(game_pk)
         game.view_cnt += 1  # 아티클 뷰수 조회
         game.save()  # 아티클 뷰수 조회
-        stars=list(game.stars.all().values('star'))
-        star_list=[d['star'] for d in stars]
-        star_score=round(sum(star_list)/len(star_list),1)
+        stars = list(game.stars.all().values('star'))
+        star_list = [d['star'] for d in stars]
+        star_score = round(sum(star_list)/len(star_list), 1)
         serializer = GameDetailSerializer(game)
-        #data에 serializer.data를 깊은 복사함
-        #serializer.data의 리턴값인 ReturnDict는 불변객체이다
-        data=serializer.data
+        # data에 serializer.data를 깊은 복사함
+        # serializer.data의 리턴값인 ReturnDict는 불변객체이다
+        data = serializer.data
         data["star_score"] = star_score
         return Response(data, status=status.HTTP_200_OK)
-    
+
     """
     게임 수정
     """
+
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
             title = request.data.get("title", game.title)
-            thumbnail=request.data.get("thumbnail", game.thumbnail)
-            youtube_url=request.data.get("youtube_url", game.youtube_url)
-            content=request.data.get("content", game.content)
-            gamefile=request.data.get("gamefile", game.gamefile)
+            thumbnail = request.data.get("thumbnail", game.thumbnail)
+            youtube_url = request.data.get("youtube_url", game.youtube_url)
+            content = request.data.get("content", game.content)
+            gamefile = request.data.get("gamefile", game.gamefile)
 
             tag_data = request.data.get('tag')
             pre_tag_data = game.tag.all()
@@ -158,8 +166,8 @@ class GameDetailAPIView(APIView):
             if tag_data:
                 for item in tag_data.split(','):
                     game.tag.add(Tag.objects.get(name=item))
-            
-            pre_screenshots_data=Screenshot.objects.all().filter(game=game)
+
+            pre_screenshots_data = Screenshot.objects.all().filter(game=game)
             pre_screenshots_data.delete()
             screenshots = list()
             for item in request.data.getlist("screenshots"):
@@ -177,26 +185,27 @@ class GameDetailAPIView(APIView):
             #     serializer.save(register_state=0)
             #     return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
     """
     게임 삭제
     """
+
     def delete(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
-            game.is_visible=False
+            game.is_visible = False
             game.save()
-            return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GameLikeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, game_pk):
-        game=get_object_or_404(Game,pk=game_pk)
+        game = get_object_or_404(Game, pk=game_pk)
         if game.like.filter(pk=request.user.pk).exists():
             game.like.remove(request.user)
             return Response("안좋아요", status=status.HTTP_200_OK)
@@ -204,21 +213,25 @@ class GameLikeAPIView(APIView):
             game.like.add(request.user)
             return Response("좋아요", status=status.HTTP_200_OK)
 
+
 class GameStarAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, game_pk):
-        game=get_object_or_404(Game,pk=game_pk)
+        game = get_object_or_404(Game, pk=game_pk)
         if game.stars.filter(user=request.user).exists():
-            #수정
-            game.stars.filter(user=request.user).update(star=request.data['star'])
+            # 수정
+            game.stars.filter(user=request.user).update(
+                star=request.data['star'])
         else:
-            #생성
+            # 생성
             Star.objects.create(
                 star=request.data['star'],
                 user=request.user,
                 game=game,
             )
         return Response({"ok"}, status=status.HTTP_200_OK)
+
 
 class CommentAPIView(APIView):
     def get_permissions(self):  # 로그인 인증토큰
@@ -230,7 +243,7 @@ class CommentAPIView(APIView):
         return permissions
 
     def get(self, request, game_pk):
-        comments = Comment.objects.all().filter(game=game_pk,is_visible=True)
+        comments = Comment.objects.all().filter(game=game_pk, is_visible=True)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
 
@@ -238,37 +251,40 @@ class CommentAPIView(APIView):
         game = get_object_or_404(Game, pk=game_pk)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(author=request.user,game=game)
+            serializer.save(author=request.user, game=game)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class CommentDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def put(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
         if request.user == comment.author:
-            serializer = CommentSerializer(comment, data=request.data, partial=True)
+            serializer = CommentSerializer(
+                comment, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
-                return Response(serializer.data,status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
         if request.user == comment.author:
-            comment.is_visible=False
+            comment.is_visible = False
             comment.save()
-            return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response({"error":"작성자가 아닙니다"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
 def game_register(request, game_pk):
     # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
-    row = get_object_or_404(Game, pk=game_pk, is_visible=True, register_state=0)
+    row = get_object_or_404(
+        Game, pk=game_pk, is_visible=True, register_state=0)
 
     # gamefile 필드에 저장한 경로값을 'path' 변수에 저장
     path = row.gamefile.url
@@ -299,11 +315,13 @@ def game_register(request, game_pk):
         for line in f.readlines():
             if line.find('link') > -1:
                 cursor = line.find('TemplateData')
-                new_lines += line[:cursor] + f'/media/games/{game_folder}/' + line[cursor:]
+                new_lines += line[:cursor] + \
+                    f'/media/games/{game_folder}/' + line[cursor:]
             elif line.find('buildUrl') > -1 and not is_check_build:
                 is_check_build = True
                 cursor = line.find('Build')
-                new_lines += line[:cursor] + f'/media/games/{game_folder}/' + line[cursor:]
+                new_lines += line[:cursor] + \
+                    f'/media/games/{game_folder}/' + line[cursor:]
             else:
                 new_lines += line
 
@@ -314,7 +332,8 @@ def game_register(request, game_pk):
     # index.html 외 다른 파일들 압축 해제
     zipfile.ZipFile(f"./{path}").extractall(
         path=game_folder_path,
-        members=[item for item in zipfile.ZipFile(f"./{path}").namelist() if item != "index.html"]
+        members=[item for item in zipfile.ZipFile(
+            f"./{path}").namelist() if item != "index.html"]
     )
 
     # 게임 폴더 경로를 저장하고, 등록 상태 1로 변경(등록 성공)
