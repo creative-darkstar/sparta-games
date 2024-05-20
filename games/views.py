@@ -11,6 +11,7 @@ from .models import (
     Screenshot,
     Star,
     Tag,
+    Star,
 )
 from .serializers import (
     GameListSerializer,
@@ -20,9 +21,7 @@ from .serializers import (
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from django.db.models import Avg, Count, Min, Sum
-from django.db.models import ExpressionWrapper
-
+from django.db.models import Avg
 
 
 class GameListAPIView(APIView):
@@ -130,8 +129,15 @@ class GameDetailAPIView(APIView):
         game=self.get_object(game_pk)
         game.view_cnt += 1  # 아티클 뷰수 조회
         game.save()  # 아티클 뷰수 조회
+        stars=list(game.stars.all().values('star'))
+        star_list=[d['star'] for d in stars]
+        star_score=round(sum(star_list)/len(star_list),1)
         serializer = GameDetailSerializer(game)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #data에 serializer.data를 깊은 복사함
+        #serializer.data의 리턴값인 ReturnDict는 불변객체이다
+        data=serializer.data
+        data["star_score"] = star_score
+        return Response(data, status=status.HTTP_200_OK)
     
     """
     게임 수정
@@ -198,6 +204,21 @@ class GameLikeAPIView(APIView):
             game.like.add(request.user)
             return Response("좋아요", status=status.HTTP_200_OK)
 
+class GameStarAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, game_pk):
+        game=get_object_or_404(Game,pk=game_pk)
+        if game.stars.filter(user=request.user).exists():
+            #수정
+            game.stars.filter(user=request.user).update(star=request.data['star'])
+        else:
+            #생성
+            Star.objects.create(
+                star=request.data['star'],
+                user=request.user,
+                game=game,
+            )
+        return Response({"ok"}, status=status.HTTP_200_OK)
 
 class CommentAPIView(APIView):
     def get_permissions(self):  # 로그인 인증토큰
