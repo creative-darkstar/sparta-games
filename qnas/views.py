@@ -27,15 +27,15 @@ class QnAPostListAPIView(APIView):
         return permissions
     
     """
-    게임 목록 조회
+    QnA 목록 조회
     """
     def get(self, request):
-        qnas = QnA.objects.all()
+        qnas = QnA.objects.all().filter(is_visible=True)
         serializer = QnAPostListSerializer(qnas, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
     """
-    게임 등록
+    QnA 등록
     """
     def post(self, request):
         serializer = QnAPostListSerializer(data=request.data)
@@ -57,10 +57,10 @@ class QnADetailAPIView(APIView):
         return permissions
     
     def get_object(self, qna_pk):
-        return get_object_or_404(QnA, pk=qna_pk)
+        return get_object_or_404(QnA, pk=qna_pk,is_visible=True)
 
     """
-    게임 상세 조회
+    QnA 상세 조회
     """
     def get(self, request, qna_pk):
         qna=self.get_object(qna_pk)
@@ -68,7 +68,7 @@ class QnADetailAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     """
-    게임 수정
+    QnA 수정
     """
     def put(self, request, qna_pk):
         qna=self.get_object(qna_pk)
@@ -79,9 +79,10 @@ class QnADetailAPIView(APIView):
             return Response(serializer.data)
 
     """
-    게임 삭제
+    QnA 삭제
     """
     def delete(self, request, qna_pk):
         qna=self.get_object(qna_pk)
-        qna.delete()
+        qna.is_visible = False
+        qna.save()
         return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
