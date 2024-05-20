@@ -1,5 +1,6 @@
 import zipfile
 
+from django.forms import IntegerField
 from django.shortcuts import render,get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -8,6 +9,7 @@ from .models import (
     Game,
     Comment,
     Screenshot,
+    Star,
     Tag,
 )
 from .serializers import (
@@ -17,6 +19,10 @@ from .serializers import (
 )
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
+from django.contrib.auth import get_user_model
+from django.db.models import Avg, Count, Min, Sum
+from django.db.models import ExpressionWrapper
+
 
 
 class GameListAPIView(APIView):
@@ -35,8 +41,30 @@ class GameListAPIView(APIView):
     게임 목록 조회
     """
     def get(self, request):
-        games = Game.objects.filter(is_visible=True)
-        serializer = GameListSerializer(games, many=True)
+        rows = Game.objects.filter(is_visible=True)
+        
+        tag_q = request.query_params.get('tag-q')
+        game_q = request.query_params.get('game-q')
+        maker_q = request.query_params.get('maker-q')
+        order = request.query_params.get('order')
+        
+        if tag_q:
+            rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True)
+        elif game_q:
+            rows= rows.filter(title__icontains=game_q)
+        elif maker_q:
+            rows = get_user_model().objects.get(username__icontains=maker_q).games.filter(is_visible=True)
+
+        if order == 'new':
+            rows = rows.order_by('-created_at')
+        elif order == 'view':
+            rows = rows.order_by('-view_cnt')
+        elif order == 'star':
+            rows = rows.annotate(star=Avg('stars__star')).order_by('-star')
+        else:
+            rows = rows.order_by('-created_at')
+
+        serializer = GameListSerializer(rows, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
     """
