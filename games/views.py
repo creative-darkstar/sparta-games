@@ -9,6 +9,7 @@ from .models import (
     Comment,
     Screenshot,
     Tag,
+    Star,
 )
 from .serializers import (
     GameListSerializer,
@@ -170,6 +171,21 @@ class GameLikeAPIView(APIView):
             game.like.add(request.user)
             return Response("좋아요", status=status.HTTP_200_OK)
 
+class GameStarAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, game_pk):
+        game=get_object_or_404(Game,pk=game_pk)
+        if game.stars.filter(user=request.user).exists():
+            #수정
+            game.stars.filter(user=request.user).update(star=request.data['star'])
+        else:
+            #생성
+            Star.objects.create(
+                star=request.data['star'],
+                user=request.user,
+                game=game,
+            )
+        return Response({"ok"}, status=status.HTTP_200_OK)
 
 class CommentAPIView(APIView):
     def get_permissions(self):  # 로그인 인증토큰
