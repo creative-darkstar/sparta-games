@@ -15,6 +15,15 @@ class ProfileAPIView(APIView):
     # 유효성 검사 정규식 패턴
     EMAIL_PATTERN = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
 
+    def get(self, request, user_pk):
+        user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
+        profile_image = user.image.url if user.image else '/image/user.png/'
+        return Response({
+            "username": user.username,
+            "profile_image": profile_image,
+            "email": user.email,
+        }, status=status.HTTP_200_OK)
+
     def put(self, request, user_pk):
         check_password = self.request.data.get("password")
         user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
