@@ -20,21 +20,21 @@ class SignUpAPIView(APIView):
 
         # username 유효성 검사
         if not self.USERNAME_PATTERN.match(username):
-            return Response({"error_message":"올바른 username을 입력해주세요."})
+            return Response({"error_message":"올바른 username을 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
         elif get_user_model().objects.filter(username=username).exists():
-            return Response({"error_message":"이미 존재하는 username입니다."})
+            return Response({"error_message":"이미 존재하는 username입니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         # password 유효성 검사
         if not self.PASSWORD_PATTERN.match(password):
-            return Response({"error_message":"올바른 password.password_check를 입력해주세요."})
+            return Response({"error_message":"올바른 password.password_check를 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
         elif not password == password_check:
-            return Response({"error_message":"암호를 확인해주세요."})
+            return Response({"error_message":"암호를 확인해주세요."}, status=status.HTTP_400_BAD_REQUEST)
 
         # email 유효성 검사
         if not self.EMAIL_PATTERN.match(email):
-            return Response({"error_message":"올바른 email을 입력해주세요."})
+            return Response({"error_message":"올바른 email을 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
         elif get_user_model().objects.filter(email=email).exists():
-            return Response({"error_message":"이미 존재하는 email입니다.."})
+            return Response({"error_message":"이미 존재하는 email입니다.."}, status=status.HTTP_400_BAD_REQUEST)
         
 
         # DB에 유저 등록
