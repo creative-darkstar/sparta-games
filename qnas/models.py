@@ -10,3 +10,4 @@ class QnA(models.Model):
     title=models.CharField(max_length=100)
     content=models.TextField()
     category = models.CharField(max_length=1, choices=CATEGORY_CHOICES)
+    is_visible=models.BooleanField(default=True)
