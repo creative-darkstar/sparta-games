@@ -18,7 +18,7 @@ from .serializers import (
 )
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
-
+from django.db.models import Avg
 
 class GameListAPIView(APIView):
     """
@@ -103,8 +103,15 @@ class GameDetailAPIView(APIView):
         game=self.get_object(game_pk)
         game.view_cnt += 1  # 아티클 뷰수 조회
         game.save()  # 아티클 뷰수 조회
+        stars=list(game.stars.all().values('star'))
+        star_list=[d['star'] for d in stars]
+        star_score=round(sum(star_list)/len(star_list),1)
         serializer = GameDetailSerializer(game)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        #data에 serializer.data를 깊은 복사함
+        #serializer.data의 리턴값인 ReturnDict는 불변객체이다
+        data=serializer.data
+        data["star_score"] = star_score
+        return Response(data, status=status.HTTP_200_OK)
     
     """
     게임 수정

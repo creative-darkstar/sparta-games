@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from .models import Game,Comment
-
+from .models import Game,Comment,Star
+from django.db.models import Avg
 
 class GameListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,7 +16,6 @@ class GameCreateSerializer(serializers.ModelSerializer):
 
 
 class GameDetailSerializer(serializers.ModelSerializer):
-    # screenshot
     class Meta:
         model = Game
         fields = "__all__"
