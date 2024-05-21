@@ -1,5 +1,8 @@
+import os
 import zipfile
 
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -345,6 +348,32 @@ def game_register(request, game_pk):
     return Response({"message": f"등록을 성공했습니다. (게시물 id: {game_pk})"}, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+def game_dzip(request, game_pk):
+    row = Game.objects.get(pk=game_pk, register_state=0, is_visible=True)
+    zip_path = row.gamefile.url
+    zip_folder_path = "./media/zips/"
+    zip_name = os.path.basename(zip_path)
+
+    # FileSystemStorage 인스턴스 생성
+    # zip_folder_path에 대해 FILE_UPLOAD_PERMISSIONS = 0o644 권한 설정
+    # 파일을 어디서 가져오는지를 정하는 것으로 보면 됨
+    # 디폴트 값: '/media/' 에서 가져옴
+    fs = FileSystemStorage(zip_folder_path)
+
+    # FileResponse 인스턴스 생성
+    # FILE_UPLOAD_PERMISSIONS 권한을 가진 상태로 zip_folder_path 경로 내의 zip_name 파일에 'rb' 모드로 접근
+    # content_type 으로 zip 파일임을 명시
+    response = FileResponse(fs.open(zip_name, 'rb'), content_type='application/zip')
+
+    # 'Content-Disposition' value 값(HTTP Response 헤더값)을 설정
+    # 파일 이름을 zip_name 으로 다운로드 폴더에 받겠다는 뜻
+    response['Content-Disposition'] = f'attachment; filename="{zip_name}"'
+
+    # FileResponse 객체를 리턴
+    return response
+
+
 # 게임 등록 Api 테스트용 페이지 렌더링
 def game_detail_view(request, game_pk):
     # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
@@ -352,3 +381,9 @@ def game_detail_view(request, game_pk):
 
     # context에 폴더명 담아서 render
     return render(request, "games/game_detail.html", context={"gamepath": row.gamepath})
+
+
+# 게임 검수용 페이지 뷰
+def admin_list(request):
+    rows = Game.objects.filter(is_visible=True, register_state=0)
+    return render(request, "games/admin_list.html", context={})
