@@ -128,8 +128,6 @@ def change_password(request, user_pk):
 @api_view(["GET"])
 def my_games(request, user_pk):
     user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
-    my_games = user.games.all()
-    
     item_list = list()
     for item in my_games:
         tag_list = list(item.tag.values_list('name', flat=True))
@@ -149,8 +147,8 @@ def my_games(request, user_pk):
 @api_view(["GET"])
 def like_games(request, user_pk):
     user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
-    like_games = user.games_like.all()
-    
+    like_games = user.games_like.filter(is_visible=True, register_state=1)
+
     item_list = list()
     for item in like_games:
         tag_list = list(item.tag.values_list('name', flat=True))
