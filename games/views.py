@@ -349,6 +349,13 @@ def game_register(request, game_pk):
 
 
 @api_view(['POST'])
+def game_register_deny(request, game_pk):
+    row = get_object_or_404(Game, pk=game_pk, is_visible=True, register_state=0)
+    row.register_state = 2
+    row.save()
+    return Response({'message':'게임 등록 거부', 'game_pk':game_pk},status=status.HTTP_200_OK)
+
+@api_view(['POST'])
 def game_dzip(request, game_pk):
     row = Game.objects.get(pk=game_pk, register_state=0, is_visible=True)
     zip_path = row.gamefile.url
