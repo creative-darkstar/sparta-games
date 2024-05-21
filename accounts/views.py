@@ -60,3 +60,10 @@ def login_page(request):
     if request.method == 'POST':
         return redirect('games:game_test_page', 4)
     return render(request, 'accounts/login.html')
+
+def signup_page(request):
+    if request.method == 'POST':
+        # print(request.POST)
+        # pass
+        return redirect('accounts:login_page')
+    return render(request, 'accounts/signup.html')
