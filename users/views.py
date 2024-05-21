@@ -1,3 +1,4 @@
+import hashlib
 import re
 
 from django.contrib.auth import get_user_model
@@ -14,6 +15,12 @@ class ProfileAPIView(APIView):
 
     # 유효성 검사 정규식 패턴
     EMAIL_PATTERN = re.compile(r'^[a-zA-Z0-9+-_.]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$')
+
+    def calculate_file_hash(self, file):
+        hasher = hashlib.md5()
+        for chunk in file.chunks():
+            hasher.update(chunk)
+        return hasher.hexdigest()
 
     def get(self, request, user_pk):
         user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
@@ -46,9 +53,27 @@ class ProfileAPIView(APIView):
         elif get_user_model().objects.filter(email=email).exists():
             return Response({"error_message": "이미 존재하는 email입니다.."})
 
+        # 기존 이미지와 수정 이미지 동일 여부 검증
+        new_image = self.request.data.get('image', None)
+        if new_image:
+            new_image_hash = self.calculate_file_hash(new_image)
+            
+            existing_image = user.image
+            if existing_image:
+                existing_image_hash = self.calculate_file_hash(existing_image)
+            else:
+                existing_image = None
+
+            if new_image_hash != existing_image_hash:
+                user.image = new_image
+        
         user.email = email
-        user.image = self.request.data.get('image', user.image)
         user.save()
+
+
+        # user.email = email
+        # user.image = self.request.data.get('image', user.image)
+        # user.save()
 
         return Response(
             {
