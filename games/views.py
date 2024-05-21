@@ -357,7 +357,7 @@ def game_register_deny(request, game_pk):
 
 @api_view(['POST'])
 def game_dzip(request, game_pk):
-    row = Game.objects.get(pk=game_pk, register_state=0, is_visible=True)
+    row = get_object_or_404(Game, pk=game_pk, register_state=0, is_visible=True)
     zip_path = row.gamefile.url
     zip_folder_path = "./media/zips/"
     zip_name = os.path.basename(zip_path)
