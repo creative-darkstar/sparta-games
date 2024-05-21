@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+    
+            const response = await fetch('{% url 'accounts:login' %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+    
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', data.refresh);
+                window.location.href = "{% url 'games:game_test_page' 4 %}";
+            } else {
+                alert('Login failed');
+            }
+        }
+    </script>
+</head>
+<body>
+    <form action={% url 'accounts:login' %} method='POST' onsubmit="handleLogin(event)">
+        {% csrf_token %}
+
+        <label for="username">ID</label>
+        <input type="text" name="username" id='username'>
+        
+        <label for="password">PW</label>
+        <input type="password" name="password" id="password">
+        
+        
+        <button type="submit">로그인</button>
+    </form>
+</body>
+</html>
