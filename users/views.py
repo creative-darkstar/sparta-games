@@ -49,9 +49,9 @@ class ProfileAPIView(APIView):
         # 이메일 검증
         email = self.request.data.get('email', user.email)
         if not self.EMAIL_PATTERN.match(email):
-            return Response({"error_message": "올바른 email을 입력해주세요."})
+            return Response({"error_message": "올바른 email을 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
         elif get_user_model().objects.filter(email=email).exists():
-            return Response({"error_message": "이미 존재하는 email입니다.."})
+            return Response({"error_message": "이미 존재하는 email입니다.."}, status=status.HTTP_400_BAD_REQUEST)
 
         # 기존 이미지와 수정 이미지 동일 여부 검증
         new_image = self.request.data.get('image', None)
@@ -69,11 +69,6 @@ class ProfileAPIView(APIView):
         
         user.email = email
         user.save()
-
-
-        # user.email = email
-        # user.image = self.request.data.get('image', user.image)
-        # user.save()
 
         return Response(
             {
@@ -136,9 +131,9 @@ def change_password(request, user_pk):
 
     # new password 유효성 검사
     if not PASSWORD_PATTERN.match(new_password):
-        return Response({"error_message": "올바른 password와 password_check를 입력해주세요."})
+        return Response({"error_message": "올바른 password와 password_check를 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
     elif not new_password == new_password_check:
-        return Response({"error_message": "동일한 password와 password_check를 입력해주세요."})
+        return Response({"error_message": "동일한 password와 password_check를 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
 
     # 유저 비밀번호가 일치한다면
     user.set_password(new_password)
