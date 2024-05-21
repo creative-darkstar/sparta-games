@@ -3,7 +3,7 @@ import zipfile
 
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse, FileResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404,redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -44,7 +44,7 @@ class GameListAPIView(APIView):
     """
 
     def get(self, request):
-        rows = Game.objects.filter(is_visible=True)
+        rows = Game.objects.filter(is_visible=True,register_state=1)
 
         tag_q = request.query_params.get('tag-q')
         game_q = request.query_params.get('game-q')
@@ -283,7 +283,7 @@ class CommentDetailAPIView(APIView):
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def game_register(request, game_pk):
     # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
     row = get_object_or_404(
@@ -345,8 +345,8 @@ def game_register(request, game_pk):
     row.save()
 
     # 알맞은 HTTP Response 리턴
-    return Response({"message": f"등록을 성공했습니다. (게시물 id: {game_pk})"}, status=status.HTTP_200_OK)
-
+    # return Response({"message": f"등록을 성공했습니다. (게시물 id: {game_pk})"}, status=status.HTTP_200_OK)
+    return redirect("games:admin_list")
 
 @api_view(['POST'])
 def game_register_deny(request, game_pk):
@@ -393,4 +393,4 @@ def game_detail_view(request, game_pk):
 # 게임 검수용 페이지 뷰
 def admin_list(request):
     rows = Game.objects.filter(is_visible=True, register_state=0)
-    return render(request, "games/admin_list.html", context={})
+    return render(request, "games/admin_list.html", context={"rows":rows})

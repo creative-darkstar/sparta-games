@@ -5,15 +5,50 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <title>검수 페이지</title>
 </head>
-<body>
-    <div>
-        <label>첨부 파일</label>
-        	<form action="{% url 'games:game_dzip' '4' %}" method="POST">
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">번호</th>
+        <th scope="col">제목/유저</th>
+        <th scope="col">다운로드</th>
+        <th scope="col">생성일</th>
+        <th scope="col">승인여부</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <form action="{% url 'games:game_dzip' row.pk %}" method="POST">
             {% csrf_token %}
-        	<button type="submit">다운로드</button>
-    		</form>
-    </div>
+            <th scope="row">{{row.pk}}</th>
+            <td><a href="">{{row.title}} / {{row.maker.username}}</a></td>
+            <td><button type="submit">다운로드</button></td>
+            <td><span>{{row.updated_at}}</span></td>
+            <td>
+                <a href="javascript:void(0)" onclick="javascript:sendPost(row.pk)" class="btn btn-secondary">승인</a>
+                <button>거부</button>
+            </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+    function sendPost(pk) {
+        alert("승인되었습니다.");
+        let f = document.createElement('form');
+	    f.setAttribute('method', 'post');
+	    f.setAttribute('action', "/games/api/list/pk/register/");
+	    document.body.appendChild(f);
+	    f.submit();
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
 </body>
 </html>
