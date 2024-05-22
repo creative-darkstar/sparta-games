@@ -32,7 +32,7 @@
                     <div class="d-flex">
                         <select class="btn btn-secondary dropdown-toggle text-left" type="button" aria-expanded="false"
                                 aria-label="Default select example" id="search_option">
-                            <option selected>검색 옵션</option>
+                            <option selected value="">검색 옵션</option>
                             <option value="tag-q">태그</option>
                             <option value="game-q">게임</option>
                             <option value="maker-q">작성자</option>
@@ -42,9 +42,13 @@
                             function Search() {
                                 let search_option_tag = document.getElementById('search_option');
                                 let search_input_tag = document.getElementById('search_input');
-                                console.log(search_option_tag.value);
-                                console.log(search_input_tag.value);
-                                window.location.href = "{% url 'test_search_view' %}" + `?${search_option_tag.value}=${search_input_tag.value}`;
+
+                                if (!search_option_tag.value) {
+                                    window.location.href = "{% url 'test_search_view' %}"
+                                }
+                                else {
+                                    window.location.href = "{% url 'test_search_view' %}" + `?${search_option_tag.value}=${search_input_tag.value}`;
+                                }
                             }
                         </script>
                     </div>

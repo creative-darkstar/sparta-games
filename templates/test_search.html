@@ -1,11 +1,14 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-    <p id="temp"></p>
+    <div class="container">
+        <div class="d-grid gap-2 d-md-flex justify-content-md-between" id="game_list">
+        </div>
+    </div>
     <script>
         window.onload = async function PageLoad() {
             const params = window.location.search;
-            console.log(params);
 
             const response = await fetch('{% url 'games:game_list' %}' + params, {
                 method: 'GET',
@@ -14,33 +17,43 @@
                 },
             });
 
-
             const data = await response.json();
-            for (let row in data) {
-                console.log(row);
+
+            for (let row of data) {
+                const game_list_div = document.getElementById('game_list');
+
+                const card_div = document.createElement('div');
+                card_div.setAttribute("class", "card");
+                card_div.setAttribute("style", "width: 18rem;");
+
+                const card_img = document.createElement('img');
+                card_img.setAttribute("class", "card-img-top");
+                card_img.setAttribute("width", "100%");
+                card_img.setAttribute("height", "180");
+                if (!row.thumbnail) {
+                    card_img.setAttribute("src", "{% static 'image/image_cap.svg' %}");
+                } else {
+                    card_img.setAttribute("src", row.thumbnail);
+                }
+
+                const card_body_div = document.createElement('div');
+                card_body_div.setAttribute("class", "card-body");
+                // card_body_div.setAttribute("class", "card-img-overlay");
+
+                const card_title = document.createElement('h5');
+                card_title.setAttribute("class", "card-title");
+                card_title.textContent = row.title;
+
+                const card_content = document.createElement('p');
+                card_content.setAttribute("class", "card-text");
+                card_content.innerHTML = `maker: ${row.maker}<br>평점: ${row.star}`;
+
+                card_body_div.appendChild(card_title);
+                card_body_div.appendChild(card_content);
+                card_div.appendChild(card_img);
+                card_div.appendChild(card_body_div);
+                game_list_div.appendChild(card_div);
             }
-
-            {% comment %}
-            const getData = () => {
-                response.json().then((rows) => {
-                    console.log(rows);
-                    for (let row in rows) {
-                        console.log(row);
-                        console.log(typeof(row));
-                        console.log(row[1], row[2], row[3], row[4]);
-                    }
-                    {#const p_tag = document.getElementById('temp');#}
-                    {#console.log(typeof(row.title));#}
-                    {#p_tag.textContent += row.title;#}
-                });
-            };
-
-            getData();
-            {% endcomment %}
-
-
-            {#const p_tag = document.getElementById('temp')#}
-            {#p_tag.textContent = await response.#}
         }
     </script>
 {% endblock %}

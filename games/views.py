@@ -44,20 +44,24 @@ class GameListAPIView(APIView):
     """
 
     def get(self, request):
-        rows = Game.objects.filter(is_visible=True,register_state=1)
-
         tag_q = request.query_params.get('tag-q')
         game_q = request.query_params.get('game-q')
         maker_q = request.query_params.get('maker-q')
         order = request.query_params.get('order')
 
         if tag_q:
-            rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True)
+            rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True, register_state=1)
         elif game_q:
-            rows = rows.filter(title__icontains=game_q)
+            rows = Game.objects.filter(
+                is_visible=True,
+                register_state=1,
+                title__icontains=game_q
+            )
         elif maker_q:
             rows = get_user_model().objects.get(
-                username__icontains=maker_q).games.filter(is_visible=True)
+                username__icontains=maker_q).games.filter(is_visible=True, register_state=1)
+        else:
+            rows = Game.objects.filter(is_visible=True, register_state=1)
 
         rows = rows.annotate(star=Avg('stars__star'))
 
