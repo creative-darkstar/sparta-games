@@ -283,7 +283,7 @@ class CommentDetailAPIView(APIView):
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST','GET'])
+@api_view(['POST'])
 def game_register(request, game_pk):
     # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
     row = get_object_or_404(
@@ -353,7 +353,7 @@ def game_register_deny(request, game_pk):
     row = get_object_or_404(Game, pk=game_pk, is_visible=True, register_state=0)
     row.register_state = 2
     row.save()
-    return Response({'message':'게임 등록 거부', 'game_pk':game_pk},status=status.HTTP_200_OK)
+    return redirect("games:admin_list")
 
 @api_view(['POST'])
 def game_dzip(request, game_pk):
