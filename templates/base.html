@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Sparta Games</title>
+</head>
+<body>
+<header class="p-3 mb-3 border-bottom">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <div class="d-flex">
+                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+                    <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                        <use xlink:href="#bootstrap"></use>
+                    </svg>
+                </a>
+
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="#" class="nav-link px-2 link-secondary">Overview</a></li>
+                    <li><a href="#" class="nav-link px-2 link-body-emphasis">Inventory</a></li>
+                    <li><a href="#" class="nav-link px-2 link-body-emphasis">Customers</a></li>
+                    <li><a href="#" class="nav-link px-2 link-body-emphasis">Products</a></li>
+                </ul>
+            </div>
+            <div class="d-flex">
+                <form action="{% url 'games:game_list' %}" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0" role="search">
+                    <div class="d-flex">
+                        <select class="btn btn-secondary dropdown-toggle text-left" type="button" aria-expanded="false"
+                                aria-label="Default select example" id="select">
+                            <option selected>검색 옵션</option>
+                            <option value="tag-q">태그</option>
+                            <option value="game-q">게임</option>
+                            <option value="maker-q">작성자</option>
+                        </select>
+                        <input type="search" class="form-control" placeholder="검색" aria-label="Search" name="what" onsubmit="GetSearchKey()">
+                        <script>
+                            function GetSearchKey() {
+                                let select_tag = document.getElementById('select');
+                                console.log(select_tag.value);
+                            }
+                        </script>
+                    </div>
+                </form>
+
+                <a class="pt-1" href="#" aria-expanded="false">
+                    <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+</body>
+</html>

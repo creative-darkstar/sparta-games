@@ -390,6 +390,12 @@ def game_detail_view(request, game_pk):
     return render(request, "games/game_detail.html", context={"gamepath": row.gamepath})
 
 
+# 테스트용 base.html 렌더링
+def test_base_view(request):
+    # context에 폴더명 담아서 render
+    return render(request, "base.html")
+
+
 # 게임 검수용 페이지 뷰
 def admin_list(request):
     rows = Game.objects.filter(is_visible=True, register_state=0)

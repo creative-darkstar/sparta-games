@@ -18,6 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from games import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('games/', include('games.urls')),
     path('qnas/', include('qnas.urls')),
+    path('', views.test_base_view, name='test_base_view'),
 ]
 
 if settings.DEBUG:
