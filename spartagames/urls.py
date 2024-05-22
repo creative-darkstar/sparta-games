@@ -27,6 +27,7 @@ urlpatterns = [
     path('games/', include('games.urls')),
     path('qnas/', include('qnas.urls')),
     path('', views.test_base_view, name='test_base_view'),
+    path('search/', views.test_search_view, name='test_search_view'),
 ]
 
 if settings.DEBUG:

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <p id="temp"></p>
+    <script>
+        window.onload = async function PageLoad() {
+            const params = window.location.search;
+            console.log(params);
+
+            const response = await fetch('{% url 'games:game_list' %}' + params, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+
+            const data = await response.json();
+            for (let row in data) {
+                console.log(row);
+            }
+
+            {% comment %}
+            const getData = () => {
+                response.json().then((rows) => {
+                    console.log(rows);
+                    for (let row in rows) {
+                        console.log(row);
+                        console.log(typeof(row));
+                        console.log(row[1], row[2], row[3], row[4]);
+                    }
+                    {#const p_tag = document.getElementById('temp');#}
+                    {#console.log(typeof(row.title));#}
+                    {#p_tag.textContent += row.title;#}
+                });
+            };
+
+            getData();
+            {% endcomment %}
+
+
+            {#const p_tag = document.getElementById('temp')#}
+            {#p_tag.textContent = await response.#}
+        }
+    </script>
+{% endblock %}

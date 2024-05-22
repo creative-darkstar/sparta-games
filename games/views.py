@@ -392,8 +392,14 @@ def game_detail_view(request, game_pk):
 
 # 테스트용 base.html 렌더링
 def test_base_view(request):
-    # context에 폴더명 담아서 render
     return render(request, "base.html")
+
+
+# 테스트용 base.html 렌더링
+def test_search_view(request):
+    # 쿼리스트링을 그대로 가져다가 '게임 목록 api' 호출
+    # 호출해서 리턴받은 리스트를 context에 담아갖고 render
+    return render(request, "test_search.html")
 
 
 # 게임 검수용 페이지 뷰
