@@ -8,6 +8,31 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>Sparta Games</title>
+    <script>
+        async function tokenRefresh() {
+            const refresh = localStorage.getItem('refresh_token');
+            const response = await fetch('{% url 'accounts:refresh_token' %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    refresh
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', data.refresh);
+            } else {
+                alert('토큰이 만료되었습니다. 로그인 페이지로 이동합니다.');
+                window.location.href = "{% url 'accounts:login_page' %}";
+            }
+        }
+
+        window.onload = tokenRefresh;
+    </script>
 </head>
 <body>
 <header class="p-3 mb-3 border-bottom">
@@ -28,7 +53,8 @@
                 </ul>
             </div>
             <div class="d-flex">
-                <form action="javascript:Search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0" role="search">
+                <form action="javascript:Search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0"
+                      role="search">
                     <div class="d-flex">
                         <select class="btn btn-secondary dropdown-toggle text-left" type="button" aria-expanded="false"
                                 aria-label="Default select example" id="search_option">
@@ -37,20 +63,8 @@
                             <option value="game-q">게임</option>
                             <option value="maker-q">작성자</option>
                         </select>
-                        <input type="search" class="form-control" placeholder="검색" aria-label="Search" id="search_input">
-                        <script>
-                            function Search() {
-                                let search_option_tag = document.getElementById('search_option');
-                                let search_input_tag = document.getElementById('search_input');
-
-                                if (!search_option_tag.value) {
-                                    window.location.href = "{% url 'test_search_view' %}"
-                                }
-                                else {
-                                    window.location.href = "{% url 'test_search_view' %}" + `?${search_option_tag.value}=${search_input_tag.value}`;
-                                }
-                            }
-                        </script>
+                        <input type="search" class="form-control" placeholder="검색" aria-label="Search"
+                               id="search_input">
                     </div>
                 </form>
 
@@ -63,6 +77,18 @@
 </header>
 {% block content %}
 {% endblock %}
+<script>
+    function Search() {
+        let search_option_tag = document.getElementById('search_option');
+        let search_input_tag = document.getElementById('search_input');
+
+        if (!search_option_tag.value) {
+            window.location.href = "{% url 'test_search_view' %}"
+        } else {
+            window.location.href = "{% url 'test_search_view' %}" + `?${search_option_tag.value}=${search_input_tag.value}`;
+        }
+    }
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
