@@ -47,10 +47,10 @@
                     <a class="pt-1" href="#" aria-expanded="false">
                         <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
                     </a>
-                    <span>{{ request.user.username }}</span>
+                    <span id="navbar_login_userinfo_username"></span>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="logout()">로그아웃</button>
                 </div>
-                <div id="navbar_logout_userinfo" style="display: block; align-content: center">
+                <div id="navbar_logout_userinfo" style="display: none; align-content: center">
                     <a class="btn btn-primary btn-sm" href={% url 'accounts:login_page' %}>로그인</a>
                     <a class="btn btn-info btn-sm" href={% url 'accounts:signup_page' %}>회원가입</a>
                 </div>
@@ -98,6 +98,7 @@
         if (response.ok) {
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
+            localStorage.removeItem('username');
             window.location.href = "{% url 'test_base_view' %}";
         } else {
             alert('로그인 정보가 없습니다. 로그인 페이지로 이동합니다.');
@@ -142,20 +143,19 @@
 
     function isLogin() {
         const refresh = localStorage.getItem('refresh_token');
+        const username = localStorage.getItem('username');
         const navbar_login_userinfo = document.getElementById('navbar_login_userinfo');
         const navbar_logout_userinfo = document.getElementById('navbar_logout_userinfo');
+        const navbar_login_userinfo_username = document.getElementById("navbar_login_userinfo_username");
 
         if (refresh) {
-            console.log("islogin 함수 실행되고 있고 refresh 있음");
             tokenRefresh();
-            const refresh = localStorage.getItem('refresh_token');
-            console.log(refresh.user_id)
-            navbar_login_userinfo.style.display = 'block'
-            navbar_logout_userinfo.style.display = 'none'
+            navbar_login_userinfo.style.display = 'block';
+            navbar_login_userinfo_username.innerText = username;
+            navbar_logout_userinfo.style.display = 'none';
         } else {
-            console.log("islogin 함수 실행되고 있고 refresh 없음");
-            navbar_login_userinfo.style.display = 'none'
-            navbar_logout_userinfo.style.display = 'block'
+            navbar_login_userinfo.style.display = 'none';
+            navbar_logout_userinfo.style.display = 'block';
         }
     }
 
