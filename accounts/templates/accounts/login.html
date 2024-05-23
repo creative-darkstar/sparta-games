@@ -23,7 +23,7 @@
             if (response.ok) {
                 localStorage.setItem('access_token', data.access);
                 localStorage.setItem('refresh_token', data.refresh);
-                window.location.href = "{% url 'games:game_test_page' 4 %}";
+                window.location.href = "{% url 'test_base_view' %}";
             } else {
                 alert('Login failed');
             }
