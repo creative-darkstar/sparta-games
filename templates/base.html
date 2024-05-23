@@ -71,6 +71,7 @@
                 <a class="pt-1" href="#" aria-expanded="false">
                     <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
                 </a>
+                <span>{{ request.user.username }}</span>
             </div>
         </div>
     </div>
@@ -78,6 +79,31 @@
 {% block content %}
 {% endblock %}
 <script>
+    async function temp(url, method, is_token, body = null) {
+        await tokenRefresh();
+
+        const headers = {}
+
+        if (is_token) {
+            const access = localStorage.getItem('access_token');
+            headers['Authorization'] = `Bearer ${access}`
+        }
+
+        const data = {
+            method: method,
+            headers: headers,
+        }
+
+        if (body) {
+            data["body"] = JSON.stringify(body)
+        }
+
+        console.log(url);
+        const response = await fetch(`${url}`, data);
+
+        return response.json();
+    }
+
     function Search() {
         let search_option_tag = document.getElementById('search_option');
         let search_input_tag = document.getElementById('search_input');
