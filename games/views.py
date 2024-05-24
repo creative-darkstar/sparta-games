@@ -90,11 +90,11 @@ class GameListAPIView(APIView):
         # Game model에 우선 저장
         game = Game.objects.create(
             title=request.data.get('title'),
-            thumbnail=request.data.get('thumbnail'),
+            thumbnail=request.FILES.get('thumbnail'),
             youtube_url=request.data.get('youtube_url'),
             maker=request.user,
             content=request.data.get('content'),
-            gamefile=request.data.get('gamefile'),
+            gamefile=request.FILES.get('gamefile'),
         )
 
         # 태그 저장
@@ -105,12 +105,12 @@ class GameListAPIView(APIView):
 
         # 이후 Screenshot model에 저장
         screenshots = list()
-        for item in request.data.getlist("screenshots"):
+        for item in request.FILES.getlist("screenshots"):
             Screenshot.objects.create(
                 src=item,
                 game=game
             )
-            screenshots.append(item.name)
+            screenshots.append(item.src)
 
         # 확인용 response
         return Response(
@@ -152,7 +152,7 @@ class GameDetailAPIView(APIView):
         stars = list(game.stars.all().values('star'))
         star_list = [d['star'] for d in stars]
         if len(star_list) == 0:
-            star_score = 0
+            star_score = None
         else:
             star_score = round(sum(star_list)/len(star_list), 1)
         serializer = GameDetailSerializer(game)
@@ -433,6 +433,11 @@ def game_detail_view(request, game_pk):
 
     }
     return render(request, "games/game_detail.html", context)
+
+
+def game_create_view(request):
+    return render(request, "games/game_create.html")
+
 
 # 테스트용 base.html 렌더링
 def test_base_view(request):

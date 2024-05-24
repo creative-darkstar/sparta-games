@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="d-grid gap-2 d-md-flex justify-content-center">
+        <div>
+            <form method="POST" enctype="multipart/form-data" id="game_create_form">
+                {% csrf_token %}
+                <input type="hidden" name="csrfmiddlewaretoken"
+                       value="cWf11BWg0spaijpbvyb2Fk7Uk6WeiH0amxYehBscdqSkTR1ineUswqygEiwWXEoG">
+                <div>
+                    <label for="id_title">제목: </label>
+                    <input type="text" name="title" maxlength="50" required="" id="id_title">
+                </div>
+                <div>
+                    <label for="id_content">게임 설명: </label>
+                    <textarea name="content" cols="40" rows="10" required="" id="id_content"></textarea>
+                </div>
+                <div>
+                    <label for="id_gamefile">게임 파일: </label>
+                    <input type="file" name="gamefile" accept="application/zip" id="id_gamefile">
+                </div>
+                {#                    태그#}
+                <div>
+                    <label for="id_thumbnail">썸네일: </label>
+                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
+                </div>
+                <div>
+                    <label for="id_youtube_link">유튜브 링크: </label>
+                    <input type="text" name="youtube_link" maxlength="50" required="" id="id_youtube_link">
+                </div>
+                <div>
+                    <label for="id_screenshots">스크린샷: </label>
+                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-primary" onclick="GameCreate()">완료</button>
+                </div>
+            </form>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a class="btn btn-secondary" href={% url 'test_main_view' %}>등록 취소</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function GameCreate() {
+            const url = '{% url 'games:game_list' %}'
+            const form_tag = document.getElementById('game_create_form');
+            const form_data = new FormData(form_tag);
+
+            const data = await aSend({
+                url: url,
+                method: 'POST',
+                is_token: true,
+                body: form_data
+            });
+
+            console.log(data);
+        }
+    </script>
+{% endblock %}

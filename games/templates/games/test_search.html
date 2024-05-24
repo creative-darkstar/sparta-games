@@ -3,7 +3,7 @@
 
 {% block content %}
     <div class="container">
-        <div class="d-grid gap-2 d-md-flex justify-content-md-between" id="game_list">
+        <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list">
         </div>
     </div>
     <script>
@@ -11,7 +11,7 @@
             const params = window.location.search;
             const url = '{% url 'games:game_list' %}' + params
 
-            const test_r = await temp({
+            const test_r = await aSend({
                 url: url,
                 method: 'GET',
                 is_token: false
@@ -42,9 +42,15 @@
                 card_title.setAttribute("class", "card-title");
                 card_title.textContent = row.title;
 
+                let star = row.star;
+
+                if (star == null) {
+                    star = "평점없음";
+                }
+
                 const card_content = document.createElement('p');
                 card_content.setAttribute("class", "card-text");
-                card_content.innerHTML = `maker: ${row.maker}<br>평점: ${row.star}`;
+                card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
 
                 card_body_div.appendChild(card_title);
                 card_body_div.appendChild(card_content);
