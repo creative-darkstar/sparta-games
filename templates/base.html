@@ -112,9 +112,7 @@
     }
 
     async function aSend({url, method, is_token, body = null}) {
-        const headers = {
-            'Content-Type': 'application/json'
-        };
+        const headers = {};
 
         if (is_token) {
             await tokenRefresh();
