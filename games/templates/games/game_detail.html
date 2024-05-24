@@ -1,18 +1,64 @@
-<!doctype html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <div style="position: relative; width: 100%; padding-bottom: 56.25%;">
-        <iframe
-        id="inlineFrameExample"
-        title="Inline Frame Example"
-        style="position: absolute; width: 100%; height: 100%;"
-        src="{{ gamepath }}/index.html">
-    </iframe>
+{% extends "base.html" %} {% block content %} {% load static %}
+<div class="d-flex align-items-center justify-content-center">
+  <h1>{{ title }}</h1>
 </div>
-</body>
-</html>
+
+{% comment %}
+<div style="position: relative; width: 100%; padding-bottom: 56.25%">
+  <iframe
+    id="inlineFrameExample"
+    title="Inline Frame Example"
+    style="position: absolute; width: 100%; height: 100%"
+    src="{{ gamepath }}/index.html"
+  >
+  </iframe>
+</div>
+{% endcomment %}
+
+<div>
+  <span>평점 : {{ star_score }}</span>
+  <span>제작자 : {{ maker_name }}</span>
+  <span>업로드 일시 : {{ created_at }}</span>
+  <br />
+  <span
+    >태그 : {% for item in tag %}
+    <span>{{ item.name }}</span>
+    {% endfor %}
+  </span>
+</div>
+
+<div>
+    <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/_2MtnLyBdbk"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  ></iframe>
+</div>
+
+
+{% comment %} https://youtu.be/_2MtnLyBdbk
+ {% endcomment %}
+
+
+<div>{{ content }}</div>
+
+<div>
+  {% for comment in comments %}
+  {% if comment.src %}
+  <img src={{ comment.src }} alt="" />
+  {% else %} <img src={% static 'image/user.png' %} alt="" style='width: 30px;'>
+  {% endif %}
+
+  <span>작성자 : {{ comment.author }}</span>
+  <span>댓글 내용 : {{ comment.content }}</span>
+  <span>작성 일시 : {{ comment.created_at }}</span>
+  <br />
+  {% endfor %}
+</div>
+
+{% endblock content %}

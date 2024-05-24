@@ -21,6 +21,7 @@ from .serializers import (
     GameDetailSerializer,
     CommentSerializer,
     ScreenshotSerializer,
+    TagSerailizer,
 )
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
@@ -162,8 +163,12 @@ class GameDetailAPIView(APIView):
         screenshots = Screenshot.objects.filter(game_id=game_pk)
         screenshot_serializer = ScreenshotSerializer(screenshots, many=True)
 
+        tags = game.tag.all()
+        tag_serializer = TagSerailizer(tags, many=True)
+
         data["star_score"] = star_score
         data["screenshot"] = screenshot_serializer.data
+        data['tag'] = tag_serializer.data
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -417,12 +422,15 @@ def game_detail_view(request, game_pk):
     context = {
         "title": game_data['title'],
         "star_score": game_data['star_score'],
-        "maker": game_data['maker'],
+        "maker_name": game_data['maker_name'],
         "created_at": game_data['created_at'],
         "tag": game_data['tag'],
         "youtube_url": game_data['youtube_url'],
         "screenshot": game_data['screenshot'],
         "comments": comment_data,
+        'gamepath':game_data['gamepath'],
+        'content': game_data['content'],
+
     }
     return render(request, "games/game_detail.html", context)
 
