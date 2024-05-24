@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <title>Sparta Games</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 <body>
 <header class="p-3 mb-3 border-bottom">
@@ -108,7 +109,6 @@
     }
 
     async function temp({url, method, is_token, body = null}) {
-        console.log("나 temp 실행중");
         const headers = {};
 
         if (is_token) {
@@ -126,7 +126,6 @@
             data["body"] = JSON.stringify(body)
         }
 
-        console.log(url);
         const response = await fetch(`${url}`, data);
 
         return response.json();

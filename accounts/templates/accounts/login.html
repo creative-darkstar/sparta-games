@@ -24,7 +24,7 @@
                 localStorage.setItem('access_token', data.jwt_token.access);
                 localStorage.setItem('refresh_token', data.jwt_token.refresh);
                 localStorage.setItem('username', username);
-                window.location.href = "{% url 'test_base_view' %}";
+                window.location.href = "{% url 'test_main_view' %}";
             } else {
                 alert('Login failed');
             }
