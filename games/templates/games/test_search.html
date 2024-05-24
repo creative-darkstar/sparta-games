@@ -7,7 +7,7 @@
         </div>
     </div>
     <script>
-        window.onload = async function PageLoad() {
+        window.addEventListener("load", async function PageLoad() {
             const params = window.location.search;
             const url = '{% url 'games:game_list' %}' + params
 
@@ -17,6 +17,7 @@
                 is_token: false
             });
 
+            console.log("test_r: ", test_r);
             for (let row of test_r) {
                 const game_list_div = document.getElementById('game_list');
 
@@ -52,6 +53,6 @@
                 card_div.appendChild(card_body_div);
                 game_list_div.appendChild(card_div);
             }
-        }
+        });
     </script>
 {% endblock %}

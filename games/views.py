@@ -399,11 +399,15 @@ def test_base_view(request):
     return render(request, "base.html")
 
 
-# 테스트용 base.html 렌더링
+# 테스트용 메인 페이지 렌더링
+def test_main_view(request):
+    return render(request, "games/test_main.html")
+
+
+# 테스트용 검색 페이지 렌더링
 def test_search_view(request):
     # 쿼리스트링을 그대로 가져다가 '게임 목록 api' 호출
-    # 호출해서 리턴받은 리스트를 context에 담아갖고 render
-    return render(request, "test_search.html")
+    return render(request, "games/test_search.html")
 
 
 # 게임 검수용 페이지 뷰

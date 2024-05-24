@@ -26,7 +26,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('games/', include('games.urls')),
     path('qnas/', include('qnas.urls')),
-    path('', views.test_base_view, name='test_base_view'),
+    path('', views.test_main_view, name='test_main_view'),
     path('search/', views.test_search_view, name='test_search_view'),
 ]
 
