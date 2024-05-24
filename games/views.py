@@ -44,20 +44,24 @@ class GameListAPIView(APIView):
     """
 
     def get(self, request):
-        rows = Game.objects.filter(is_visible=True,register_state=1)
-
         tag_q = request.query_params.get('tag-q')
         game_q = request.query_params.get('game-q')
         maker_q = request.query_params.get('maker-q')
         order = request.query_params.get('order')
 
         if tag_q:
-            rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True)
+            rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True, register_state=1)
         elif game_q:
-            rows = rows.filter(title__icontains=game_q)
+            rows = Game.objects.filter(
+                is_visible=True,
+                register_state=1,
+                title__icontains=game_q
+            )
         elif maker_q:
             rows = get_user_model().objects.get(
-                username__icontains=maker_q).games.filter(is_visible=True)
+                username__icontains=maker_q).games.filter(is_visible=True, register_state=1)
+        else:
+            rows = Game.objects.filter(is_visible=True, register_state=1)
 
         rows = rows.annotate(star=Avg('stars__star'))
 
@@ -388,6 +392,22 @@ def game_detail_view(request, game_pk):
 
     # context에 폴더명 담아서 render
     return render(request, "games/game_detail.html", context={"gamepath": row.gamepath})
+
+
+# 테스트용 base.html 렌더링
+def test_base_view(request):
+    return render(request, "base.html")
+
+
+# 테스트용 메인 페이지 렌더링
+def test_main_view(request):
+    return render(request, "games/test_main.html")
+
+
+# 테스트용 검색 페이지 렌더링
+def test_search_view(request):
+    # 쿼리스트링을 그대로 가져다가 '게임 목록 api' 호출
+    return render(request, "games/test_search.html")
 
 
 # 게임 검수용 페이지 뷰

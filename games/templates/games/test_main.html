@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <p style="fon">태그: fps</p>
+        <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list_tag1">
+        </div>
+    </div>
+    <div class="container">
+        <p style="fon">태그: rpg</p>
+        <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list_tag2">
+        </div>
+    </div>
+    <div class="container">
+        <p style="fon">모든 게임</p>
+        <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list_all">
+        </div>
+        <button id="more" >더보기</button>
+        <a href="{% url "test_search_view" %}"><button id="all_list" style="display:none">전체보기</button></a>
+    </div>
+    <script>
+        window.addEventListener("load", async function PageLoad() {
+            const param_tag1 = "?tag-q=fps";
+            const param_tag2 = "?tag-q=rpg";
+
+            const url_game_list_tag1 = '{% url 'games:game_list' %}' + param_tag1
+            const url_game_list_tag2 = '{% url 'games:game_list' %}' + param_tag2
+            const url_game_list_all = '{% url 'games:game_list' %}'
+
+            const game_list_tag1 = await temp({
+                url: url_game_list_tag1,
+                method: 'GET',
+                is_token: false
+            });
+
+            const game_list_tag2 = await temp({
+                url: url_game_list_tag2,
+                method: 'GET',
+                is_token: false
+            });
+
+            const game_list_all = await temp({
+                url: url_game_list_all,
+                method: 'GET',
+                is_token: false
+            });
+
+            const data = {
+                game_list_tag1: game_list_tag1,
+                game_list_tag2: game_list_tag2,
+            }
+
+            for (let key of Object.keys(data)) {
+                for (let [i,row] of data[key].entries()) {
+                    if (i > 3){
+                        break;
+                    }
+                    const game_list_div = document.getElementById(key);
+
+                    const card_div = document.createElement('div');
+                    card_div.setAttribute("class", "card");
+                    card_div.setAttribute("style", "width: 18rem;");
+
+                    const card_img = document.createElement('img');
+                    card_img.setAttribute("class", "card-img-top");
+                    card_img.setAttribute("width", "100%");
+                    card_img.setAttribute("height", "180");
+                    if (!row.thumbnail) {
+                        card_img.setAttribute("src", "{% static 'image/image_cap.svg' %}");
+                    } else {
+                        card_img.setAttribute("src", row.thumbnail);
+                    }
+
+                    const card_body_div = document.createElement('div');
+                    card_body_div.setAttribute("class", "card-body");
+                    // card_body_div.setAttribute("class", "card-img-overlay");
+
+                    const card_title = document.createElement('h5');
+                    card_title.setAttribute("class", "card-title");
+                    card_title.textContent = row.title;
+                    
+                    star=row.star;
+                    if (star == null){
+                        star = "평점없음";
+                    }
+
+                    const card_content = document.createElement('p');
+                    card_content.setAttribute("class", "card-text");
+                    card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
+
+                    card_body_div.appendChild(card_title);
+                    card_body_div.appendChild(card_content);
+                    card_div.appendChild(card_img);
+                    card_div.appendChild(card_body_div);
+                    game_list_div.appendChild(card_div);
+                }
+            }
+            const key = "game_list_all"
+            let limit_num = 19
+            for (let [i,row] of game_list_all.entries()) {
+                if (i > limit_num){
+                    break;
+                }
+                const game_list_div = document.getElementById(key);
+
+                const card_div = document.createElement('div');
+                card_div.setAttribute("class", "my_card card");
+                card_div.setAttribute("style", "width: 18rem; display: none;");
+
+                const card_img = document.createElement('img');
+                card_img.setAttribute("class", "card-img-top");
+                card_img.setAttribute("width", "100%");
+                card_img.setAttribute("height", "180");
+                if (!row.thumbnail) {
+                    card_img.setAttribute("src", "{% static 'image/image_cap.svg' %}");
+                } else {
+                    card_img.setAttribute("src", row.thumbnail);
+                }
+
+                const card_body_div = document.createElement('div');
+                card_body_div.setAttribute("class", "card-body");
+                // card_body_div.setAttribute("class", "card-img-overlay");
+
+                const card_title = document.createElement('h5');
+                card_title.setAttribute("class", "card-title");
+                card_title.textContent = row.title;
+
+                star=row.star;
+                if (star == null){
+                    star = "평점없음";
+                }
+
+                const card_content = document.createElement('p');
+                card_content.setAttribute("class", "card-text");
+                card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
+
+                card_body_div.appendChild(card_title);
+                card_body_div.appendChild(card_content);
+                card_div.appendChild(card_img);
+                card_div.appendChild(card_body_div);
+                game_list_div.appendChild(card_div);
+            }
+            $(function(){
+                $(".my_card").slice(0, 4).css("display", "block"); // select the first 4
+                $("#more").click(function(e){ // click event for load more
+                    e.preventDefault();
+                    $(".my_card:hidden").slice(0, 4).css("display", "block"); // select next 4 hidden divs and show them
+                    if($(".my_card:hidden").length == 0){ // check if any hidden divs still exist
+                        // alert("No more divs"); // alert if there are none left
+                        $('#more').attr("style", "display:none");
+                        $('#all_list').attr("style", "display:block");
+                    }
+                });
+            });
+        });
+        
+        
+    </script>
+{% endblock %}
