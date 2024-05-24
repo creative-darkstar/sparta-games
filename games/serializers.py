@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Game, Comment
+from .models import Game, Comment, Screenshot
 
 
 class GameListSerializer(serializers.ModelSerializer):
@@ -30,3 +30,9 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = "__all__"
         read_only_fields = ('is_visible', 'game', 'author',)
+
+
+class ScreenshotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Screenshot
+        fields = ('id', 'src', )
