@@ -106,11 +106,12 @@ class GameListAPIView(APIView):
         # 이후 Screenshot model에 저장
         screenshots = list()
         for item in request.FILES.getlist("screenshots"):
-            Screenshot.objects.create(
+            screenshot=Screenshot.objects.create(
                 src=item,
                 game=game
             )
-            screenshots.append(item.src)
+            print(screenshot.src.url)
+            screenshots.append(screenshot.src.url)
 
         # 확인용 response
         return Response(

@@ -3,10 +3,8 @@
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
-            <form method="POST" enctype="multipart/form-data" id="game_create_form">
+            <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="return GameCreate(event);">
                 {% csrf_token %}
-                <input type="hidden" name="csrfmiddlewaretoken"
-                       value="cWf11BWg0spaijpbvyb2Fk7Uk6WeiH0amxYehBscdqSkTR1ineUswqygEiwWXEoG">
                 <div>
                     <label for="id_title">제목: </label>
                     <input type="text" name="title" maxlength="50" required="" id="id_title">
@@ -25,15 +23,15 @@
                     <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
                 </div>
                 <div>
-                    <label for="id_youtube_link">유튜브 링크: </label>
-                    <input type="text" name="youtube_link" maxlength="50" required="" id="id_youtube_link">
+                    <label for="id_youtube_url">유튜브 링크: </label>
+                    <input type="text" name="youtube_url" maxlength="50" required="" id="id_youtube_url">
                 </div>
                 <div>
                     <label for="id_screenshots">스크린샷: </label>
                     <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button class="btn btn-primary" onclick="GameCreate()">완료</button>
+                    <button  type="submit" class="btn btn-primary">완료</button>
                 </div>
             </form>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -42,19 +40,32 @@
         </div>
     </div>
     <script>
-        async function GameCreate() {
-            const url = '{% url 'games:game_list' %}'
+        async function GameCreate(event) {
+            event.preventDefault();  // 폼의 기본 제출 동작을 방지
+        
             const form_tag = document.getElementById('game_create_form');
-            const form_data = new FormData(form_tag);
-
-            const data = await aSend({
-                url: url,
-                method: 'POST',
-                is_token: true,
-                body: form_data
-            });
-
-            console.log(data);
+            const formData = new FormData(form_tag);
+        
+            try {
+                const response = await fetch('{% url 'games:game_list' %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                });
+        
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+        
+                const data = await response.json();
+                console.log(data);
+                // 추가적인 처리
+            } catch (error) {
+                console.error('Error:', error);
+            }
+            return false;  // 폼 제출을 중단
         }
     </script>
 {% endblock %}
