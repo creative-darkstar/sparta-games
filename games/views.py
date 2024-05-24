@@ -1,3 +1,4 @@
+import requests
 import os
 import zipfile
 
@@ -19,11 +20,15 @@ from .serializers import (
     GameListSerializer,
     GameDetailSerializer,
     CommentSerializer,
+    ScreenshotSerializer,
+    TagSerailizer,
 )
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
+from rest_framework.test import APIClient
+
 
 
 class GameListAPIView(APIView):
@@ -143,14 +148,28 @@ class GameDetailAPIView(APIView):
         game = self.get_object(game_pk)
         game.view_cnt += 1  # 아티클 뷰수 조회
         game.save()  # 아티클 뷰수 조회
+        
         stars = list(game.stars.all().values('star'))
         star_list = [d['star'] for d in stars]
-        star_score = round(sum(star_list)/len(star_list), 1)
+        if len(star_list) == 0:
+            star_score = 0
+        else:
+            star_score = round(sum(star_list)/len(star_list), 1)
         serializer = GameDetailSerializer(game)
         # data에 serializer.data를 깊은 복사함
         # serializer.data의 리턴값인 ReturnDict는 불변객체이다
         data = serializer.data
+
+        screenshots = Screenshot.objects.filter(game_id=game_pk)
+        screenshot_serializer = ScreenshotSerializer(screenshots, many=True)
+
+        tags = game.tag.all()
+        tag_serializer = TagSerailizer(tags, many=True)
+
         data["star_score"] = star_score
+        data["screenshot"] = screenshot_serializer.data
+        data['tag'] = tag_serializer.data
+
         return Response(data, status=status.HTTP_200_OK)
 
     """
@@ -387,12 +406,33 @@ def game_dzip(request, game_pk):
 
 # 게임 등록 Api 테스트용 페이지 렌더링
 def game_detail_view(request, game_pk):
-    # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
-    row = Game.objects.get(pk=game_pk, is_visible=True)
+    response_1 = requests.get(f'http://localhost:8000/games/api/list/{game_pk}/')
+    response_2 = requests.get(f'http://localhost:8000/games/api/list/{game_pk}/comments/')
 
-    # context에 폴더명 담아서 render
-    return render(request, "games/game_detail.html", context={"gamepath": row.gamepath})
+    if response_1.status_code == 200:
+        game_data = response_1.json()
+    else:
+        game_data = {}    
+    
+    if response_2.status_code == 200:
+        comment_data = response_2.json()
+    else:
+        comment_data = {}    
 
+    context = {
+        "title": game_data['title'],
+        "star_score": game_data['star_score'],
+        "maker_name": game_data['maker_name'],
+        "created_at": game_data['created_at'],
+        "tag": game_data['tag'],
+        "youtube_url": game_data['youtube_url'],
+        "screenshot": game_data['screenshot'],
+        "comments": comment_data,
+        'gamepath':game_data['gamepath'],
+        'content': game_data['content'],
+
+    }
+    return render(request, "games/game_detail.html", context)
 
 # 테스트용 base.html 렌더링
 def test_base_view(request):
