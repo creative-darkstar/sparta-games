@@ -296,7 +296,7 @@ class CommentDetailAPIView(APIView):
         
 
 class TagAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         tags=Tag.objects.all()
@@ -467,3 +467,7 @@ def test_search_view(request):
 def admin_list(request):
     rows = Game.objects.filter(is_visible=True, register_state=0)
     return render(request, "games/admin_list.html", context={"rows":rows})
+
+def admin_tag(request):
+    tags=Tag.objects.all()
+    return render(request, "games/admin_tags.html", context={"tags":tags})

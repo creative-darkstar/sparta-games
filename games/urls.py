@@ -24,4 +24,5 @@ urlpatterns = [
     path("list/create/", views.game_create_view, name="game_create_test_page"),
     # 게임 검수용 페이지 뷰
     path("admin/list/", views.admin_list, name="admin_list"),
+    path("admin/tags/", views.admin_tag, name="admin_tags"),
 ]
