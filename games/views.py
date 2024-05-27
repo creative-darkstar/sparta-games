@@ -3,7 +3,7 @@ import os
 import zipfile
 
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse, FileResponse,JsonResponse
 from django.shortcuts import render, get_object_or_404,redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -293,7 +293,26 @@ class CommentDetailAPIView(APIView):
             return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
+        
 
+class TagAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        tags=Tag.objects.all()
+        serializer = TagSerailizer(tags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = TagSerailizer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        tag = get_object_or_404(Tag, name=request.data['name'])
+        tag.delete()
+        return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['POST'])
 def game_register(request, game_pk):
