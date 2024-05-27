@@ -21,13 +21,32 @@
                 <th scope="row">{{row.pk}}</th>
                 <td>{{row.name}}</td>
                 <td>
-                <form action="{% url 'games:tags' %}" method="DELETE">
+                    <button type="button" class="btn btn-danger" onclick="deleteTag({{ row.pk }})">삭제</button>
+                {% comment %} <form action="{% url 'games:tags' %}" method="DELETE">
                     <button type="submit" class="btn btn-danger">삭제</button>
-                </form>
+                </form> {% endcomment %}
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+<script>
+    function deleteTag(tagId) {
+        fetch(`{% url 'games:tags' %}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ pk: tagId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            window.location.reload();  // 페이지 새로고침
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    </script>
 {% endblock %}

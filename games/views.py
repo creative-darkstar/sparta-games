@@ -307,12 +307,12 @@ class TagAPIView(APIView):
         serializer = TagSerailizer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return redirect("games:admin_tags")
 
     def delete(self, request):
-        tag = get_object_or_404(Tag, name=request.data['name'])
+        tag = get_object_or_404(Tag, pk=request.data['pk'])
         tag.delete()
-        return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def game_register(request, game_pk):
