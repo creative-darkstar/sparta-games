@@ -180,37 +180,25 @@ class GameDetailAPIView(APIView):
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
-            title = request.data.get("title", game.title)
-            thumbnail = request.data.get("thumbnail", game.thumbnail)
-            youtube_url = request.data.get("youtube_url", game.youtube_url)
-            content = request.data.get("content", game.content)
-            gamefile = request.data.get("gamefile", game.gamefile)
+            game.title = request.data.get("title", game.title)
+            game.thumbnail = request.FILES.get("thumbnail", game.thumbnail)
+            game.youtube_url = request.data.get("youtube_url", game.youtube_url)
+            game.content = request.data.get("content", game.content)
+            game.gamefile = request.FILES.get("gamefile", game.gamefile)
+            game.save()
 
             tag_data = request.data.get('tag')
-            pre_tag_data = game.tag.all()
-            for item in pre_tag_data:
-                game.tag.remove(item)
             if tag_data:
-                for item in tag_data.split(','):
-                    game.tag.add(Tag.objects.get(name=item))
+                tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',')]
+                game.tag.set(tags)
 
             pre_screenshots_data = Screenshot.objects.all().filter(game=game)
             pre_screenshots_data.delete()
-            screenshots = list()
-            for item in request.data.getlist("screenshots"):
-                game.screenshots.create(
-                    src=item,
-                    game=game
-                )
-                screenshots.append(item.name)
-            for item in game.screenshots.all():
-                print(item)
 
-            return Response({})
-            # serializer = GameDetailSerializer(game, data=request.data,partial=True)
-            # if serializer.is_valid(raise_exception=True):
-            #     serializer.save(register_state=0)
-            #     return Response(serializer.data, status=status.HTTP_200_OK)
+            for item in request.FILES.getlist("screenshots"):
+                game.screenshots.create(src=item)
+
+            return Response({"messege":"수정이 완료됐습니다"},status=status.HTTP_200_OK)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
