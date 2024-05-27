@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <form action="{% url 'games:tags' %}" method="POST">
+        {% csrf_token %}
+        <input type="text" maxlength="20" name="name">
+        <button type="submit" class="btn btn-secondary">생성</button>
+    </form>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">번호</th>
+            <th scope="col">태그</th>
+            <th scope="col">삭제</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for row in tags %}
+            <tr class="align-middle">
+                <th scope="row">{{row.pk}}</th>
+                <td>{{row.name}}</td>
+                <td>
+                    <button type="button" class="btn btn-danger" onclick="deleteTag({{ row.pk }})">삭제</button>
+                {% comment %} <form action="{% url 'games:tags' %}" method="DELETE">
+                    <button type="submit" class="btn btn-danger">삭제</button>
+                </form> {% endcomment %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    function deleteTag(tagId) {
+        fetch(`{% url 'games:tags' %}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ pk: tagId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            window.location.reload();  // 페이지 새로고침
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    </script>
+{% endblock %}

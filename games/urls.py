@@ -12,6 +12,7 @@ urlpatterns = [
     path("api/list/<int:game_pk>/comments/", views.CommentAPIView.as_view(), name="comments"),
     path('api/comment/<int:comment_id>', views.CommentDetailAPIView.as_view(), name='comment_detail'),
     # 게임 검수 Api
+    path("api/tags/", views.TagAPIView.as_view(), name="tags"),
     path("api/list/<int:game_pk>/register/", views.game_register, name="game_register"),
     path("api/list/<int:game_pk>/deny/", views.game_register_deny, name="game_register_deny"),
     # 게임 검수 - zip 다운 api
@@ -23,4 +24,5 @@ urlpatterns = [
     path("list/create/", views.game_create_view, name="game_create_test_page"),
     # 게임 검수용 페이지 뷰
     path("admin/list/", views.admin_list, name="admin_list"),
+    path("admin/tags/", views.admin_tag, name="admin_tags"),
 ]

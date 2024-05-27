@@ -52,4 +52,4 @@ class ScreenshotSerializer(serializers.ModelSerializer):
 class TagSerailizer(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = ('name', )
+        fields = ('pk','name')
