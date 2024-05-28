@@ -26,9 +26,7 @@ from .serializers import (
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
-from rest_framework.test import APIClient
-
+from django.db.models import Avg, Q
 
 
 class GameListAPIView(APIView):
@@ -52,6 +50,7 @@ class GameListAPIView(APIView):
         tag_q = request.query_params.get('tag-q')
         game_q = request.query_params.get('game-q')
         maker_q = request.query_params.get('maker-q')
+        all_q = request.query_params.get('all-q')
         order = request.query_params.get('order')
 
         if tag_q:
@@ -65,6 +64,9 @@ class GameListAPIView(APIView):
         elif maker_q:
             rows = get_user_model().objects.get(
                 username__icontains=maker_q).games.filter(is_visible=True, register_state=1)
+        elif all_q:
+            rows = Game.objects.filter(
+            Q(tag__name__icontains=all_q) | Q(title__icontains=all_q) | Q(maker__username__icontains=all_q),)
         else:
             rows = Game.objects.filter(is_visible=True, register_state=1)
 
