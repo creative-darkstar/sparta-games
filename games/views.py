@@ -52,6 +52,7 @@ class GameListAPIView(APIView):
         tag_q = request.query_params.get('tag-q')
         game_q = request.query_params.get('game-q')
         maker_q = request.query_params.get('maker-q')
+        gm_q = request.query_params.get('gm-q')
         order = request.query_params.get('order')
 
         if tag_q:
@@ -65,6 +66,9 @@ class GameListAPIView(APIView):
         elif maker_q:
             rows = get_user_model().objects.get(
                 username__icontains=maker_q).games.filter(is_visible=True, register_state=1)
+        elif gm_q:
+            rows = Game.objects.filter(
+            Q(title__icontains=gm_q) | Q(maker__username__icontains=gm_q))
         else:
             rows = Game.objects.filter(is_visible=True, register_state=1)
 
