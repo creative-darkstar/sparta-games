@@ -28,19 +28,19 @@
             const url_game_list_tag2 = '{% url 'games:game_list' %}' + param_tag2
             const url_game_list_all = '{% url 'games:game_list' %}'
 
-            const game_list_tag1 = await temp({
+            const game_list_tag1 = await aSend({
                 url: url_game_list_tag1,
                 method: 'GET',
                 is_token: false
             });
 
-            const game_list_tag2 = await temp({
+            const game_list_tag2 = await aSend({
                 url: url_game_list_tag2,
                 method: 'GET',
                 is_token: false
             });
 
-            const game_list_all = await temp({
+            const game_list_all = await aSend({
                 url: url_game_list_all,
                 method: 'GET',
                 is_token: false
@@ -80,8 +80,8 @@
                     card_title.setAttribute("class", "card-title");
                     card_title.textContent = row.title;
                     
-                    star=row.star;
-                    if (star == null){
+                    let star = row.star;
+                    if (star == null) {
                         star = "평점없음";
                     }
 
@@ -131,8 +131,8 @@
                 card_title.setAttribute("class", "card-title");
                 card_title.textContent = row.title;
 
-                star=row.star;
-                if (star == null){
+                let star = row.star;
+                if (star == null) {
                     star = "평점없음";
                 }
 

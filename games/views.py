@@ -1,8 +1,9 @@
+import requests
 import os
 import zipfile
 
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse, FileResponse,JsonResponse
 from django.shortcuts import render, get_object_or_404,redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -19,11 +20,15 @@ from .serializers import (
     GameListSerializer,
     GameDetailSerializer,
     CommentSerializer,
+    ScreenshotSerializer,
+    TagSerailizer,
 )
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from django.db.models import Avg
+from rest_framework.test import APIClient
+
 
 
 class GameListAPIView(APIView):
@@ -85,11 +90,11 @@ class GameListAPIView(APIView):
         # Game model에 우선 저장
         game = Game.objects.create(
             title=request.data.get('title'),
-            thumbnail=request.data.get('thumbnail'),
+            thumbnail=request.FILES.get('thumbnail'),
             youtube_url=request.data.get('youtube_url'),
             maker=request.user,
             content=request.data.get('content'),
-            gamefile=request.data.get('gamefile'),
+            gamefile=request.FILES.get('gamefile'),
         )
 
         # 태그 저장
@@ -100,12 +105,13 @@ class GameListAPIView(APIView):
 
         # 이후 Screenshot model에 저장
         screenshots = list()
-        for item in request.data.getlist("screenshots"):
-            Screenshot.objects.create(
+        for item in request.FILES.getlist("screenshots"):
+            screenshot=Screenshot.objects.create(
                 src=item,
                 game=game
             )
-            screenshots.append(item.name)
+            print(screenshot.src.url)
+            screenshots.append(screenshot.src.url)
 
         # 확인용 response
         return Response(
@@ -143,14 +149,28 @@ class GameDetailAPIView(APIView):
         game = self.get_object(game_pk)
         game.view_cnt += 1  # 아티클 뷰수 조회
         game.save()  # 아티클 뷰수 조회
+        
         stars = list(game.stars.all().values('star'))
         star_list = [d['star'] for d in stars]
-        star_score = round(sum(star_list)/len(star_list), 1)
+        if len(star_list) == 0:
+            star_score = None
+        else:
+            star_score = round(sum(star_list)/len(star_list), 1)
         serializer = GameDetailSerializer(game)
         # data에 serializer.data를 깊은 복사함
         # serializer.data의 리턴값인 ReturnDict는 불변객체이다
         data = serializer.data
+
+        screenshots = Screenshot.objects.filter(game_id=game_pk)
+        screenshot_serializer = ScreenshotSerializer(screenshots, many=True)
+
+        tags = game.tag.all()
+        tag_serializer = TagSerailizer(tags, many=True)
+
         data["star_score"] = star_score
+        data["screenshot"] = screenshot_serializer.data
+        data['tag'] = tag_serializer.data
+
         return Response(data, status=status.HTTP_200_OK)
 
     """
@@ -160,37 +180,25 @@ class GameDetailAPIView(APIView):
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
-            title = request.data.get("title", game.title)
-            thumbnail = request.data.get("thumbnail", game.thumbnail)
-            youtube_url = request.data.get("youtube_url", game.youtube_url)
-            content = request.data.get("content", game.content)
-            gamefile = request.data.get("gamefile", game.gamefile)
+            game.title = request.data.get("title", game.title)
+            game.thumbnail = request.FILES.get("thumbnail", game.thumbnail)
+            game.youtube_url = request.data.get("youtube_url", game.youtube_url)
+            game.content = request.data.get("content", game.content)
+            game.gamefile = request.FILES.get("gamefile", game.gamefile)
+            game.save()
 
             tag_data = request.data.get('tag')
-            pre_tag_data = game.tag.all()
-            for item in pre_tag_data:
-                game.tag.remove(item)
             if tag_data:
-                for item in tag_data.split(','):
-                    game.tag.add(Tag.objects.get(name=item))
+                tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',')]
+                game.tag.set(tags)
 
             pre_screenshots_data = Screenshot.objects.all().filter(game=game)
             pre_screenshots_data.delete()
-            screenshots = list()
-            for item in request.data.getlist("screenshots"):
-                game.screenshots.create(
-                    src=item,
-                    game=game
-                )
-                screenshots.append(item.name)
-            for item in game.screenshots.all():
-                print(item)
 
-            return Response({})
-            # serializer = GameDetailSerializer(game, data=request.data,partial=True)
-            # if serializer.is_valid(raise_exception=True):
-            #     serializer.save(register_state=0)
-            #     return Response(serializer.data, status=status.HTTP_200_OK)
+            for item in request.FILES.getlist("screenshots"):
+                game.screenshots.create(src=item)
+
+            return Response({"messege":"수정이 완료됐습니다"},status=status.HTTP_200_OK)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -285,7 +293,26 @@ class CommentDetailAPIView(APIView):
             return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
+        
 
+class TagAPIView(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        tags=Tag.objects.all()
+        serializer = TagSerailizer(tags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = TagSerailizer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return redirect("games:admin_tags")
+
+    def delete(self, request):
+        tag = get_object_or_404(Tag, pk=request.data['pk'])
+        tag.delete()
+        return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def game_register(request, game_pk):
@@ -387,11 +414,37 @@ def game_dzip(request, game_pk):
 
 # 게임 등록 Api 테스트용 페이지 렌더링
 def game_detail_view(request, game_pk):
-    # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
-    row = Game.objects.get(pk=game_pk, is_visible=True)
+    response_1 = requests.get(f'http://localhost:8000/games/api/list/{game_pk}/')
+    response_2 = requests.get(f'http://localhost:8000/games/api/list/{game_pk}/comments/')
 
-    # context에 폴더명 담아서 render
-    return render(request, "games/game_detail.html", context={"gamepath": row.gamepath})
+    if response_1.status_code == 200:
+        game_data = response_1.json()
+    else:
+        game_data = {}    
+    
+    if response_2.status_code == 200:
+        comment_data = response_2.json()
+    else:
+        comment_data = {}    
+
+    context = {
+        "title": game_data['title'],
+        "star_score": game_data['star_score'],
+        "maker_name": game_data['maker_name'],
+        "created_at": game_data['created_at'],
+        "tag": game_data['tag'],
+        "youtube_url": game_data['youtube_url'],
+        "screenshot": game_data['screenshot'],
+        "comments": comment_data,
+        'gamepath':game_data['gamepath'],
+        'content': game_data['content'],
+
+    }
+    return render(request, "games/game_detail.html", context)
+
+
+def game_create_view(request):
+    return render(request, "games/game_create.html")
 
 
 # 테스트용 base.html 렌더링
@@ -414,3 +467,7 @@ def test_search_view(request):
 def admin_list(request):
     rows = Game.objects.filter(is_visible=True, register_state=0)
     return render(request, "games/admin_list.html", context={"rows":rows})
+
+def admin_tag(request):
+    tags=Tag.objects.all()
+    return render(request, "games/admin_tags.html", context={"tags":tags})
