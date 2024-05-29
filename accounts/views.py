@@ -103,7 +103,6 @@ def login_page(request):
 
 def signup_page(request):
     if request.method == 'POST':
-        # print(request.POST)
         # pass
         return redirect('accounts:login_page')
     return render(request, 'accounts/signup.html')
