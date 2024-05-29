@@ -416,33 +416,7 @@ def game_dzip(request, game_pk):
 
 # 게임 등록 Api 테스트용 페이지 렌더링
 def game_detail_view(request, game_pk):
-    response_1 = requests.get(f'http://localhost:8000/games/api/list/{game_pk}/')
-    response_2 = requests.get(f'http://localhost:8000/games/api/list/{game_pk}/comments/')
-
-    if response_1.status_code == 200:
-        game_data = response_1.json()
-    else:
-        game_data = {}    
-    
-    if response_2.status_code == 200:
-        comment_data = response_2.json()
-    else:
-        comment_data = {}    
-
-    context = {
-        "title": game_data['title'],
-        "star_score": game_data['star_score'],
-        "maker_name": game_data['maker_name'],
-        "created_at": game_data['created_at'],
-        "tag": game_data['tag'],
-        "youtube_url": game_data['youtube_url'],
-        "screenshot": game_data['screenshot'],
-        "comments": comment_data,
-        'gamepath':game_data['gamepath'],
-        'content': game_data['content'],
-
-    }
-    return render(request, "games/game_detail.html", context)
+    return render(request, "games/game_detail.html", {'game_pk':game_pk})
 
 
 def game_create_view(request):
