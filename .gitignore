@@ -3,8 +3,6 @@
 
 # Custom
 .idea
-**/migrations/*
-!**/migrations/__init__.py
 config.py
 
 **/media/images/screenshot/*
