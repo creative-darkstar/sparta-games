@@ -1,13 +1,4 @@
 {% extends "base.html" %} {% block content %} {% load static %}
-{% comment %} action={% url 'games:CommentAPIView' game_pk %} {% endcomment %}
-
-<form action='' method="POST" class="d=flex ">
-  {% csrf_token %} 
-  <label for="comment">댓글</label>
-  <input type="text" name="comment" id="comment">
-  <button type="submit">게시</button>
-</form>
-
 <script>
   window.addEventListener("load", async function PageLoad() {
 
