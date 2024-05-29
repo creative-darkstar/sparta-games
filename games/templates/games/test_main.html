@@ -89,9 +89,14 @@
                     card_content.setAttribute("class", "card-text");
                     card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
 
+                    const gameTestPageURL = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                    const card_a = document.createElement('a');
+                    card_a.setAttribute("href", gameTestPageURL.replace('1', row.pk));
+
                     card_body_div.appendChild(card_title);
                     card_body_div.appendChild(card_content);
-                    card_div.appendChild(card_img);
+                    card_div.appendChild(card_a)
+                    card_a.appendChild(card_img)
                     card_div.appendChild(card_body_div);
                     game_list_div.appendChild(card_div);
                 }
