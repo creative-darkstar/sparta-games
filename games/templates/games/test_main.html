@@ -146,23 +146,37 @@
                 card_div.appendChild(card_body_div);
                 game_list_div.appendChild(card_div);
             }
-            $(function(){
-                if($(".my_card").length <=4){ // check if any hidden divs still exist
-                    // alert("No more divs"); // alert if there are none left
-                    $('#more').attr("style", "display:none");
-                    $('#all_list').attr("style", "display:block");
-                }
-                $(".my_card").slice(0, 4).css("display", "block"); // select the first 4
-                $("#more").click(function(e){ // click event for load more
-                    e.preventDefault();
-                    $(".my_card:hidden").slice(0, 4).css("display", "block"); // select next 4 hidden divs and show them
-                    if($(".my_card:hidden").length == 0){ // check if any hidden divs still exist
-                        // alert("No more divs"); // alert if there are none left
-                        $('#more').attr("style", "display:none");
-                        $('#all_list').attr("style", "display:block");
-                    }
+
+            const morebtn = document.getElementById('more');
+            const allbtn = document.getElementById('all_list');
+            const cards=document.querySelectorAll('.my_card');
+
+            if (cards.length<=4){
+                morebtn.setAttribute("style", "display:none");
+                allbtn.setAttribute("style", "display:block");
+            }
+            showCards(0, 4);
+            morebtn.addEventListener("click",function(e){
+                const hiddencards=Array.from(cards).filter(card=>card.style.display=="none");
+                hiddencards.slice(0,4).forEach(card=>{
+                    card.style.display='block';
                 });
+                if (document.querySelectorAll('.my_card[style*="display: none"]').length === 0){
+                    morebtn.setAttribute("style", "display:none");
+                    allbtn.setAttribute("style", "display:block");
+                }
             });
+            if (document.querySelectorAll('.my_card[style*="display: none"]').length === 0) {
+                moreButton.style.display = 'none';
+                allListButton.style.display = 'block';
+            }
+            
+            function showCards(start, count, list = cards) {
+                const max = start + count;
+                for (let i = start; i < max && i < list.length; i++) {
+                    list[i].style.display = "block";
+                }
+            }
         });
         
         
