@@ -43,7 +43,6 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log(data);
             window.location.reload();  // 페이지 새로고침
         })
         .catch(error => console.error('Error:', error));

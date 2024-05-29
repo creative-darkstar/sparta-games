@@ -3,7 +3,7 @@ import os
 import zipfile
 
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponse, FileResponse,JsonResponse
+from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404,redirect
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -26,8 +26,7 @@ from .serializers import (
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
-from rest_framework.test import APIClient
+from django.db.models import Avg,Q
 
 
 
@@ -114,7 +113,6 @@ class GameListAPIView(APIView):
                 src=item,
                 game=game
             )
-            print(screenshot.src.url)
             screenshots.append(screenshot.src.url)
 
         # 확인용 response
@@ -125,7 +123,7 @@ class GameListAPIView(APIView):
                 },
                 "screenshots": screenshots
             },
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_200_OK
         )
 
 
@@ -215,7 +213,7 @@ class GameDetailAPIView(APIView):
         if game.maker == request.user:
             game.is_visible = False
             game.save()
-            return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -264,14 +262,14 @@ class CommentAPIView(APIView):
     def get(self, request, game_pk):
         comments = Comment.objects.all().filter(game=game_pk, is_visible=True)
         serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
     def post(self, request, game_pk):
         game = get_object_or_404(Game, pk=game_pk)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(author=request.user, game=game)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class CommentDetailAPIView(APIView):
@@ -294,7 +292,7 @@ class CommentDetailAPIView(APIView):
         if request.user == comment.author:
             comment.is_visible = False
             comment.save()
-            return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
         
