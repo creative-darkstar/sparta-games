@@ -147,6 +147,11 @@
                 game_list_div.appendChild(card_div);
             }
             $(function(){
+                if($(".my_card").length <=4){ // check if any hidden divs still exist
+                    // alert("No more divs"); // alert if there are none left
+                    $('#more').attr("style", "display:none");
+                    $('#all_list').attr("style", "display:block");
+                }
                 $(".my_card").slice(0, 4).css("display", "block"); // select the first 4
                 $("#more").click(function(e){ // click event for load more
                     e.preventDefault();
