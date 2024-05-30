@@ -1,14 +1,108 @@
-{% extends "base.html" %} {% block content %} {% load static %}
-{% comment %} action={% url 'games:CommentAPIView' game_pk %} {% endcomment %}
+{% extends "base.html" %} 
+{% load static %}
 
-<form action='' method="POST" class="d=flex ">
-  {% csrf_token %} 
-  <label for="comment">댓글</label>
-  <input type="text" name="comment" id="comment">
-  <button type="submit">게시</button>
-</form>
+{% block css_block %}
+  <link rel="stylesheet" href="{% static 'css/star.css' %}">
+{% endblock css_block %}
 
+{% block content %}
+
+<div id='titleContainer' class="d-flex flex-column align-items-center"></div>
+<div id='infoDiv'>
+  <span id='starScoreSpan'></span>
+  <span id='makerNameSpan'></span>
+  <span id='createdAtSpan'></span>
+</div>
+<div id='infoDiv2'>
+  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
+
+</div>
+
+<div id='containerDiv' class='d-flex align-items-center justify-content-around'></div>
+<div id='contentDiv' class=''></div>
+
+<div>
+  <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
+    {% csrf_token %}
+    <label for="comment">댓글</label>
+    <input type="text" id='comment' name='content'>
+    <button type="submit">제출</button>
+  </form>
+  <div id='commentContainerDiv'></div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">별점 선택창</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        별점을 선택해주세요
+        <form name="myform" id="myform" method="POST">
+          <fieldset class='d-flex justify-content-center'>
+              <input type="radio" name="star" value="5" id="rate1"><label for="rate1">⭐</label>
+              <input type="radio" name="star" value="4" id="rate2"><label for="rate2">⭐</label>
+              <input type="radio" name="star" value="3" id="rate3"><label for="rate3">⭐</label>
+              <input type="radio" name="star" value="2" id="rate4"><label for="rate4">⭐</label>
+              <input type="radio" name="star" value="1" id="rate5"><label for="rate5">⭐</label>
+          </fieldset>
+      </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나가기</button>
+        <button type="submit" class="btn btn-primary" onclick='Star(event);'>확인</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
+  async function CommentCreate(event) {
+    event.preventDefault();  // 폼의 기본 제출 동작을 방지
+
+    const form_tag = document.getElementById('formElement');
+    const formData = new FormData(form_tag);
+
+    const url = '{% url 'games:comments' game_pk %}'
+
+    try {
+        await aSend({
+            url: url,
+            method: 'POST',
+            is_token: true,
+            body: formData
+        })
+        
+    } catch (error) {
+        console.error('Error:', error);
+        return false;
+    }
+    window.location.href = "{% url 'games:game_test_page' game_pk %}";
+}
+async function Star(event) {
+  event.preventDefault();  // 폼의 기본 제출 동작을 방지
+
+  const form_tag = document.getElementById('myform');
+  const formData = new FormData(form_tag);
+
+  const url = '{% url 'games:game_star' game_pk %}'
+
+  try {
+      await aSend({
+          url: url,
+          method: 'POST',
+          is_token: true,
+          body: formData
+      })
+      
+  } catch (error) {
+      console.error('Error:', error);
+      return false;
+  }
+  window.location.href = "{% url 'games:game_test_page' game_pk %}";
+}
   window.addEventListener("load", async function PageLoad() {
 
     // context로 views.py에서 game_pk를 받아서 사용한다.
@@ -36,9 +130,10 @@
     const screenshot = game_detail_response.screenshot;
     const content = game_detail_response.content;
     
-    // title과 iframe
-    const titleContainer = document.createElement('div');
-    titleContainer.className = 'd-flex flex-column align-items-center';
+    // # 1 ==============title과 iframe=====================
+    // const titleContainer = document.createElement('div');
+    // titleContainer.className = 'd-flex flex-column align-items-center';
+    const titleContainer = document.getElementById('titleContainer');
 
     const divElement = document.createElement('div');
     divElement.style.position = 'relative';
@@ -52,25 +147,30 @@
     iframeElement.style.cssText = 'position: absolute; width: 100%; height: 100%;'
     iframeElement.src = `${gamepath}/index.html`;
     
-    document.body.appendChild(titleContainer);
+    // document.body.appendChild(titleContainer);
 
     titleContainer.appendChild(titleElement);
     titleContainer.appendChild(divElement);
     divElement.appendChild(iframeElement);
 
-    // 게임 상세 span
-    const infoDiv = document.createElement('div');
+    // # 2 ================게임 상세 span==================
+    const infoDiv = document.getElementById('infoDiv');
 
-    const starScoreSpan = document.createElement('span');
+    const starScoreSpan = document.getElementById('starScoreSpan');
     starScoreSpan.textContent = `평점: ${star_score}`;
 
-    const makerNameSpan = document.createElement('span');
+    const makerNameSpan = document.getElementById('makerNameSpan');
     makerNameSpan.textContent = `제작자: ${maker_name}`;
 
-    const createdAtSpan = document.createElement('span');
+    const createdAtSpan = document.getElementById('createdAtSpan');
     createdAtSpan.textContent = `업로드 일시: ${created_at}`;
 
-    const lineBreak = document.createElement('br');
+    infoDiv.appendChild(starScoreSpan)
+    infoDiv.appendChild(makerNameSpan)
+    infoDiv.appendChild(createdAtSpan)
+
+    // # 2-1 ==============게임 상세 span2===================
+    const infoDiv2 = document.getElementById('infoDiv2')
 
     const tagSpan = document.createElement('span');
     tagSpan.textContent = '태그: ';
@@ -85,18 +185,12 @@
       tagSpan.appendChild(tagItemSpan);
     })
 
+    infoDiv2.appendChild(tagSpan)
 
-    document.body.appendChild(infoDiv)
-
-    infoDiv.appendChild(starScoreSpan)
-    infoDiv.appendChild(makerNameSpan)
-    infoDiv.appendChild(createdAtSpan)
-    infoDiv.appendChild(lineBreak)
-    infoDiv.appendChild(tagSpan)
-
-    // video와 screenshot
-    const containerDiv = document.createElement('div');
-    containerDiv.className = 'd-flex align-items-center justify-content-around'
+    // # 3 ==================video와 screenshot=====================
+    // const containerDiv = document.createElement('div');
+    // containerDiv.className = 'd-flex align-items-center justify-content-around'
+    const containerDiv = document.getElementById('containerDiv');
 
     const videoIframeElement = document.createElement('iframe');
     videoIframeElement.width = '560';
@@ -117,16 +211,17 @@
       containerDiv.appendChild(imgElement);
     }
     
-    document.body.appendChild(containerDiv);
+    // document.body.appendChild(containerDiv);
 
-    // 작성자의 게임 설명
-    const contentDiv = document.createElement('div');
-    contentDiv.textContent = `content: ${content}`;
-    document.body.appendChild(contentDiv);
+    // #4 ====================작성자의 게임 설명===========================
+    // const contentDiv = document.createElement('div');
+    // contentDiv.textContent = `content: ${content}`;
+    // document.body.appendChild(contentDiv);
+    const contentDiv = document.getElementById('contentDiv');
 
-    // 댓글 작성 form, 수정 필요
-    const formElement = document.createElement('form');
-    formElement.action = '';
+    // # 5==================댓글 작성 form, 수정 필요======================
+    /* const formElement = document.createElement('form');
+    formElement.action = ''
     formElement.method = 'POST';
     formElement.className = 'd-flex';
 
@@ -153,11 +248,12 @@
     formElement.appendChild(inputElement);
     formElement.appendChild(buttonElement);
 
-    document.body.appendChild(formElement);
+    document.body.appendChild(formElement);*/
 
-    // 게시글에 달린 댓글
-    const commentContainerDiv = document.createElement('div');
-
+    // # 6 =====================게시글에 달린 댓글========================
+    // const commentContainerDiv = document.createElement('div');
+    const commentContainerDiv = document.getElementById('commentContainerDiv');
+// 
     comment_response.forEach(comment => {
       const commentDiv = document.createElement('div');
 
@@ -187,7 +283,7 @@
       commentDiv.appendChild(commentLineBreak);
 
       commentContainerDiv.appendChild(commentDiv)
-      document.body.appendChild(commentContainerDiv)
+      // document.body.appendChild(commentContainerDiv)
     })
   });
   

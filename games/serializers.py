@@ -27,8 +27,8 @@ class GameDetailSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author_name = serializers.CharField(source='author.username')
-    src = serializers.ImageField(source='author.image')
+    author_name = serializers.CharField(source='author.username', read_only=True)
+    src = serializers.ImageField(source='author.image', read_only=True)
 
     # def to_representation(self, instance):
     #     ret = super().to_representation(instance)
