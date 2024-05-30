@@ -3,7 +3,7 @@
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
-            <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="GameUpdate(event);">
+            <form method="POST" enctype="multipart/form-data" id="game_update_form" onsubmit="GameUpdate(event);">
                 {% csrf_token %}
                 <div>
                     <label for="id_title">제목: </label>
@@ -59,18 +59,35 @@
                 const content = game_detail_response.content;
                 const youtube_url =game_detail_response.youtube_url;
                 {% comment %} const tag = game_detail_response.tag; {% endcomment %}
-                const screenshot = game_detail_response.screenshot;
-                const thumbnail = game_detail_response.thumbnail;
-                const gamefile = game_detail_response.gamefile;
                 document.getElementById('id_title').value = title;
                 document.getElementById('id_content').value = content;
                 document.getElementById('id_youtube_url').value = youtube_url;
-                document.getElementById('id_gamefile'). = gamefile;
-                document.getElementById('id_thumbnail').value = thumbnail;
-                document.getElementById('id_screenshot').value = screenshot;
             } catch (error) {
                 console.error('Failed to load game details:', error);
             }
+        }
+        async function GameUpdate(event) {
+            event.preventDefault();  // 폼의 기본 제출 동작을 방지
+            
+            const game_pk = getGameId();
+        
+            const form_tag = document.getElementById('game_update_form');
+            const formData = new FormData(form_tag);
+
+            const url = '{% url 'games:game_detail' game_pk %}'
+
+            try {
+                await aSend({
+                    url: url,
+                    method: 'PUT',
+                    is_token: true,
+                    body: formData
+                })
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
+            }
+            window.location.href = "{% url 'test_main_view' %}";
         }
         window.onload = function() {
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
