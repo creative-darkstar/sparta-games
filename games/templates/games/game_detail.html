@@ -6,7 +6,7 @@
 <div id='contentDiv' class=''></div>
 
 <div>
-  <form id='formElement' method='POST' onsubmit="GameCreate(event);">
+  <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
     {% csrf_token %}
     <label for="comment">댓글</label>
     <input type="text" id='comment' name='content'>
@@ -17,7 +17,7 @@
 
 
 <script>
-  async function GameCreate(event) {
+  async function CommentCreate(event) {
     event.preventDefault();  // 폼의 기본 제출 동작을 방지
 
     const form_tag = document.getElementById('formElement');
