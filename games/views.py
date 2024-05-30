@@ -194,6 +194,7 @@ class GameDetailAPIView(APIView):
             
 
             tag_data = request.data.get('tag')
+            print(tag_data)
             if tag_data:
                 tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',')]
                 game.tag.set(tags)
