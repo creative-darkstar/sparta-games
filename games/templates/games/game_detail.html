@@ -1,5 +1,45 @@
 {% extends "base.html" %} {% block content %} {% load static %}
+
+<div id='titleContainer' class="d-flex flex-column align-items-center"></div>
+<div id='infoDiv'></div>
+<div id='containerDiv' class='d-flex align-items-center justify-content-around'></div>
+<div id='contentDiv' class=''></div>
+
+<div>
+  <form id='formElement' method='POST' onsubmit="GameCreate(event);">
+    {% csrf_token %}
+    <label for="comment">댓글</label>
+    <input type="text" id='comment' name='content'>
+    <button type="submit">제출</button>
+  </form>
+  <div id='commentContainerDiv'></div>
+</div>
+
+
 <script>
+  async function GameCreate(event) {
+    event.preventDefault();  // 폼의 기본 제출 동작을 방지
+
+    const form_tag = document.getElementById('formElement');
+    const formData = new FormData(form_tag);
+
+    const url = '{% url 'games:comments' game_pk %}'
+
+    try {
+        await aSend({
+            url: url,
+            method: 'POST',
+            is_token: true,
+            body: formData
+        })
+        
+    } catch (error) {
+        console.error('Error:', error);
+        return false;
+    }
+    window.location.href = "{% url 'games:game_test_page' game_pk %}";
+}
+
   window.addEventListener("load", async function PageLoad() {
 
     // context로 views.py에서 game_pk를 받아서 사용한다.
@@ -27,9 +67,10 @@
     const screenshot = game_detail_response.screenshot;
     const content = game_detail_response.content;
     
-    // title과 iframe
-    const titleContainer = document.createElement('div');
-    titleContainer.className = 'd-flex flex-column align-items-center';
+    // # 1 ==============title과 iframe=====================
+    // const titleContainer = document.createElement('div');
+    // titleContainer.className = 'd-flex flex-column align-items-center';
+    const titleContainer = document.getElementById('titleContainer');
 
     const divElement = document.createElement('div');
     divElement.style.position = 'relative';
@@ -43,14 +84,15 @@
     iframeElement.style.cssText = 'position: absolute; width: 100%; height: 100%;'
     iframeElement.src = `${gamepath}/index.html`;
     
-    document.body.appendChild(titleContainer);
+    // document.body.appendChild(titleContainer);
 
     titleContainer.appendChild(titleElement);
     titleContainer.appendChild(divElement);
     divElement.appendChild(iframeElement);
 
-    // 게임 상세 span
-    const infoDiv = document.createElement('div');
+    // # 2 ================게임 상세 span==================
+    // const infoDiv = document.createElement('div');
+    const infoDiv = document.getElementById('infoDiv');
 
     const starScoreSpan = document.createElement('span');
     starScoreSpan.textContent = `평점: ${star_score}`;
@@ -77,7 +119,7 @@
     })
 
 
-    document.body.appendChild(infoDiv)
+    // document.body.appendChild(infoDiv)
 
     infoDiv.appendChild(starScoreSpan)
     infoDiv.appendChild(makerNameSpan)
@@ -85,9 +127,10 @@
     infoDiv.appendChild(lineBreak)
     infoDiv.appendChild(tagSpan)
 
-    // video와 screenshot
-    const containerDiv = document.createElement('div');
-    containerDiv.className = 'd-flex align-items-center justify-content-around'
+    // # 3 ==================video와 screenshot=====================
+    // const containerDiv = document.createElement('div');
+    // containerDiv.className = 'd-flex align-items-center justify-content-around'
+    const containerDiv = document.getElementById('containerDiv');
 
     const videoIframeElement = document.createElement('iframe');
     videoIframeElement.width = '560';
@@ -108,16 +151,17 @@
       containerDiv.appendChild(imgElement);
     }
     
-    document.body.appendChild(containerDiv);
+    // document.body.appendChild(containerDiv);
 
-    // 작성자의 게임 설명
-    const contentDiv = document.createElement('div');
-    contentDiv.textContent = `content: ${content}`;
-    document.body.appendChild(contentDiv);
+    // #4 ====================작성자의 게임 설명===========================
+    // const contentDiv = document.createElement('div');
+    // contentDiv.textContent = `content: ${content}`;
+    // document.body.appendChild(contentDiv);
+    const contentDiv = document.getElementById('contentDiv');
 
-    // 댓글 작성 form, 수정 필요
-    const formElement = document.createElement('form');
-    formElement.action = '';
+    // # 5==================댓글 작성 form, 수정 필요======================
+    /* const formElement = document.createElement('form');
+    formElement.action = ''
     formElement.method = 'POST';
     formElement.className = 'd-flex';
 
@@ -144,11 +188,12 @@
     formElement.appendChild(inputElement);
     formElement.appendChild(buttonElement);
 
-    document.body.appendChild(formElement);
+    document.body.appendChild(formElement);*/
 
-    // 게시글에 달린 댓글
-    const commentContainerDiv = document.createElement('div');
-
+    // # 6 =====================게시글에 달린 댓글========================
+    // const commentContainerDiv = document.createElement('div');
+    const commentContainerDiv = document.getElementById('commentContainerDiv');
+// 
     comment_response.forEach(comment => {
       const commentDiv = document.createElement('div');
 
@@ -178,7 +223,7 @@
       commentDiv.appendChild(commentLineBreak);
 
       commentContainerDiv.appendChild(commentDiv)
-      document.body.appendChild(commentContainerDiv)
+      // document.body.appendChild(commentContainerDiv)
     })
   });
   
