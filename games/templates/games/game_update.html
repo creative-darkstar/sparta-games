@@ -15,7 +15,7 @@
                 </div>
                 <div>
                     <label for="id_youtube_url">유튜브 링크: </label>
-                    <input type="text" name="youtube_url" maxlength="255" required="" id="id_youtube_url">
+                    <input type="text" name="youtube_url" maxlength="255" id="id_youtube_url">
                 </div>
                 <div>
                     <label for="id_thumbnail">썸네일: </label>
@@ -95,7 +95,7 @@
                     opt.innerHTML=`${tag.name}`;
                     tag_list.appendChild(opt);
                 })
-            } catch (error) {
+            } catch (error) { 
                 console.error('Failed to load game details:', error);
             }
         }
@@ -103,9 +103,15 @@
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
             const game_pk = getGameId();
-        
             const form_tag = document.getElementById('game_update_form');
             const formData = new FormData(form_tag);
+            const selectedItems = document.querySelectorAll("#selectedItems .selected-item");
+            let tagstring = '';
+            selectedItems.forEach((item, index) => {
+                tagstring = tagstring + ',' + item.textContent
+            });
+            tagstring = tagstring.substr(1)
+            formData.append('tag', tagstring);
             
             const url = '{% url 'games:game_detail' game_pk %}'
 

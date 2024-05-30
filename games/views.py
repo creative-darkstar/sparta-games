@@ -191,10 +191,7 @@ class GameDetailAPIView(APIView):
             game.content = request.data.get("content", game.content)
             game.save()
 
-            
-
             tag_data = request.data.get('tag')
-            print(tag_data)
             if tag_data:
                 tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',')]
                 game.tag.set(tags)
@@ -205,7 +202,7 @@ class GameDetailAPIView(APIView):
             for item in request.FILES.getlist("screenshots"):
                 game.screenshots.create(src=item)
 
-            return Response({"messege":"수정이 완료됐습니다"},status=status.HTTP_200_OK)
+            return Response({"messege": "수정이 완료됐습니다"},status=status.HTTP_200_OK)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
