@@ -20,6 +20,7 @@ urlpatterns = [
 
     # 등록된 게임 확인용 페이지 뷰
     path("list/<int:game_pk>/", views.game_detail_view, name="game_test_page"),
+    path("list/<int:game_pk>/update/", views.game_update_view, name="game_update_page"),
     # 게임 등록 테스트 페이지 뷰
     path("list/create/", views.game_create_view, name="game_create_test_page"),
     # 게임 검수용 페이지 뷰
