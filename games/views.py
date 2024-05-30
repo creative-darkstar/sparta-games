@@ -447,3 +447,6 @@ def admin_list(request):
 def admin_tag(request):
     tags=Tag.objects.all()
     return render(request, "games/admin_tags.html", context={"tags":tags})
+
+def game_update_view(request, game_pk):
+    return render(request,"games/game_update.html",{'game_pk':game_pk})

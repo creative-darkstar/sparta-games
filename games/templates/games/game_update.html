@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="d-grid gap-2 d-md-flex justify-content-center">
+        <div>
+            <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="GameUpdate(event);">
+                {% csrf_token %}
+                <div>
+                    <label for="id_title">제목: </label>
+                    <input type="text" name="title" maxlength="50" required="" id="id_title">
+                </div>
+                <div>
+                    <label for="id_content">게임 설명: </label>
+                    <textarea name="content" cols="40" rows="10" required="" id="id_content"></textarea>
+                </div>
+                <div>
+                    <label for="id_gamefile">게임 파일: </label>
+                    <input type="file" name="gamefile" accept="application/zip" id="id_gamefile">
+                </div>
+                {#                    태그#}
+                <div>
+                    <label for="id_thumbnail">썸네일: </label>
+                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
+                </div>
+                <div>
+                    <label for="id_youtube_url">유튜브 링크: </label>
+                    <input type="text" name="youtube_url" maxlength="255" required="" id="id_youtube_url">
+                </div>
+                <div>
+                    <label for="id_screenshots">스크린샷: </label>
+                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button  type="submit" class="btn btn-primary">수정 완료</button>
+                </div>
+            </form>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a class="btn btn-secondary" href={% url 'test_main_view' %}>수정 취소</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        function getGameId(){
+            const path=window.location.pathname;
+            const parts =path.split('/');
+            return parseInt(parts[3]);
+        }
+        async function loadGameDetails(){
+            const game_pk = getGameId();
+            const url = '{% url 'games:game_detail' game_pk %}';
+            try {
+                const game_detail_response = await aSend({
+                    url: url,
+                    method: 'GET',
+                    is_token: false,
+                });
+                console.log(game_detail_response);
+                const title = game_detail_response.title;
+                const content = game_detail_response.content;
+                const youtube_url =game_detail_response.youtube_url;
+                {% comment %} const tag = game_detail_response.tag; {% endcomment %}
+                const screenshot = game_detail_response.screenshot;
+                const thumbnail = game_detail_response.thumbnail;
+                const gamefile = game_detail_response.gamefile;
+                document.getElementById('id_title').value = title;
+                document.getElementById('id_content').value = content;
+                document.getElementById('id_youtube_url').value = youtube_url;
+                document.getElementById('id_gamefile'). = gamefile;
+                document.getElementById('id_thumbnail').value = thumbnail;
+                document.getElementById('id_screenshot').value = screenshot;
+            } catch (error) {
+                console.error('Failed to load game details:', error);
+            }
+        }
+        window.onload = function() {
+            loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
+        }
+    </script>
+{% endblock %}
