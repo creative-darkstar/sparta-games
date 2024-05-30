@@ -182,12 +182,16 @@ class GameDetailAPIView(APIView):
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
+            if request.FILES.get("gamefile"):
+                game.register_state=0
+                game.gamefile = request.FILES.get("gamefile")
             game.title = request.data.get("title", game.title)
             game.thumbnail = request.FILES.get("thumbnail", game.thumbnail)
             game.youtube_url = request.data.get("youtube_url", game.youtube_url)
             game.content = request.data.get("content", game.content)
-            game.gamefile = request.FILES.get("gamefile", game.gamefile)
             game.save()
+
+            
 
             tag_data = request.data.get('tag')
             if tag_data:
