@@ -14,8 +14,8 @@
                     <textarea name="content" cols="40" rows="10" required="" id="id_content"></textarea>
                 </div>
                 <div>
-                    <label for="id_gamefile">게임 파일: </label>
-                    <input type="file" name="gamefile" accept="application/zip" id="id_gamefile">
+                    <label for="id_youtube_url">유튜브 링크: </label>
+                    <input type="text" name="youtube_url" maxlength="255" required="" id="id_youtube_url">
                 </div>
                 {#                    태그#}
                 <div>
@@ -23,12 +23,12 @@
                     <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
                 </div>
                 <div>
-                    <label for="id_youtube_url">유튜브 링크: </label>
-                    <input type="text" name="youtube_url" maxlength="255" required="" id="id_youtube_url">
-                </div>
-                <div>
                     <label for="id_screenshots">스크린샷: </label>
                     <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple>
+                </div>
+                <div>
+                    <label for="id_gamefile">게임 파일: </label>
+                    <input type="file" name="gamefile" accept="application/zip" id="id_gamefile">
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button  type="submit" class="btn btn-primary">완료</button>
