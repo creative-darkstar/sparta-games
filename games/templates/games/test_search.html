@@ -3,12 +3,32 @@
 
 {% block content %}
     <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div style="position:relative; right:15px;">
+                <button>최신순</button>
+                <button>평점순</button>
+                <button>조회순</button>
+            </div>
+            <div style="position:relative; right:100px;">
+                <h3 id=tagtitle style="position:relative; top:4px;"></h3>
+            </div>
+            <div></div>
+        </div>
+        <br>
         <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list">
         </div>
     </div>
     <script>
         window.addEventListener("load", async function PageLoad() {
-            const params = window.location.search;
+            const params = decodeURI(window.location.search);
+            let tagtitle_param=params.split("=")[1];
+            console.log(tagtitle_param);
+            if (tagtitle_param==null){
+                tagtitle_param="전체게임"
+            }
+            const  tagtitle= document.getElementById('tagtitle');
+            tagtitle.textContent=tagtitle_param;
+
             const url = '{% url 'games:game_list' %}' + params
 
             const test_r = await aSend({
