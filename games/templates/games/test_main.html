@@ -74,7 +74,6 @@
 
                     const card_body_div = document.createElement('div');
                     card_body_div.setAttribute("class", "card-body");
-                    // card_body_div.setAttribute("class", "card-img-overlay");
 
                     const card_title = document.createElement('h5');
                     card_title.setAttribute("class", "card-title");
@@ -89,9 +88,9 @@
                     card_content.setAttribute("class", "card-text");
                     card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
 
-                    const gameTestPageURL = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                    const game_test_page_url = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
                     const card_a = document.createElement('a');
-                    card_a.setAttribute("href", gameTestPageURL.replace('1', row.pk));
+                    card_a.setAttribute("href", game_test_page_url.replace('1', row.pk));
 
                     card_body_div.appendChild(card_title);
                     card_body_div.appendChild(card_content);
@@ -125,7 +124,6 @@
 
                 const card_body_div = document.createElement('div');
                 card_body_div.setAttribute("class", "card-body");
-                // card_body_div.setAttribute("class", "card-img-overlay");
 
                 const card_title = document.createElement('h5');
                 card_title.setAttribute("class", "card-title");
@@ -140,9 +138,14 @@
                 card_content.setAttribute("class", "card-text");
                 card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
 
+                const game_test_page_url_all = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                const card_a_all = document.createElement('a');
+                card_a_all.setAttribute("href", game_test_page_url_all.replace('1', row.pk));
+
                 card_body_div.appendChild(card_title);
                 card_body_div.appendChild(card_content);
-                card_div.appendChild(card_img);
+                card_div.appendChild(card_a_all)
+                card_a_all.appendChild(card_img)
                 card_div.appendChild(card_body_div);
                 game_list_div.appendChild(card_div);
             }
