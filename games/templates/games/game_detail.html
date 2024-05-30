@@ -1,102 +1,232 @@
 {% extends "base.html" %} {% block content %} {% load static %}
-<div class="d-flex flex-column align-items-center">
-  {% comment %} style="display:flex;flex-direction: column;align-items: center;" {% endcomment %}
-  <h1>{{ title }}</h1>
-  {% comment %} <div style="position: relative; width: 100%; padding-bottom: 56.25%"> {% endcomment %}
-  <div style="position: relative; width: 53%; padding-bottom: 36%">
-    <iframe
-      id="inlineFrameExample"
-      title="Inline Frame Example"
-      style="position: absolute; width: 100%; height: 100%"
-      src="{{ gamepath }}/index.html"
-    >
-    </iframe>
-  </div>
 
-</div>
-
+<div id='titleContainer' class="d-flex flex-column align-items-center"></div>
+<div id='infoDiv'></div>
+<div id='containerDiv' class='d-flex align-items-center justify-content-around'></div>
+<div id='contentDiv' class=''></div>
 
 <div>
-  <span>평점 : {{ star_score }}</span>
-  <span>제작자 : {{ maker_name }}</span>
-  <span>업로드 일시 : {{ created_at }}</span>
-  <br />
-  <span
-    >태그 : {% for item in tag %}
-    <span>{{ item.name }}</span>
-    {% endfor %}
-  </span>
-</div>
-
-<div class="d-flex align-items-center justify-content-around">
-    <iframe
-    width="560"
-    height="315"
-    src="https://www.youtube.com/embed/_2MtnLyBdbk"
-    title="YouTube video player"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    referrerpolicy="strict-origin-when-cross-origin"
-    allowfullscreen
-  ></iframe>
-  {% for image in screenshot %}
-    <img src={{ image.src }} alt="" style="width: 300px">
-  {% endfor %}
+  <form id='formElement' method='POST' onsubmit="GameCreate(event);">
+    {% csrf_token %}
+    <label for="comment">댓글</label>
+    <input type="text" id='comment' name='content'>
+    <button type="submit">제출</button>
+  </form>
+  <div id='commentContainerDiv'></div>
 </div>
 
 
-{% comment %} https://youtu.be/_2MtnLyBdbk
- {% endcomment %}
-
-
-<div>
-  content : {{ content }}
-</div>
-
-{% comment %} action={% url 'games:CommentAPIView' game_pk %} {% endcomment %}
-<form action='' method="POST" class="d=flex ">
-  {% csrf_token %}
-  {% comment %} {{ request.user }} {% endcomment %}
-  <label for="comment">댓글</label>
-  <input type="text" name="comment" id="comment">
-  <button type="submit">게시</button>
-</form>
-
-<div>
-  {% for comment in comments %}
-  {% if comment.src %}
-  <img src={{ comment.src }} alt="" />
-  {% else %} <img src={% static 'image/user.png' %} alt="" style='width: 30px;'>
-  {% endif %}
-
-  <span>작성자 : {{ comment.author }}</span>
-  <span>댓글 내용 : {{ comment.content }}</span>
-  <span>작성 일시 : {{ comment.created_at }}</span>
-  <br />
-  {% endfor %}
-</div>
 <script>
-  async function aSend({url, method, is_token, body = null}) {
-    const headers = {};
+  async function GameCreate(event) {
+    event.preventDefault();  // 폼의 기본 제출 동작을 방지
 
-    if (is_token) {
-        await tokenRefresh();
-        const access = localStorage.getItem('access_token');
-        headers['Authorization'] = `Bearer ${access}`
+    const form_tag = document.getElementById('formElement');
+    const formData = new FormData(form_tag);
+
+    const url = '{% url 'games:comments' game_pk %}'
+
+    try {
+        await aSend({
+            url: url,
+            method: 'POST',
+            is_token: true,
+            body: formData
+        })
+        
+    } catch (error) {
+        console.error('Error:', error);
+        return false;
     }
-
-    const data = {
-        method: method,
-        headers: headers,
-    }
-
-    if (body) {
-        data["body"] = body
-    }
-
-    const response = await fetch(`${url}`, data);
-
-    return response.json();
+    window.location.href = "{% url 'games:game_test_page' game_pk %}";
 }
+
+  window.addEventListener("load", async function PageLoad() {
+
+    // context로 views.py에서 game_pk를 받아서 사용한다.
+    const game_detail_URL = '{% url 'games:game_detail' game_pk %}';
+    const comment_URL = '{% url 'games:comments' game_pk %}';
+
+    const game_detail_response = await aSend({
+      url: game_detail_URL,
+      method: 'GET',
+      is_token: false,
+    });
+    
+    const comment_response = await aSend({
+      url: comment_URL,
+      method: 'GET',
+      is_token: false,
+    });
+
+    const title = game_detail_response.title;
+    const gamepath = game_detail_response.gamepath;
+    const star_score = game_detail_response.star_score;
+    const maker_name = game_detail_response.maker_name;
+    const created_at = game_detail_response.created_at;
+    const tag = game_detail_response.tag;
+    const screenshot = game_detail_response.screenshot;
+    const content = game_detail_response.content;
+    
+    // # 1 ==============title과 iframe=====================
+    // const titleContainer = document.createElement('div');
+    // titleContainer.className = 'd-flex flex-column align-items-center';
+    const titleContainer = document.getElementById('titleContainer');
+
+    const divElement = document.createElement('div');
+    divElement.style.position = 'relative';
+    divElement.style.width = '53%';
+    divElement.style.paddingBottom = '36%';
+
+    const titleElement = document.createElement('h1');
+    titleElement.textContent = title;
+    
+    const iframeElement = document.createElement('iframe');
+    iframeElement.style.cssText = 'position: absolute; width: 100%; height: 100%;'
+    iframeElement.src = `${gamepath}/index.html`;
+    
+    // document.body.appendChild(titleContainer);
+
+    titleContainer.appendChild(titleElement);
+    titleContainer.appendChild(divElement);
+    divElement.appendChild(iframeElement);
+
+    // # 2 ================게임 상세 span==================
+    // const infoDiv = document.createElement('div');
+    const infoDiv = document.getElementById('infoDiv');
+
+    const starScoreSpan = document.createElement('span');
+    starScoreSpan.textContent = `평점: ${star_score}`;
+
+    const makerNameSpan = document.createElement('span');
+    makerNameSpan.textContent = `제작자: ${maker_name}`;
+
+    const createdAtSpan = document.createElement('span');
+    createdAtSpan.textContent = `업로드 일시: ${created_at}`;
+
+    const lineBreak = document.createElement('br');
+
+    const tagSpan = document.createElement('span');
+    tagSpan.textContent = '태그: ';
+
+    tag.forEach((item, index) => {
+      const tagItemSpan = document.createElement('span');
+      if (index > 0) {
+        tagItemSpan.textContent = `, ${item.name}`;
+      } else {
+        tagItemSpan.textContent = item.name;
+      }
+      tagSpan.appendChild(tagItemSpan);
+    })
+
+
+    // document.body.appendChild(infoDiv)
+
+    infoDiv.appendChild(starScoreSpan)
+    infoDiv.appendChild(makerNameSpan)
+    infoDiv.appendChild(createdAtSpan)
+    infoDiv.appendChild(lineBreak)
+    infoDiv.appendChild(tagSpan)
+
+    // # 3 ==================video와 screenshot=====================
+    // const containerDiv = document.createElement('div');
+    // containerDiv.className = 'd-flex align-items-center justify-content-around'
+    const containerDiv = document.getElementById('containerDiv');
+
+    const videoIframeElement = document.createElement('iframe');
+    videoIframeElement.width = '560';
+    videoIframeElement.height = '315';
+    videoIframeElement.src = 'https://www.youtube.com/embed/_2MtnLyBdbk';
+    videoIframeElement.frameBorder = '0';
+    videoIframeElement.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    videoIframeElement.referrerPolicy = 'strict-origin-when-cross-origin';
+    videoIframeElement.allowFullscreen = true;
+
+    containerDiv.appendChild(videoIframeElement);
+
+    for (let i = 0; i < screenshot.length; i++) {
+      const imgElement = document.createElement('img');
+      imgElement.src = screenshot[i].src;
+      imgElement.alt = '';
+      imgElement.style.width = '300px';
+      containerDiv.appendChild(imgElement);
+    }
+    
+    // document.body.appendChild(containerDiv);
+
+    // #4 ====================작성자의 게임 설명===========================
+    // const contentDiv = document.createElement('div');
+    // contentDiv.textContent = `content: ${content}`;
+    // document.body.appendChild(contentDiv);
+    const contentDiv = document.getElementById('contentDiv');
+
+    // # 5==================댓글 작성 form, 수정 필요======================
+    /* const formElement = document.createElement('form');
+    formElement.action = ''
+    formElement.method = 'POST';
+    formElement.className = 'd-flex';
+
+    const csrfTokenInput = document.createElement('input');
+    csrfTokenInput.type = 'hidden';
+    csrfTokenInput.name = 'csrfmiddlewaretoken';
+    csrfTokenInput.value = '{{ csrf_token }}';
+
+    const labelElement = document.createElement('label');
+    labelElement.htmlFor = 'comment';
+    labelElement.textContent = '댓글';
+
+    const inputElement = document.createElement('input');
+    inputElement.type = 'text';
+    inputElement.name = 'comment';
+    inputElement.id = 'comment';
+
+    const buttonElement = document.createElement('button');
+    buttonElement.type = 'submit';
+    buttonElement.textContent = '게시';
+
+    formElement.appendChild(csrfTokenInput);
+    formElement.appendChild(labelElement);
+    formElement.appendChild(inputElement);
+    formElement.appendChild(buttonElement);
+
+    document.body.appendChild(formElement);*/
+
+    // # 6 =====================게시글에 달린 댓글========================
+    // const commentContainerDiv = document.createElement('div');
+    const commentContainerDiv = document.getElementById('commentContainerDiv');
+// 
+    comment_response.forEach(comment => {
+      const commentDiv = document.createElement('div');
+
+      const commentImgElement = document.createElement('img');
+      if (comment.src) {
+        commentImgElement.src = comment.src;
+      } else {
+        commentImgElement.src = '{% static 'image/user.png' %}'
+        commentImgElement.style.width = '30px';
+      }
+      commentImgElement.alt = '';
+      commentDiv.appendChild(commentImgElement);
+
+      const authorSpanElement = document.createElement('span');
+      authorSpanElement.textContent = `작성자: ${comment.author}`;
+      commentDiv.appendChild(authorSpanElement);
+
+      const contentSpanElement = document.createElement('span');
+      contentSpanElement.textContent = `댓글 내용: ${comment.content}`;
+      commentDiv.appendChild(contentSpanElement);
+
+      const commendCreatedAtSpan = document.createElement('span');
+      commendCreatedAtSpan.textContent = `작성 일시: ${comment.created_at}`;
+      commentDiv.appendChild(commendCreatedAtSpan);
+
+      const commentLineBreak = document.createElement('br');
+      commentDiv.appendChild(commentLineBreak);
+
+      commentContainerDiv.appendChild(commentDiv)
+      // document.body.appendChild(commentContainerDiv)
+    })
+  });
+  
+
 </script>
 {% endblock content %}
