@@ -17,7 +17,6 @@
                     <label for="id_youtube_url">유튜브 링크: </label>
                     <input type="text" name="youtube_url" maxlength="255" required="" id="id_youtube_url">
                 </div>
-                {#                    태그#}
                 <div>
                     <label for="id_thumbnail">썸네일: </label>
                     <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
@@ -29,6 +28,17 @@
                 <div>
                     <label for="id_gamefile">게임 파일: </label>
                     <input type="file" name="gamefile" accept="application/zip" id="id_gamefile">
+                </div>
+                <div>
+                    <label for="id_tag">태그: </label>
+                    <select id="itemSelect">
+                        <option value="">항목을 선택하세요</option>
+                        <option value="Apple">Apple</option>
+                        <option value="Banana">Banana</option>
+                        <option value="Cherry">Cherry</option>
+                    </select>
+                    <button onclick="addItem()">추가</button>
+                    <div id="selectedItems"></div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button  type="submit" class="btn btn-primary">수정 완료</button>
@@ -91,6 +101,24 @@
         }
         window.onload = function() {
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
+        }
+    </script>
+    <script>
+        function addItem() {
+            var select = document.getElementById("itemSelect");
+            var selectedValue = select.value;
+            var selectedText = select.options[select.selectedIndex].text;
+        
+            if (selectedValue !== "") {
+                var itemsDiv = document.getElementById("selectedItems");
+                var newItem = document.createElement("div");
+                newItem.classList.add("selected-item");
+                newItem.textContent = selectedText;
+                newItem.onclick = function() {
+                    itemsDiv.removeChild(newItem);
+                };
+                itemsDiv.appendChild(newItem);
+            }
         }
     </script>
 {% endblock %}
