@@ -54,8 +54,8 @@
             });
             const game_list_div = document.getElementById('game_list');
             game_list_div.innerHTML = '';
-
-            for (let row of test_r) {
+            console.log(test_r.results);
+            for (let row of test_r.results) {
                 const card_div = document.createElement('div');
                 card_div.setAttribute("class", "card");
                 card_div.setAttribute("style", "width: 18rem;");

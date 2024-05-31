@@ -27,6 +27,7 @@ from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from django.db.models import Avg,Q
+from rest_framework.pagination import PageNumberPagination
 
 
 
@@ -53,6 +54,7 @@ class GameListAPIView(APIView):
         maker_q = request.query_params.get('maker-q')
         gm_q = request.query_params.get('gm-q')
         order = request.query_params.get('order')
+        paginator = PageNumberPagination()
 
         if tag_q:
             rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True, register_state=1)
@@ -81,9 +83,9 @@ class GameListAPIView(APIView):
             rows = rows.order_by('-star')
         else:
             rows = rows.order_by('-created_at')
-
-        serializer = GameListSerializer(rows, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        result=paginator.paginate_queryset(rows,request)
+        serializer = GameListSerializer(result, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     """
     게임 등록
