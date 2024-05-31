@@ -150,70 +150,70 @@
     }
 
     async function navbar() {
-        const user = await isLogIn()
-        const refresh = localStorage.getItem('refresh_token');
-        const username = localStorage.getItem('username');
+        const user = await isLogIn();
         const navbar_login_userinfo = document.getElementById('navbar_login_userinfo');
         const navbar_logout_userinfo = document.getElementById('navbar_logout_userinfo');
         const navbar_login_userinfo_username = document.getElementById("navbar_login_userinfo_username");
-        const navbar_login_userinfo_adminpage = document.getElementById("navbar_login_userinfo_adminpage");
+        // const navbar_login_userinfo_adminpage = document.getElementById("navbar_login_userinfo_adminpage");
         const navbar_login_userinfo_userimage = document.getElementById("userimage")
 
-        if (refresh) {
-            //tokenRefresh();
+        if (user) {
             navbar_login_userinfo.style.display = 'block';
-            // znavbar_login_userinfo_username.innerText = username;
             navbar_login_userinfo_username.innerText = user.username;
             if (user.profile_image) {
                 navbar_login_userinfo_userimage.src = user.profile_image;
-              } else {
+            } else {
                 navbar_login_userinfo_userimage.src = '{% static 'image/user.png' %}'
-                // commentImgElement.style.width = '30px';
-              }
-            // navbar_login_userinfo_userimage.src = user.profile_image;
+            }
             navbar_logout_userinfo.style.display = 'none';
             // permission / payload 확인 후 관리자인 경우 navbar_login_userinfo_adminpage display block
             // 관리자가 아니라면 navbar_login_userinfo_adminpage display none
-
         } else {
             navbar_login_userinfo.style.display = 'none';
             navbar_logout_userinfo.style.display = 'block';
-            // navbar_login_userinfo_adminpage display none
         }
     }
 
-    window.addEventListener("load", navbar());
-
-    async function isLogIn () {
-        const user_pk = localStorage.getItem('user_pk');
-        if (user_pk) {
-            /*const response = await fetch('{% url 'accounts:test' %}', {
+    async function isLogIn() {
+        const access = localStorage.getItem('access_token');
+        if (access) {
+            const token_verify_resp = await fetch('{% url 'accounts:verify' %}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ token: access }),
             });
-            const data = await response.json();*/
-            const url = "{% url 'users:profile' 1 %}".replace('1', user_pk)
-            
-            const response = await aSend({
-                url: url,
-                method: 'GET',
-                is_token: false,
-            })
-            // localStorage.setItem('username', response.username);
-            // localStorage.setItem("profile_image", response.profile_image);
-            return response
-        } else {
-            const refresh = localStorage.getItem('refresh_token');
-            if (refresh) {
-                tokenRefresh();
+
+            if (token_verify_resp.ok) {
+                const base64Payload = access.split('.')[1];
+                const base64 = base64Payload.replace(/-/g, '+').replace(/_/g, '/');
+                const decodedJWT = JSON.parse(
+                    decodeURIComponent(
+                        window
+                            .atob(base64)
+                            .split('')
+                            .map(function (c) {
+                                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                            })
+                            .join('')
+                    )
+                );
+                const url = "{% url 'users:profile' 1 %}".replace('1', decodedJWT.user_id);
+
+                return await aSend({
+                    url: url,
+                    method: 'GET',
+                    is_token: false,
+                });
             } else {
-                window.location.href = "{% url 'accounts:login_page' %}";
+                await tokenRefresh();
             }
         }
+        return null;
     }
+
+    window.addEventListener("load", navbar());
     
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"

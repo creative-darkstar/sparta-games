@@ -173,10 +173,6 @@
                     allbtn.setAttribute("style", "display:block");
                 }
             });
-            if (document.querySelectorAll('.my_card[style*="display: none"]').length === 0) {
-                moreButton.style.display = 'none';
-                allListButton.style.display = 'block';
-            }
             
             function showCards(start, count, list = cards) {
                 const max = start + count;
