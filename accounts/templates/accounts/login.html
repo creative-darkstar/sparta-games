@@ -21,9 +21,8 @@
     
             const data = await response.json();
             if (response.ok) {
-                localStorage.setItem('access_token', data.jwt_token.access);
-                localStorage.setItem('refresh_token', data.jwt_token.refresh);
-                localStorage.setItem('user_pk', data.user.pk);
+                localStorage.setItem('access_token', data.access);
+                localStorage.setItem('refresh_token', data.refresh);
                 window.location.href = "{% url 'test_main_view' %}";
             } else {
                 alert('Login failed');

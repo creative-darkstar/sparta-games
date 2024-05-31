@@ -11,7 +11,6 @@
     <title>Sparta Games</title>
     {% block css_block %}
     {% endblock css_block %}
-    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
 </head>
 <body>
 <header class="p-3 mb-3 border-bottom">
@@ -32,22 +31,6 @@
                 </ul>
             </div>
             <div class="d-flex">
-                <form action="javascript:search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0"
-                      role="search">
-                    <div class="d-flex">
-                        <select class="btn btn-secondary dropdown-toggle text-left" type="button" aria-expanded="false"
-                                aria-label="Default select example" id="search_option">
-                            <option selected value="">검색 옵션</option>
-                            <option value="tag-q">태그</option>
-                            <option value="game-q">게임</option>
-                            <option value="maker-q">작성자</option>
-                            <option value="gm-q">게임+작성자</option>
-                        </select>
-                        <input type="search" class="form-control" placeholder="검색" aria-label="Search"
-                               id="search_input">
-                    </div>
-                </form>
-
                 <a class="pt-1" href={% url 'games:game_create_test_page' %} aria-expanded="false">
                     <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
                 </a>
@@ -136,17 +119,6 @@
         const response = await fetch(`${url}`, data);
 
         return response.json();
-    }
-
-    function search() {
-        let search_option_tag = document.getElementById('search_option');
-        let search_input_tag = document.getElementById('search_input');
-
-        if (!search_option_tag.value) {
-            window.location.href = "{% url 'test_search_view' %}";
-        } else {
-            window.location.href = "{% url 'test_search_view' %}" + `?${search_option_tag.value}=${search_input_tag.value}`;
-        }
     }
 
     async function navbar() {

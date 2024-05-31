@@ -9,4 +9,5 @@ urlpatterns = [
     path("api/<int:user_pk>/password/", views.change_password, name="change_password"),
     path("api/<int:user_pk>/games/", views.my_games, name="my_games"),
     path("api/<int:user_pk>/likes/", views.like_games, name="like_games"),
+    path("<int:user_pk>/", views.profile_page, name='profile_page'),
 ]
