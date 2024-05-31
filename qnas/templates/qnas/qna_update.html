@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="d-grid gap-2 d-md-flex justify-content-center">
+        <div>
+            <form method="POST" enctype="multipart/form-data" id="qna_update_form" onsubmit="QnAUpdate(event);">
+                {% csrf_token %}
+                <div>
+                    <label for="id_category">카테고리: </label>
+                    <select id="itemSelect" name="category"></select>
+                </div>
+                <div>
+                    <label for="id_title">제목: </label>
+                    <input type="text" name="title" maxlength="50" required="" id="id_title">
+                </div>
+                <div>
+                    <label for="id_content">설명: </label>
+                    <textarea name="content" cols="40" rows="10" required="" id="id_content"></textarea>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button  type="submit" class="btn btn-primary">완료</button>
+                </div>
+            </form>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a class="btn btn-secondary" href="javascript:history.back()">취소</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        function getQnaId(){
+            const path=window.location.pathname;
+            const parts =path.split('/');
+            return parseInt(parts[2]);
+        }
+
+        async function loadQnADetails(){
+            const qna_pk = getQnaId();
+            const category_url='{% url 'qnas:category_list' %}'
+            const category_response = await aSend({
+                url: category_url,
+                method: 'GET',
+                is_token: false,
+            });
+            const category_list = document.getElementById('itemSelect');
+            category_list.innerHTML = ``;
+            category_response.forEach(c=>{
+                const opt= document.createElement('option');
+                opt.value=c.code;
+                opt.innerHTML=`${c.name}`;
+                category_list.appendChild(opt);
+            });
+            const qna_detail_url = '{% url 'qnas:qna_detail' 1 %}'.replace("1",qna_pk);
+
+            try {
+                const qna_detail_response = await aSend({
+                    url: qna_detail_url,
+                    method: 'GET',
+                    is_token: false,
+                });
+                const title = qna_detail_response.title;
+                const content = qna_detail_response.content;
+                const category = qna_detail_response.category;
+                
+                document.getElementById('id_title').value = title;
+                document.getElementById('id_content').value = content;
+                document.getElementById("itemSelect").value = category;
+                {% comment %} document.querySelector(`#itemSelect option[value='${category}']`).selected=true; {% endcomment %}
+            } catch (error) { 
+                console.error('Failed to load game details:', error);
+            }
+        }
+
+
+        window.onload = function() {
+            loadQnADetails();// 페이지 로드 시 게임 상세 정보를 로드
+        }
+
+
+        async function QnAUpdate(event) {
+            event.preventDefault();  // 폼의 기본 제출 동작을 방지
+            const qna_pk = getQnaId();
+            const form_tag = document.getElementById('qna_update_form');
+            const formData = new FormData(form_tag);
+            const selectedItems = document.querySelector("#itemSelect");
+            formData.set('category', selectedItems.value);
+            const url = '{% url 'qnas:qna_detail' 1 %}'.replace("1",qna_pk);
+
+            try {
+                const response= await aSend({
+                    url: url,
+                    method: 'PUT',
+                    is_token: true,
+                    body: formData
+                });
+                const qna_pk= response.id;
+                window.location.href = '{% url 'qnas:qna_detail_page' 1 %}'.replace('1', qna_pk);
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
+            }
+        }
+    </script>
+{% endblock %}

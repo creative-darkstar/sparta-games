@@ -7,7 +7,7 @@
             <p id="detail_category"></p>
         </div>
         <div>
-            <a class="btn btn-secondary"href="">수정</a>
+            <a id="updatebtn" class="btn btn-secondary">수정</a>
             <button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>
         </div>
     </div>
@@ -39,6 +39,9 @@
 
         const qna_content_pre = document.getElementById('detail_content');
         qna_content_pre.textContent=qna_data.content;
+
+        const qna_update_btn = document.getElementById('updatebtn');
+        qna_update_btn.setAttribute('href',`{% url 'qnas:qna_update' qna_pk %}`);
     });
 
     async function deleteQnA(){
