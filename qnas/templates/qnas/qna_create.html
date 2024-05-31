@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="d-grid gap-2 d-md-flex justify-content-center">
+        <div>
+            <form method="POST" enctype="multipart/form-data" id="qna_create_form" onsubmit="QnACreate(event);">
+                {% csrf_token %}
+                <div>
+                    <label for="id_tag">카테고리: </label>
+                    <select id="itemSelect" name="category"></select>
+                </div>
+                <div>
+                    <label for="id_title">제목: </label>
+                    <input type="text" name="title" maxlength="50" required="" id="id_title">
+                </div>
+                <div>
+                    <label for="id_content">설명: </label>
+                    <textarea name="content" cols="40" rows="10" required="" id="id_content"></textarea>
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button  type="submit" class="btn btn-primary">완료</button>
+                </div>
+            </form>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a class="btn btn-secondary" href="javascript:history.back()">취소</a>
+            </div>
+        </div>
+    </div>
+    <script>
+        {% comment %} window.onload= async function() {
+            const form_tag = document.getElementById('qna_create_form');
+            const formData = new FormData(form_tag);
+            console.log(formData.category);
+        } {% endcomment %}
+        async function QnACreate(event) {
+            event.preventDefault();  // 폼의 기본 제출 동작을 방지
+            
+            const form_tag = document.getElementById('qna_create_form');
+            const formData = new FormData(form_tag);
+            const selectedItems = document.getElementById("itemSelect");
+            formData.append('category', selectedItems.textContent);
+            const url = '{% url 'qnas:qna_list' %}'
+
+            try {
+                const response= await aSend({
+                    url: url,
+                    method: 'POST',
+                    is_token: true,
+                    body: formData
+                })
+
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
+            }
+            window.location.href = "{% url 'qna_detail_page' response.id %}";
+        }
+
+        window.onload = async function() {
+            const tag_url='{% url 'games:tags' %}'
+            const tag_response = await aSend({
+                url: tag_url,
+                method: 'GET',
+                is_token: false,
+            });
+            const tag_list = document.getElementById('itemSelect');
+            tag_list.innerHTML = ``;
+            tag_response.forEach(tag=>{
+                const opt= document.createElement('option');
+                opt.value=tag.name;
+                opt.innerHTML=`${tag.name}`;
+                tag_list.appendChild(opt);
+            })
+        }
+
+    </script>
+{% endblock %}

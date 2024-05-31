@@ -10,5 +10,6 @@ urlpatterns = [
 
     #Templates
     path("", views.qna_main_view, name="qna_main"),
-    path("<int:qna_pk>/", views.qna_detail_view, name="qna_detail_page")
+    path("<int:qna_pk>/", views.qna_detail_view, name="qna_detail_page"),
+    path("create/", views.qna_create_view, name="qna_create"),
 ]

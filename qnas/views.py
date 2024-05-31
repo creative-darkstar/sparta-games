@@ -93,3 +93,6 @@ def qna_main_view(request):
 
 def qna_detail_view(request, qna_pk):
     return render(request, "qnas/qna_detail.html", {'qna_pk': qna_pk})
+
+def qna_create_view(request):
+    return render(request, "qnas/qna_create.html")
