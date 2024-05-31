@@ -3,6 +3,7 @@
 
 {% block css_block %}
   <link rel="stylesheet" href="{% static 'css/star.css' %}">
+  <link rel="stylesheet" href="{% static 'css/scroll.css' %}">
 {% endblock css_block %}
 
 {% block content %}
@@ -18,7 +19,63 @@
 
 </div>
 
-<div id='containerDiv' class='d-flex align-items-center justify-content-around'></div>
+<div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
+  <div id='wrap-vertical' class="scroll-container">
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://img.youtube.com/vi/_2MtnLyBdbk/0.jpg" class="d-block w-100" alt="...">
+    </button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://mblogthumb-phinf.pstatic.net/MjAxNzA4MTVfMTE4/MDAxNTAyNzkzOTcxMjUy.0e3fCnpQEymKTLcZXXQmq0WftRMoIlgCbkCAY6aPwWkg.wsnoG3A6-zxhmKKVkPF3QHuAQ1K4PE0W0SrIJLLK0X4g.JPEG.jaehun12067/img9.jpg?type=w800" class="d-block w-100" alt="...">
+    </button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://mblogthumb-phinf.pstatic.net/MjAxNzA4MTVfMTE5/MDAxNTAyNzk0MDYzNjMx.XhxajUwM6CJ9qbS4eqN1IophAn7e7WAzWkNUgS_cIpYg.5bsCNVwguqrzRS9hImzaM4gw9usqYk5LW6fcREEPPbcg.JPEG.jaehun12067/img0.jpg?type=w800" class="d-block w-100" alt="...">
+    </button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://mblogthumb-phinf.pstatic.net/MjAxNzA4MTVfMTE4/MDAxNTAyNzk0MTMwMTk1.hgNNaoSIRkDtRSxTJsY4lfy58XtDNU01sqKWNcIB4kkg.IcSUEeKQxLBvriBxBp4S2rVhJNqjqIlp83oK1lma8cAg.JPEG.jaehun12067/img100.jpg?type=w800" class="d-block w-100" alt="...">
+    </button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4" aria-label="Slide 5" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://mspoweruser.com/wp-content/uploads/2022/10/7c2f345bdfcadb8a3faf483ebaa2e9aea712bbdb-scaled.jpg" class="d-block w-100" alt="...">
+    </button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="5" aria-label="Slide 6" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://storage2.ilyo.co.kr/contents/article/images/2017/1204/1512355898117995.jpg" class="d-block w-100" alt="...">
+    </button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="6" aria-label="Slide 7" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://mblogthumb-phinf.pstatic.net/MjAxOTA0MjNfMTQ2/MDAxNTU2MDA5MDk3MDg4.bGDd1y6KuI4poMhxJzUctITxhDe4o4m6H1weB3uDRNYg.-BTPc33YdRCuzWIZNZen_NCy4HwZQGCxEPFdKHK9n84g.JPEG.lucomsfam/SE-a2d9748e-7033-442b-b10c-549ebf83aad5.jpg?type=w800" class="d-block w-100" alt="...">
+    </button>
+    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="7" aria-label="Slide 8" style="vertical-align:middle; width:300px; height:150px;">
+      <img style="max-width:200px; max-height:140px" src="https://www.itworld.co.kr/files/itworld/ITW_202301_01/m12-Windows8dot1logo.jpg" class="d-block w-100" alt="...">
+    </button>
+  </div>
+  <br>
+  <div id="carouselExampleIndicators" class="carousel slide">
+    <div class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;">
+      <div class="carousel-item active" style="position: absolute; max-width: 100%; height: 100%">
+          <iframe style="position: absolute; width: 100%; height: 100%" src="https://www.youtube.com/embed/_2MtnLyBdbk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+      <div class="carousel-item" style="position: absolute; width: 100%; height: 100%">
+        <img style="object-fit: contain; object-position: center center;" src="https://mblogthumb-phinf.pstatic.net/MjAxNzA4MTVfMTE4/MDAxNTAyNzkzOTcxMjUy.0e3fCnpQEymKTLcZXXQmq0WftRMoIlgCbkCAY6aPwWkg.wsnoG3A6-zxhmKKVkPF3QHuAQ1K4PE0W0SrIJLLK0X4g.JPEG.jaehun12067/img9.jpg?type=w800" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item" style="position: absolute; width: 100%; height: 100%">
+        <img style="object-fit: contain; object-position: center center;" src="https://mblogthumb-phinf.pstatic.net/MjAxNzA4MTVfMTE5/MDAxNTAyNzk0MDYzNjMx.XhxajUwM6CJ9qbS4eqN1IophAn7e7WAzWkNUgS_cIpYg.5bsCNVwguqrzRS9hImzaM4gw9usqYk5LW6fcREEPPbcg.JPEG.jaehun12067/img0.jpg?type=w800" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item" style="position: absolute; width: 100%; height: 100%">
+        <img style="object-fit: contain; object-position: center center;" src="https://mblogthumb-phinf.pstatic.net/MjAxNzA4MTVfMTE4/MDAxNTAyNzk0MTMwMTk1.hgNNaoSIRkDtRSxTJsY4lfy58XtDNU01sqKWNcIB4kkg.IcSUEeKQxLBvriBxBp4S2rVhJNqjqIlp83oK1lma8cAg.JPEG.jaehun12067/img100.jpg?type=w800" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item" style="position: absolute; width: 100%; height: 100%">
+        <img style="object-fit: contain; object-position: center center;" src="https://mspoweruser.com/wp-content/uploads/2022/10/7c2f345bdfcadb8a3faf483ebaa2e9aea712bbdb-scaled.jpg" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item" style="position: absolute; width: 100%; height: 100%">
+        <img style="object-fit: contain; object-position: center center;" src="https://storage2.ilyo.co.kr/contents/article/images/2017/1204/1512355898117995.jpg" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item" style="position: absolute; width: 100%; height: 100%">
+        <img style="object-fit: contain; object-position: center center;" src="https://mblogthumb-phinf.pstatic.net/MjAxOTA0MjNfMTQ2/MDAxNTU2MDA5MDk3MDg4.bGDd1y6KuI4poMhxJzUctITxhDe4o4m6H1weB3uDRNYg.-BTPc33YdRCuzWIZNZen_NCy4HwZQGCxEPFdKHK9n84g.JPEG.lucomsfam/SE-a2d9748e-7033-442b-b10c-549ebf83aad5.jpg?type=w800" class="d-block w-100" alt="...">
+      </div>
+      <div class="carousel-item" style="position: absolute; width: 100%; height: 100%">
+        <img style="object-fit: contain; object-position: center center;" src="https://www.itworld.co.kr/files/itworld/ITW_202301_01/m12-Windows8dot1logo.jpg" class="d-block w-100" alt="...">
+      </div>
+    </div>
+  </div>
+</div>
 <div id='contentDiv' class=''></div>
 
 <div>
@@ -192,7 +249,7 @@ async function Star(event) {
     // containerDiv.className = 'd-flex align-items-center justify-content-around'
     const containerDiv = document.getElementById('containerDiv');
 
-    const videoIframeElement = document.createElement('iframe');
+    /*const videoIframeElement = document.createElement('iframe');
     videoIframeElement.width = '560';
     videoIframeElement.height = '315';
     videoIframeElement.src = 'https://www.youtube.com/embed/_2MtnLyBdbk';
@@ -209,7 +266,7 @@ async function Star(event) {
       imgElement.alt = '';
       imgElement.style.width = '300px';
       containerDiv.appendChild(imgElement);
-    }
+    }*/
     
     // document.body.appendChild(containerDiv);
 
