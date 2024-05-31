@@ -212,7 +212,7 @@ async function Star(event) {
       youtube_button.setAttribute('style','vertical-align:middle; width:300px; height:150px;')
 
       const youtube_thumbnail = document.createElement('img')
-      const youtube_id = youtube_url.split('/')[3].replace('watch?v=','');
+      const youtube_id = youtube_url.split('/')[3].replace('watch?v=','').split('?')[0].split('&')[0]
       const youtube_thumbnail_src = 'https://img.youtube.com/vi/' + youtube_id + '/0.jpg'
       // console.log(youtube_thumbnail_src)
       youtube_thumbnail.setAttribute('src', youtube_thumbnail_src)
@@ -228,6 +228,7 @@ async function Star(event) {
 
       const youtube_iframe = document.createElement('iframe')
       const youtube_src = 'https://www.youtube.com/embed/' + youtube_id
+      console.log(youtube_src)
       youtube_iframe.setAttribute('style','position: absolute; width: 100%; height: 100%')
       youtube_iframe.setAttribute('src',youtube_src)
       youtube_iframe.setAttribute('title','YouTube video player')
