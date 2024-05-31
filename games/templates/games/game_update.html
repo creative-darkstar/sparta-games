@@ -3,7 +3,7 @@
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
-            <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="GameCreate(event);">
+            <form method="POST" enctype="multipart/form-data" id="game_update_form" onsubmit="GameUpdate(event);">
                 {% csrf_token %}
                 <div>
                     <label for="id_title">제목: </label>
@@ -15,7 +15,7 @@
                 </div>
                 <div>
                     <label for="id_youtube_url">유튜브 링크: </label>
-                    <input type="text" name="youtube_url" maxlength="255" required="" id="id_youtube_url">
+                    <input type="text" name="youtube_url" maxlength="255" id="id_youtube_url">
                 </div>
                 <div>
                     <label for="id_thumbnail">썸네일: </label>
@@ -36,19 +36,74 @@
                     <div id="selectedItems"></div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <button  type="submit" class="btn btn-primary">완료</button>
+                    <button  type="submit" class="btn btn-primary">수정 완료</button>
                 </div>
             </form>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a class="btn btn-secondary" href={% url 'test_main_view' %}>등록 취소</a>
+                <a class="btn btn-secondary" href="javascript:history.back()">수정 취소</a>
             </div>
         </div>
     </div>
     <script>
-        async function GameCreate(event) {
+        function getGameId(){
+            const path=window.location.pathname;
+            const parts =path.split('/');
+            return parseInt(parts[3]);
+        }
+        async function loadGameDetails(){
+            const game_pk = getGameId();
+            const game_detail_url = '{% url 'games:game_detail' game_pk %}';
+            const tag_url='{% url 'games:tags' %}'
+            try {
+                const game_detail_response = await aSend({
+                    url: game_detail_url,
+                    method: 'GET',
+                    is_token: false,
+                });
+                const title = game_detail_response.title;
+                const content = game_detail_response.content;
+                const youtube_url =game_detail_response.youtube_url;
+                
+                document.getElementById('id_title').value = title;
+                document.getElementById('id_content').value = content;
+                document.getElementById('id_youtube_url').value = youtube_url;
+
+                const itemsDiv = document.getElementById("selectedItems");
+                if (game_detail_response.tag){
+                    itemsDiv.innerHTML = ``;
+                    game_detail_response.tag.forEach(tag=>{
+                        const newItem = document.createElement("div");
+                        newItem.classList.add("selected-item");
+                        newItem.textContent = tag.name;
+                        newItem.onclick = function() {
+                            itemsDiv.removeChild(newItem);
+                        };
+                        itemsDiv.appendChild(newItem);
+                    })
+                }
+                
+                const tag_response = await aSend({
+                    url: tag_url,
+                    method: 'GET',
+                    is_token: false,
+                });
+                const tag_list = document.getElementById('itemSelect');
+                tag_list.innerHTML = ``;
+                tag_response.forEach(tag=>{
+                    const opt= document.createElement('option');
+                    opt.value=tag.name;
+                    opt.innerHTML=`${tag.name}`;
+                    tag_list.appendChild(opt);
+                })
+            } catch (error) { 
+                console.error('Failed to load game details:', error);
+            }
+        }
+        async function GameUpdate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
-            const form_tag = document.getElementById('game_create_form');
+            const game_pk = getGameId();
+            const form_tag = document.getElementById('game_update_form');
             const formData = new FormData(form_tag);
             const selectedItems = document.querySelectorAll("#selectedItems .selected-item");
             let tagstring = '';
@@ -57,13 +112,13 @@
             });
             tagstring = tagstring.substr(1)
             formData.append('tag', tagstring);
-
-            const url = '{% url 'games:game_list' %}'
+            
+            const url = '{% url 'games:game_detail' game_pk %}'
 
             try {
                 await aSend({
                     url: url,
-                    method: 'POST',
+                    method: 'PUT',
                     is_token: true,
                     body: formData
                 })
@@ -71,7 +126,10 @@
                 console.error('Error:', error);
                 return false;
             }
-            window.location.href = "{% url 'test_main_view' %}";
+            window.location.href = '{% url 'games:game_test_page' game_pk %}';
+        }
+        window.onload = function() {
+            loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
         }
     </script>
     <script>
@@ -104,22 +162,6 @@
                 }
             }
             return false;
-        }
-        window.onload = async function() {
-            const tag_url='{% url 'games:tags' %}'
-            const tag_response = await aSend({
-                url: tag_url,
-                method: 'GET',
-                is_token: false,
-            });
-            const tag_list = document.getElementById('itemSelect');
-            tag_list.innerHTML = ``;
-            tag_response.forEach(tag=>{
-                const opt= document.createElement('option');
-                opt.value=tag.name;
-                opt.innerHTML=`${tag.name}`;
-                tag_list.appendChild(opt);
-            })
         }
     </script>
 {% endblock %}

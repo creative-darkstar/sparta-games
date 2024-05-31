@@ -1,3 +1,5 @@
+{% load static %}
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -30,7 +32,7 @@
                 </ul>
             </div>
             <div class="d-flex">
-                <form action="javascript:Search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0"
+                <form action="javascript:search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0"
                       role="search">
                     <div class="d-flex">
                         <select class="btn btn-secondary dropdown-toggle text-left" type="button" aria-expanded="false"
@@ -51,7 +53,7 @@
                 </a>
                 <div id="navbar_login_userinfo" style="display: none; align-content: center">
                     <a class="pt-1" href="#" aria-expanded="false">
-                        <img src="https://github.com/mdo.png" alt="mdo" width="32" height="32" class="rounded-circle">
+                        <img src="" alt="mdo" width="32" height="32" class="rounded-circle" id='userimage'>
                     </a>
                     <span id="navbar_login_userinfo_username"></span>
                     <a id="navbar_login_userinfo_adminpage" style="display: none" href={% url "games:admin_list" %}></a>
@@ -136,7 +138,7 @@
         return response.json();
     }
 
-    function Search() {
+    function search() {
         let search_option_tag = document.getElementById('search_option');
         let search_input_tag = document.getElementById('search_input');
 
@@ -147,18 +149,28 @@
         }
     }
 
-    function isLogin() {
+    async function navbar() {
+        const user = await isLogIn()
         const refresh = localStorage.getItem('refresh_token');
         const username = localStorage.getItem('username');
         const navbar_login_userinfo = document.getElementById('navbar_login_userinfo');
         const navbar_logout_userinfo = document.getElementById('navbar_logout_userinfo');
         const navbar_login_userinfo_username = document.getElementById("navbar_login_userinfo_username");
         const navbar_login_userinfo_adminpage = document.getElementById("navbar_login_userinfo_adminpage");
+        const navbar_login_userinfo_userimage = document.getElementById("userimage")
 
         if (refresh) {
             //tokenRefresh();
             navbar_login_userinfo.style.display = 'block';
-            navbar_login_userinfo_username.innerText = username;
+            // znavbar_login_userinfo_username.innerText = username;
+            navbar_login_userinfo_username.innerText = user.username;
+            if (user.profile_image) {
+                navbar_login_userinfo_userimage.src = user.profile_image;
+              } else {
+                navbar_login_userinfo_userimage.src = '{% static 'image/user.png' %}'
+                // commentImgElement.style.width = '30px';
+              }
+            // navbar_login_userinfo_userimage.src = user.profile_image;
             navbar_logout_userinfo.style.display = 'none';
             // permission / payload 확인 후 관리자인 경우 navbar_login_userinfo_adminpage display block
             // 관리자가 아니라면 navbar_login_userinfo_adminpage display none
@@ -170,7 +182,39 @@
         }
     }
 
-    window.addEventListener("load", isLogin());
+    window.addEventListener("load", navbar());
+
+    async function isLogIn () {
+        const user_pk = localStorage.getItem('user_pk');
+        if (user_pk) {
+            /*const response = await fetch('{% url 'accounts:test' %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: access }),
+            });
+            const data = await response.json();*/
+            const url = "{% url 'users:profile' 1 %}".replace('1', user_pk)
+            
+            const response = await aSend({
+                url: url,
+                method: 'GET',
+                is_token: false,
+            })
+            // localStorage.setItem('username', response.username);
+            // localStorage.setItem("profile_image", response.profile_image);
+            return response
+        } else {
+            const refresh = localStorage.getItem('refresh_token');
+            if (refresh) {
+                tokenRefresh();
+            } else {
+                window.location.href = "{% url 'accounts:login_page' %}";
+            }
+        }
+    }
+    
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

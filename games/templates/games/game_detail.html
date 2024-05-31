@@ -3,6 +3,7 @@
 
 {% block css_block %}
   <link rel="stylesheet" href="{% static 'css/star.css' %}">
+  <link rel="stylesheet" href="{% static 'css/scroll.css' %}">
 {% endblock css_block %}
 
 {% block content %}
@@ -18,7 +19,13 @@
 
 </div>
 
-<div id='containerDiv' class='d-flex align-items-center justify-content-around'></div>
+<div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
+  <div id='wrap-vertical' class="scroll-container"></div>
+  <br>
+  <div id="carouselExampleIndicators" class="carousel slide">
+    <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
+  </div>
+</div>
 <div id='contentDiv' class=''></div>
 
 <div>
@@ -129,7 +136,7 @@ async function Star(event) {
     const tag = game_detail_response.tag;
     const screenshot = game_detail_response.screenshot;
     const content = game_detail_response.content;
-    
+    const youtube_url = game_detail_response.youtube_url;
     // # 1 ==============title과 iframe=====================
     // const titleContainer = document.createElement('div');
     // titleContainer.className = 'd-flex flex-column align-items-center';
@@ -190,9 +197,82 @@ async function Star(event) {
     // # 3 ==================video와 screenshot=====================
     // const containerDiv = document.createElement('div');
     // containerDiv.className = 'd-flex align-items-center justify-content-around'
-    const containerDiv = document.getElementById('containerDiv');
+    const carouselButtonDiv = document.getElementById('wrap-vertical');
+    const carouselContentDiv = document.getElementById('carouselContent');
+    let content_idx = 0
 
-    const videoIframeElement = document.createElement('iframe');
+    if (youtube_url) {
+      const youtube_button = document.createElement('button')
+      youtube_button.setAttribute('type','button')
+      youtube_button.setAttribute('data-bs-target','#carouselExampleIndicators')
+      youtube_button.setAttribute('data-bs-slide-to',`${content_idx}`)
+      youtube_button.setAttribute('class','active')
+      youtube_button.setAttribute('aria-current','true')
+      youtube_button.setAttribute('aria-label',`Slide ${content_idx + 1}`)
+      youtube_button.setAttribute('style','vertical-align:middle; width:300px; height:150px;')
+
+      const youtube_thumbnail = document.createElement('img')
+      const youtube_id = youtube_url.split('/')[3];
+      const youtube_thumbnail_src = 'https://img.youtube.com/vi/' + youtube_id + '/0.jpg'
+      // console.log(youtube_thumbnail_src)
+      youtube_thumbnail.setAttribute('src', youtube_thumbnail_src)
+      youtube_thumbnail.setAttribute('class','d-block w-100')
+      youtube_thumbnail.setAttribute('alt','...')
+
+      youtube_button.appendChild(youtube_thumbnail)
+      carouselButtonDiv.appendChild(youtube_button)
+
+      const youtube_div = document.createElement('div')
+      youtube_div.setAttribute('class','carousel-item active')
+      youtube_div.setAttribute('style','position: absolute; max-width: 100%; height: 100%')
+
+      const youtube_iframe = document.createElement('iframe')
+      const youtube_src = 'https://www.youtube.com/embed/' + youtube_id
+      youtube_iframe.setAttribute('style','position: absolute; width: 100%; height: 100%')
+      youtube_iframe.setAttribute('src',youtube_src)
+      youtube_iframe.setAttribute('title','YouTube video player')
+      youtube_iframe.setAttribute('frameborder','0')
+      youtube_iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share')
+      youtube_iframe.setAttribute('referrerpolicy','strict-origin-when-cross-origin')
+      youtube_iframe.setAttribute('allowfullscreen','true')
+
+      youtube_div.appendChild(youtube_iframe)
+      carouselContentDiv.appendChild(youtube_div)
+      content_idx += 1
+    }
+
+    for (item of screenshot) {
+      const screenshot_button = document.createElement('button')
+      screenshot_button.setAttribute('type','button')
+      screenshot_button.setAttribute('data-bs-target','#carouselExampleIndicators')
+      screenshot_button.setAttribute('data-bs-slide-to',`${content_idx}`)
+      screenshot_button.setAttribute('aria-label',`Slide ${content_idx + 1}`)
+      screenshot_button.setAttribute('style',"vertical-align:middle; width:300px; height:150px;")
+
+      const screenshot_button_img = document.createElement('img')
+      screenshot_button_img.setAttribute('src',item.src)
+      screenshot_button_img.setAttribute('class','d-block w-100')
+      screenshot_button_img.setAttribute('alt','...')
+
+      screenshot_button.appendChild(screenshot_button_img)
+      carouselButtonDiv.appendChild(screenshot_button)
+
+      const screenshot_div = document.createElement('div')
+      screenshot_div.setAttribute('class','carousel-item')
+      screenshot_div.setAttribute('style','position: absolute; width: 100%; height: 100%')
+
+      const screenshot_img = document.createElement('img')
+      screenshot_img.setAttribute('style','object-fit: contain; object-position: center center;')
+      screenshot_img.setAttribute('src',item.src)
+      screenshot_img.setAttribute('class','d-block w-100')
+      screenshot_img.setAttribute('alt','...')
+
+      screenshot_div.appendChild(screenshot_img)
+      carouselContentDiv.appendChild(screenshot_div)
+      content_idx += 1
+    }
+
+    /*const videoIframeElement = document.createElement('iframe');
     videoIframeElement.width = '560';
     videoIframeElement.height = '315';
     videoIframeElement.src = 'https://www.youtube.com/embed/_2MtnLyBdbk';
@@ -209,7 +289,7 @@ async function Star(event) {
       imgElement.alt = '';
       imgElement.style.width = '300px';
       containerDiv.appendChild(imgElement);
-    }
+    }*/
     
     // document.body.appendChild(containerDiv);
 

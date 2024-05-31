@@ -3,23 +3,59 @@
 
 {% block content %}
     <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div style="position:relative; right:15px;">
+                <button type="button" onclick="updateOrder('new')">최신순</button>
+                <button type="button" onclick="updateOrder('star')">평점순</button>
+                <button type="button" onclick="updateOrder('view')">조회순</button>
+            </div>
+            <div style="position:relative; right:100px;">
+                <h3 id=tagtitle style="position:relative; top:4px;"></h3>
+            </div>
+            <div></div>
+        </div>
+        <br>
         <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list">
         </div>
     </div>
     <script>
-        window.addEventListener("load", async function PageLoad() {
-            const params = window.location.search;
-            const url = '{% url 'games:game_list' %}' + params
+        window.addEventListener("load", function() {
+            updateOrder();
+        });
+        async function updateOrder(order='new'){
+            const params = new URLSearchParams(decodeURIComponent(window.location.search));
+            if (order) {
+                params.set('order', order);
+            }
+            const tag_q = params.get('tag-q');
+            const game_q = params.get('game-q');
+            const maker_q = params.get('maker-q');
+            const gm_q = params.get('gm-q');
+
+            let displayTitle = "전체게임"; // Default title
+            if (tag_q) {
+                displayTitle = tag_q;
+            } else if (game_q) {
+                displayTitle = `${game_q}`;
+            } else if (maker_q) {
+                displayTitle = `${maker_q}`;
+            } else if (gm_q) {
+                displayTitle = `${gm_q}`;
+    }
+            const  tagtitle= document.getElementById('tagtitle');
+            tagtitle.textContent=displayTitle;
+
+            const url = '{% url 'games:game_list' %}?' + params.toString();
 
             const test_r = await aSend({
                 url: url,
                 method: 'GET',
                 is_token: false
             });
+            const game_list_div = document.getElementById('game_list');
+            game_list_div.innerHTML = '';
 
             for (let row of test_r) {
-                const game_list_div = document.getElementById('game_list');
-
                 const card_div = document.createElement('div');
                 card_div.setAttribute("class", "card");
                 card_div.setAttribute("style", "width: 18rem;");
@@ -52,12 +88,17 @@
                 card_content.setAttribute("class", "card-text");
                 card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
 
+                const game_test_page_url = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                const card_a = document.createElement('a');
+                card_a.setAttribute("href", game_test_page_url.replace('1', row.pk));
+
                 card_body_div.appendChild(card_title);
                 card_body_div.appendChild(card_content);
-                card_div.appendChild(card_img);
+                card_div.appendChild(card_a)
+                card_a.appendChild(card_img);
                 card_div.appendChild(card_body_div);
                 game_list_div.appendChild(card_div);
             }
-        });
+        }
     </script>
 {% endblock %}

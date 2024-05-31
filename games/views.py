@@ -182,11 +182,13 @@ class GameDetailAPIView(APIView):
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
         if game.maker == request.user:
+            if request.FILES.get("gamefile"):
+                game.register_state=0
+                game.gamefile = request.FILES.get("gamefile")
             game.title = request.data.get("title", game.title)
             game.thumbnail = request.FILES.get("thumbnail", game.thumbnail)
             game.youtube_url = request.data.get("youtube_url", game.youtube_url)
             game.content = request.data.get("content", game.content)
-            game.gamefile = request.FILES.get("gamefile", game.gamefile)
             game.save()
 
             tag_data = request.data.get('tag')
@@ -200,7 +202,7 @@ class GameDetailAPIView(APIView):
             for item in request.FILES.getlist("screenshots"):
                 game.screenshots.create(src=item)
 
-            return Response({"messege":"수정이 완료됐습니다"},status=status.HTTP_200_OK)
+            return Response({"messege": "수정이 완료됐습니다"},status=status.HTTP_200_OK)
         else:
             return Response({"error": "작성자가 아닙니다"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -447,3 +449,6 @@ def admin_list(request):
 def admin_tag(request):
     tags=Tag.objects.all()
     return render(request, "games/admin_tags.html", context={"tags":tags})
+
+def game_update_view(request, game_pk):
+    return render(request,"games/game_update.html",{'game_pk':game_pk})
