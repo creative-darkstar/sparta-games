@@ -38,7 +38,8 @@
             const form_tag = document.getElementById('qna_create_form');
             const formData = new FormData(form_tag);
             const selectedItems = document.getElementById("itemSelect");
-            formData.append('category', selectedItems.textContent);
+            console.log(selectedItems.value())
+            formData.append('category', selectedItems.value());
             const url = '{% url 'qnas:qna_list' %}'
 
             try {
@@ -48,28 +49,29 @@
                     is_token: true,
                     body: formData
                 })
-
+                console.log(response.get('id'));
+                console.log(typeof response.get('id'));
+                {% comment %} window.location.href = "{% url 'qnas:qna_detail_page' response.id %}"; {% endcomment %}
             } catch (error) {
                 console.error('Error:', error);
                 return false;
             }
-            window.location.href = "{% url 'qna_detail_page' response.id %}";
         }
 
         window.onload = async function() {
-            const tag_url='{% url 'games:tags' %}'
-            const tag_response = await aSend({
-                url: tag_url,
+            const category_url='{% url 'qnas:category_list' %}'
+            const category_response = await aSend({
+                url: category_url,
                 method: 'GET',
                 is_token: false,
             });
-            const tag_list = document.getElementById('itemSelect');
-            tag_list.innerHTML = ``;
-            tag_response.forEach(tag=>{
+            const category_list = document.getElementById('itemSelect');
+            category_list.innerHTML = ``;
+            category_response.forEach(c=>{
                 const opt= document.createElement('option');
-                opt.value=tag.name;
-                opt.innerHTML=`${tag.name}`;
-                tag_list.appendChild(opt);
+                opt.value=c.code;
+                opt.innerHTML=`${c.name}`;
+                category_list.appendChild(opt);
             })
         }
 

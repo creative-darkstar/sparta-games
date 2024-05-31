@@ -9,6 +9,7 @@ from .models import (
 )
 from .serializers import (
     QnAPostListSerializer,
+    CategorySerializer
 )
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
@@ -86,6 +87,13 @@ class QnADetailAPIView(APIView):
         qna.is_visible = False
         qna.save()
         return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
+    
+
+class CategoryListView(APIView):
+    def get(self, request):
+        categories = QnA.CATEGORY_CHOICES
+        serializer = CategorySerializer(categories, many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
 
 
 def qna_main_view(request):
