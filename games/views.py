@@ -54,8 +54,8 @@ class GameListAPIView(APIView):
         maker_q = request.query_params.get('maker-q')
         gm_q = request.query_params.get('gm-q')
         order = request.query_params.get('order')
-        paginator = PageNumberPagination()
-
+        search = request.query_params.get('search')
+        
         if tag_q:
             rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True, register_state=1)
         elif game_q:
@@ -83,9 +83,16 @@ class GameListAPIView(APIView):
             rows = rows.order_by('-star')
         else:
             rows = rows.order_by('-created_at')
-        result=paginator.paginate_queryset(rows,request)
-        serializer = GameListSerializer(result, many=True)
-        return paginator.get_paginated_response(serializer.data)
+        
+        if search:
+            paginator = PageNumberPagination()
+            result=paginator.paginate_queryset(rows,request)
+            serializer = GameListSerializer(result, many=True)
+            return paginator.get_paginated_response(serializer.data)
+        
+        serializer = GameListSerializer(rows, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
 
     """
     게임 등록
