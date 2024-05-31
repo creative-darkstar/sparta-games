@@ -1,7 +1,7 @@
 import re
 
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -168,3 +168,6 @@ def like_games(request, user_pk):
     return Response({
         "item_list": item_list
     },status=status.HTTP_200_OK)
+
+def profile_page(request, user_pk):
+    return render(request, 'users/profile_page.html')
