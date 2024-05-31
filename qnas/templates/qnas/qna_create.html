@@ -27,20 +27,14 @@
         </div>
     </div>
     <script>
-        {% comment %} window.onload= async function() {
-            const form_tag = document.getElementById('qna_create_form');
-            const formData = new FormData(form_tag);
-            console.log(formData.category);
-        } {% endcomment %}
         async function QnACreate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
             const form_tag = document.getElementById('qna_create_form');
             const formData = new FormData(form_tag);
-            const selectedItems = document.getElementById("itemSelect");
-            console.log(selectedItems.value())
-            formData.append('category', selectedItems.value());
-            const url = '{% url 'qnas:qna_list' %}'
+            const selectedItems = document.querySelector("#itemSelect");
+            formData.set('category', selectedItems.value);
+            const url = '{% url 'qnas:qna_list' %}';
 
             try {
                 const response= await aSend({
@@ -48,10 +42,9 @@
                     method: 'POST',
                     is_token: true,
                     body: formData
-                })
-                console.log(response.get('id'));
-                console.log(typeof response.get('id'));
-                {% comment %} window.location.href = "{% url 'qnas:qna_detail_page' response.id %}"; {% endcomment %}
+                });
+                const qna_pk= response.id;
+                window.location.href = '{% url 'qnas:qna_detail_page' 1 %}'.replace('1', qna_pk);
             } catch (error) {
                 console.error('Error:', error);
                 return false;
