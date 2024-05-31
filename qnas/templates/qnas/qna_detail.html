@@ -2,7 +2,16 @@
 
 {% block content %}
 <div class="container">
-    <p id="detail_category"></p>
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <p id="detail_category"></p>
+        </div>
+        <div>
+            <a class="btn btn-secondary"href="">수정</a>
+            <button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>
+        </div>
+    </div>
+
     <h1 id="detail_title"></h1>
     <hr>
     <pre id="detail_content"></pre>
@@ -31,5 +40,16 @@
         const qna_content_pre = document.getElementById('detail_content');
         qna_content_pre.textContent=qna_data.content;
     });
+
+    async function deleteQnA(){
+        const qna_pk=getQnaId();
+        const url_qna = '{% url 'qnas:qna_detail' qna_pk %}';
+        await aSend({
+            url: url_qna,
+            method: 'DELETE',
+            is_token: true
+        });
+        window.location.href = '{% url 'qnas:qna_main' %}';
+    }
 </script>
 {% endblock %}

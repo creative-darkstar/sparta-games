@@ -42,7 +42,7 @@ class QnAPostListAPIView(APIView):
         serializer = QnAPostListSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(is_visible=True)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class QnADetailAPIView(APIView):
@@ -86,7 +86,7 @@ class QnADetailAPIView(APIView):
         qna=self.get_object(qna_pk)
         qna.is_visible = False
         qna.save()
-        return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
+        return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_200_OK)
     
 
 class CategoryListView(APIView):
