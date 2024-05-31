@@ -92,4 +92,4 @@ def qna_main_view(request):
     return render(request, 'qnas/qna_main.html')
 
 def qna_detail_view(request, qna_pk):
-    pass
+    return render(request, "qnas/qna_detail.html", {'qna_pk': qna_pk})

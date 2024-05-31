@@ -43,9 +43,9 @@
             const qna_category_td = document.createElement('td');
             qna_category_td.textContent = row.category;
 
-            const qna_page_url = '{% url 'qnas:qna_detail' 1 %}'; // 여기서 1은 임시 값입니다.
+            const qna_page_url = '{% url 'qnas:qna_detail_page' 1 %}'; // 여기서 1은 임시 값입니다.
             const qna_a = document.createElement('a');
-            qna_a.setAttribute("href", qna_page_url.replace('1', row.pk));
+            qna_a.setAttribute("href", qna_page_url.replace('1', row.id));
             qna_a.textContent=row.title
 
             qna_list_tbody.appendChild(qna_tr);

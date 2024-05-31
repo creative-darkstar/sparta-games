@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <p id="detail_category"></p>
+    <h1 id="detail_title"></h1>
+    <hr>
+    <pre id="detail_content"></pre>
+</div>
+<script>
+    function getQnaId(){
+        const path=window.location.pathname;
+        const parts =path.split('/');
+        return parseInt(parts[2]);
+    }
+
+    window.addEventListener("load", async function PageLoad() {
+        const qna_pk=getQnaId();
+        const url_qna = '{% url 'qnas:qna_detail' qna_pk %}';
+        const qna_data = await aSend({
+            url: url_qna,
+            method: 'GET',
+            is_token: false
+        });
+        const qna_category_p = document.getElementById('detail_category');
+        qna_category_p.textContent=qna_data.category;
+
+        const qna_title_h1 = document.getElementById('detail_title');
+        qna_title_h1.textContent=qna_data.title;
+
+        const qna_content_pre = document.getElementById('detail_content');
+        qna_content_pre.textContent=qna_data.content;
+    });
+</script>
+{% endblock %}
