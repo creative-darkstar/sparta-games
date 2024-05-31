@@ -5,9 +5,9 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center">
             <div style="position:relative; right:15px;">
-                <button>최신순</button>
-                <button>평점순</button>
-                <button>조회순</button>
+                <button type="button" onclick="updateOrder('new')">최신순</button>
+                <button type="button" onclick="updateOrder('star')">평점순</button>
+                <button type="button" onclick="updateOrder('view')">조회순</button>
             </div>
             <div style="position:relative; right:100px;">
                 <h3 id=tagtitle style="position:relative; top:4px;"></h3>
@@ -19,27 +19,33 @@
         </div>
     </div>
     <script>
-        window.addEventListener("load", async function PageLoad() {
-            const params = decodeURI(window.location.search);
-            let tagtitle_param=params.split("=")[1];
-            console.log(tagtitle_param);
-            if (tagtitle_param==null){
-                tagtitle_param="전체게임"
+        window.addEventListener("load", function() {
+            updateOrder();
+        });
+        async function updateOrder(order='new'){
+            const params = new URLSearchParams(window.location.search);
+            if (order) {
+                params.set('order', order);
+            }
+            let tagtitle_param = params.get('tag-q');
+            console.log(params.toString());
+            if (!tagtitle_param) {
+                tagtitle_param = "전체게임";
             }
             const  tagtitle= document.getElementById('tagtitle');
             tagtitle.textContent=tagtitle_param;
 
-            const url = '{% url 'games:game_list' %}' + params
+            const url = '{% url 'games:game_list' %}?' + params.toString();
 
             const test_r = await aSend({
                 url: url,
                 method: 'GET',
                 is_token: false
             });
+            const game_list_div = document.getElementById('game_list');
+            game_list_div.innerHTML = '';
 
             for (let row of test_r) {
-                const game_list_div = document.getElementById('game_list');
-
                 const card_div = document.createElement('div');
                 card_div.setAttribute("class", "card");
                 card_div.setAttribute("style", "width: 18rem;");
@@ -78,6 +84,6 @@
                 card_div.appendChild(card_body_div);
                 game_list_div.appendChild(card_div);
             }
-        });
+        }
     </script>
 {% endblock %}
