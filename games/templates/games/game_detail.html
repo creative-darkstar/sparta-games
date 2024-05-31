@@ -20,18 +20,10 @@
 </div>
 
 <div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
-  <div id='wrap-vertical' class="scroll-container">
-    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1" style="vertical-align:middle; width:300px; height:150px;">
-      <img src="https://img.youtube.com/vi/_2MtnLyBdbk/0.jpg" class="d-block w-100" alt="...">
-    </button>
-  </div>
+  <div id='wrap-vertical' class="scroll-container"></div>
   <br>
   <div id="carouselExampleIndicators" class="carousel slide">
-    <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;">
-      <div class="carousel-item active" style="position: absolute; max-width: 100%; height: 100%">
-          <iframe style="position: absolute; width: 100%; height: 100%" src="https://www.youtube.com/embed/_2MtnLyBdbk" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-      </div>
-    </div>
+    <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
   </div>
 </div>
 <div id='contentDiv' class=''></div>
@@ -207,18 +199,16 @@ async function Star(event) {
     // containerDiv.className = 'd-flex align-items-center justify-content-around'
     const carouselButtonDiv = document.getElementById('wrap-vertical');
     const carouselContentDiv = document.getElementById('carouselContent');
-    let content_idx = 1
+    let content_idx = 0
 
     if (youtube_url) {
       const youtube_button = document.createElement('button')
       youtube_button.setAttribute('type','button')
       youtube_button.setAttribute('data-bs-target','#carouselExampleIndicators')
       youtube_button.setAttribute('data-bs-slide-to',`${content_idx}`)
-      console.log(content_idx)
       youtube_button.setAttribute('class','active')
       youtube_button.setAttribute('aria-current','true')
       youtube_button.setAttribute('aria-label',`Slide ${content_idx + 1}`)
-      console.log(content_idx + 1)
       youtube_button.setAttribute('style','vertical-align:middle; width:300px; height:150px;')
 
       const youtube_thumbnail = document.createElement('img')
@@ -233,7 +223,7 @@ async function Star(event) {
       carouselButtonDiv.appendChild(youtube_button)
 
       const youtube_div = document.createElement('div')
-      youtube_div.setAttribute('class','carousel-item')
+      youtube_div.setAttribute('class','carousel-item active')
       youtube_div.setAttribute('style','position: absolute; max-width: 100%; height: 100%')
 
       const youtube_iframe = document.createElement('iframe')
@@ -256,9 +246,7 @@ async function Star(event) {
       screenshot_button.setAttribute('type','button')
       screenshot_button.setAttribute('data-bs-target','#carouselExampleIndicators')
       screenshot_button.setAttribute('data-bs-slide-to',`${content_idx}`)
-      console.log(content_idx)
       screenshot_button.setAttribute('aria-label',`Slide ${content_idx + 1}`)
-      console.log(content_idx + 1)
       screenshot_button.setAttribute('style',"vertical-align:middle; width:300px; height:150px;")
 
       const screenshot_button_img = document.createElement('img')
@@ -269,7 +257,7 @@ async function Star(event) {
       screenshot_button.appendChild(screenshot_button_img)
       carouselButtonDiv.appendChild(screenshot_button)
 
-      const screenshot_div = document.createElement(div)
+      const screenshot_div = document.createElement('div')
       screenshot_div.setAttribute('class','carousel-item')
       screenshot_div.setAttribute('style','position: absolute; width: 100%; height: 100%')
 
