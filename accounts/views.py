@@ -32,8 +32,6 @@ class LoginAPIView(APIView):
             {
                 'user': {
                     'pk': user.pk,
-                    'username': user.username,
-                    'image': user.image.url if user.image else '/image/user.png/',
                 },
                 "jwt_token": {
                     "refresh": refresh_token,

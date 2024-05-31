@@ -17,7 +17,7 @@ class ProfileAPIView(APIView):
 
     def get(self, request, user_pk):
         user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
-        profile_image = user.image.url if user.image else '/image/user.png/'
+        profile_image = user.image.url if user.image else ''
         return Response({
             "username": user.username,
             "profile_image": profile_image,
