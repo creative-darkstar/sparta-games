@@ -17,16 +17,25 @@
         <br>
         <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list">
         </div>
+        <br>
+        <br>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination" id="pagination">
+            </ul>
+        </nav>
     </div>
     <script>
         window.addEventListener("load", function() {
             updateOrder();
         });
-        async function updateOrder(order='new'){
+        async function updateOrder(order='new', page=1){
             const params = new URLSearchParams(decodeURIComponent(window.location.search));
             if (order) {
                 params.set('order', order);
             }
+            params.set('page', page);  // 페이지 번호 추가
+            params.set('search', 'search');  // 서치구분 추가
+            
             const tag_q = params.get('tag-q');
             const game_q = params.get('game-q');
             const maker_q = params.get('maker-q');
@@ -52,10 +61,11 @@
                 method: 'GET',
                 is_token: false
             });
+            
             const game_list_div = document.getElementById('game_list');
             game_list_div.innerHTML = '';
-
-            for (let row of test_r) {
+            
+            for (let row of test_r.results) {
                 const card_div = document.createElement('div');
                 card_div.setAttribute("class", "card");
                 card_div.setAttribute("style", "width: 18rem;");
@@ -99,6 +109,69 @@
                 card_div.appendChild(card_body_div);
                 game_list_div.appendChild(card_div);
             }
+            
+            console.log(test_r);
+            console.log(test_r.previous);
+            console.log(test_r.next);
+            console.log(test_r.results);
+            console.log(test_r.count);
+            
+            
+            // 페이지네이션 업데이트
+            const pagination_div = document.getElementById('pagination');
+            pagination_div.innerHTML = '';
+            const currentPage = page;
+            const pageSize = {{ request.GET.page_size|default:20 }};
+            const totalPages = Math.ceil(test_r.count / pageSize); // 총 페이지 수 계산
+            
+            // Previous 버튼 생성
+            const prevLi = document.createElement('li');
+            prevLi.setAttribute('class', 'page-item');
+            const prevA = document.createElement('a');
+            prevA.setAttribute('class', 'page-link' + (currentPage === 1 ? ' disabled' : ''));
+            prevA.setAttribute('href', '#');
+            prevA.setAttribute('aria-label', 'Previous');
+            prevA.innerHTML = '<span aria-hidden="true">&laquo;</span>';
+            if (currentPage !== 1) {
+                prevA.onclick = (e) => {
+                    e.preventDefault();
+                    updateOrder(order, currentPage - 1);
+                };
+            }
+            prevLi.appendChild(prevA);
+            pagination_div.appendChild(prevLi);
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const pageLi = document.createElement('li');
+                pageLi.setAttribute('class', 'page-item' + (i === currentPage ? ' active' : ''));
+                const pageA = document.createElement('a');
+                pageA.setAttribute('class', 'page-link');
+                pageA.setAttribute('href', '#');
+                pageA.innerText = i;
+                pageA.onclick = (e) => {
+                    e.preventDefault();
+                    updateOrder(order, i);
+                };
+                pageLi.appendChild(pageA);
+                pagination_div.appendChild(pageLi);
+            }
+            
+            // Next 버튼 생성
+            const nextLi = document.createElement('li');
+            nextLi.setAttribute('class', 'page-item');
+            const nextA = document.createElement('a');
+            nextA.setAttribute('class', 'page-link' + (currentPage === totalPages ? ' disabled' : ''));
+            nextA.setAttribute('href', '#');
+            nextA.setAttribute('aria-label', 'Next');
+            nextA.innerHTML = '<span aria-hidden="true">&raquo;</span>';
+            if (currentPage !== totalPages) {
+                nextA.onclick = (e) => {
+                    e.preventDefault();
+                    updateOrder(order, currentPage + 1);
+                };
+            }
+            nextLi.appendChild(nextA);
+            pagination_div.appendChild(nextLi);
         }
     </script>
 {% endblock %}
