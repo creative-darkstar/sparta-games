@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <form action="javascript:search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0" role="search">
+        <div class="d-flex">
+            <input type="search" class="form-control" placeholder="키워드 검색하시오." aria-label="Search" id="search_input">
+        </div>
+    </form>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">번호</th>
+            <th scope="col">제목</th>
+            <th scope="col">카테고리</th>
+        </tr>
+        </thead>
+        <tbody id="qnalist"></tbody>
+    </table>
+</div>
+<script>
+    window.addEventListener("load", async function PageLoad() {
+        const url_qnas_list_all = '{% url 'qnas:qna_list' %}'
+
+        const qna_list = await aSend({
+            url: url_qnas_list_all,
+            method: 'GET',
+            is_token: false
+        });
+
+        for (let row of qna_list) {
+            const qna_list_tbody = document.getElementById('qnalist');
+
+            const qna_tr = document.createElement('tr');
+            qna_tr.setAttribute("class", "align-middle");
+
+            const qna_th = document.createElement('th');
+            qna_th.setAttribute("scope", "row");
+            qna_th.textContent = row.id;
+
+            const qna_title_td = document.createElement('td');
+
+            const qna_category_td = document.createElement('td');
+            qna_category_td.textContent = row.category;
+
+            const qna_page_url = '{% url 'qnas:qna_detail' 1 %}'; // 여기서 1은 임시 값입니다.
+            const qna_a = document.createElement('a');
+            qna_a.setAttribute("href", qna_page_url.replace('1', row.pk));
+            qna_a.textContent=row.title
+
+            qna_list_tbody.appendChild(qna_tr);
+            qna_tr.appendChild(qna_th);
+            qna_tr.appendChild(qna_title_td);
+            qna_title_td.appendChild(qna_a);
+            qna_tr.appendChild(qna_category_td);
+        }
+    });
+</script>
+{% endblock %}

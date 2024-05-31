@@ -86,3 +86,10 @@ class QnADetailAPIView(APIView):
         qna.is_visible = False
         qna.save()
         return Response({"message":"삭제를 완료했습니다"},status=status.HTTP_204_NO_CONTENT)
+
+
+def qna_main_view(request):
+    return render(request, 'qnas/qna_main.html')
+
+def qna_detail_view(request, qna_pk):
+    pass
