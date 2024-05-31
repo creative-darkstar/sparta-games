@@ -212,7 +212,7 @@ async function Star(event) {
       youtube_button.setAttribute('style','vertical-align:middle; width:300px; height:150px;')
 
       const youtube_thumbnail = document.createElement('img')
-      const youtube_id = youtube_url.split('/')[3];
+      const youtube_id = youtube_url.split('/')[3].replace('watch?v=','');
       const youtube_thumbnail_src = 'https://img.youtube.com/vi/' + youtube_id + '/0.jpg'
       // console.log(youtube_thumbnail_src)
       youtube_thumbnail.setAttribute('src', youtube_thumbnail_src)
