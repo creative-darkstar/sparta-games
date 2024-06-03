@@ -8,41 +8,44 @@
 
 {% block content %}
 <div id='titleContainer' class="d-flex flex-column align-items-center"></div>
-<div class='d-flex justify-content-start' style='width:100%;'>
-  <div class='d-flex justify-content-around' style='width:50%;'>
-    <div id='infoDiv' class='d-flex flex-column'>
-      <span id='starScoreSpan'></span>
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
+    <div class="container">
+        <div class='d-flex justify-content-start' style='width:100%;'>
+            <div class='d-flex justify-content-around' style='width:50%;'>
+                <div id='infoDiv' class='d-flex flex-column'>
+                    <span id='starScoreSpan'></span>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
+                </div>
+                <div id='infoDiv2' class='d-flex flex-column'>
+                    <span id='makerNameSpan'></span>
+                    <button id='gameLikeBtn' onclick='like();'>즐겨찾기</button>
+                </div>
+                <div id='infoDiv3' class='d-flex flex-column'>
+                    <span id='createdAtSpan'></span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id='infoDiv2' class='d-flex flex-column'>
-      <span id='makerNameSpan'></span>
-      <button id='gameLikeBtn' onclick='like();'>즐겨찾기</button>
+    <div class="container">
+        <div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
+            <div id='wrap-vertical' class="scroll-container"></div>
+            <br>
+            <div id="carouselExampleIndicators" class="carousel slide">
+                <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
+            </div>
+        </div>
+        <div id='contentDiv' class=''></div>
     </div>
-    <div id='infoDiv3' class='d-flex flex-column'>
-      <span id='createdAtSpan'></span>
+    <div class="container">
+        <div>
+            <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
+                {% csrf_token %}
+                <label for="comment">댓글</label>
+                <input type="text" id='comment' name='content'>
+                <button type="submit">제출</button>
+            </form>
+            <div id='commentContainerDiv'></div>
+        </div>
     </div>
-  </div>
-
-</div>
-
-<div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
-  <div id='wrap-vertical' class="scroll-container"></div>
-  <br>
-  <div id="carouselExampleIndicators" class="carousel slide">
-    <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
-  </div>
-</div>
-<div id='contentDiv' class=''></div>
-
-<div>
-  <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
-    {% csrf_token %}
-    <label for="comment">댓글</label>
-    <input type="text" id='comment' name='content'>
-    <button type="submit">제출</button>
-  </form>
-  <div id='commentContainerDiv'></div>
-</div>
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
