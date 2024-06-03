@@ -27,8 +27,8 @@
                 <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
             </div>
         </div>
+        <div id='contentDiv' class=''></div>
     </div>
-    <div id='contentDiv' class=''></div>
     <br>
     <div class="container">
       <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
@@ -167,7 +167,12 @@ async function Star(event) {
     const infoDiv = document.getElementById('infoDiv');
 
     const starScoreSpan = document.getElementById('starScoreSpan');
-    starScoreSpan.textContent = `평점: ${star_score}`;
+    if (star_score == null) {
+      starScoreSpan.textContent = `평점: 평점없음`;
+    }
+    else{
+      starScoreSpan.textContent = `평점: ${star_score}`;
+    }
 
     const makerNameSpan = document.getElementById('makerNameSpan');
     makerNameSpan.textContent = `제작자: ${maker_name}`;
