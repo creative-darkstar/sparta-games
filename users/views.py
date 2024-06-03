@@ -41,7 +41,11 @@ class ProfileAPIView(APIView):
 
         # 이메일 검증
         email = self.request.data.get('email', user.email)
-        if not self.EMAIL_PATTERN.match(email):
+        # email 수정을 하지 않았을 경우 문제 없이 pass
+        if email == user.email:
+            pass
+        # 이메일이 유효하지 않거나 다른 유저의 이메일로 수정하려고 할 경우 error
+        elif not self.EMAIL_PATTERN.match(email):
             return Response({"error_message": "올바른 email을 입력해주세요."})
         elif get_user_model().objects.filter(email=email).exists():
             return Response({"error_message": "이미 존재하는 email입니다.."})
@@ -55,7 +59,7 @@ class ProfileAPIView(APIView):
                 "message": "회원 정보 수정 완료",
                 "data": {
                     "email": user.email,
-                    "image": user.image.url
+                    "image": user.image.url if user.image else "이미지 없음"
                 }
             },
             status=status.HTTP_202_ACCEPTED

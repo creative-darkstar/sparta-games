@@ -1,5 +1,3 @@
-import zipfile
-
 from django.shortcuts import render,get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -31,7 +29,15 @@ class QnAPostListAPIView(APIView):
     QnA 목록 조회
     """
     def get(self, request):
-        qnas = QnA.objects.all().filter(is_visible=True)
+        qna_q = request.query_params.get('qna-q')
+        category = request.query_params.get('category')
+
+        qnas = QnA.objects.filter(is_visible=True)
+
+        if qna_q:
+            qnas = qnas.filter(title__icontains=qna_q)
+        if category:
+            qnas = qnas.filter(category=category)
         serializer = QnAPostListSerializer(qnas, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
