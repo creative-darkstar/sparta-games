@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_no_search.html" %}
 
 {% block content %}
 <div class="container">
@@ -34,6 +34,18 @@
             is_token: false
         });
 
+        const category_url='{% url 'qnas:category_list' %}';
+        const category_response = await aSend({
+            url: category_url,
+            method: 'GET',
+            is_token: false,
+        });
+        
+        let category_list = {}
+        category_response.forEach(c=>{
+            category_list[c.code]=c.name;
+        });
+
         for (let row of qna_list) {
             const qna_list_tbody = document.getElementById('qnalist');
 
@@ -47,7 +59,7 @@
             const qna_title_td = document.createElement('td');
 
             const qna_category_td = document.createElement('td');
-            qna_category_td.textContent = row.category;
+            qna_category_td.textContent = category_list[row.category];
 
             const qna_page_url = '{% url 'qnas:qna_detail_page' 1 %}'; // 여기서 1은 임시 값입니다.
             const qna_a = document.createElement('a');
