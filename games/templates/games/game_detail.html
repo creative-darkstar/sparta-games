@@ -265,8 +265,15 @@ async function like() {
       logout_modal_body.style.display = 'block';
       logout_modal_footer.style = 'display: flex; justify-content-end;';
     }
+    // # 2-2 ================= 게임 상세 span - like==============
+    const gameLikeBtn = document.getElementById('gameLikeBtn');
+    for (let item of game_detail_response.like) {
+      if (item === user.user_pk) {
+        gameLikeBtn.innerText = '즐겨찾기 취소'
+      } 
+    }
 
-    // # 2-2 ==============게임 상세 span - tag===================
+    // # 2-3 ==============게임 상세 span - tag===================
     const infoDiv3 = document.getElementById('infoDiv3')
 
     const tagSpan = document.createElement('span');
