@@ -329,16 +329,16 @@ async function Star(event) {
         commentDiv.setAttribute('data-comment-id',comment.id)
         commentDiv.setAttribute("class", "d-flex justify-content-between");
         containDiv.appendChild(commentDiv)
-        
+
         const profilewidth = 10;
         const replyarrowwidth = 2.5;
-        
+
         const userDiv = document.createElement('div');
         userDiv.setAttribute("class", "d-flex align-items-center");
         userDiv.setAttribute("style", `width:${profilewidth}%`);
-        
+
         const profileDiv = document.createElement('div');
-        
+
         const subjectDiv = document.createElement('div');
         subjectDiv.setAttribute("class", "btn d-flex align-items-center justify-content-between");
         subjectDiv.setAttribute("style", `width:${100-profilewidth}%`);
@@ -408,7 +408,7 @@ async function Star(event) {
             comment.replies.forEach(reply => {
                 const replyDiv = document.createElement('div');
                 replyDiv.setAttribute("class", "comment d-flex justify-content-between mt-3");
-                
+
                 const replyarrowDiv = document.createElement('div');
                 replyarrowDiv.setAttribute("class", "d-flex align-items-center");
                 replyarrowDiv.setAttribute("style", `width:${replyarrowwidth}%`);
@@ -416,11 +416,11 @@ async function Star(event) {
                 const replyuserDiv = document.createElement('div');
                 replyuserDiv.setAttribute("class", "d-flex align-items-center");
                 replyuserDiv.setAttribute("style", `width:${profilewidth}%`);
-                
+
                 const replysubjectDiv = document.createElement('div');
                 replysubjectDiv.setAttribute("class", "d-flex align-items-center justify-content-between");
                 replysubjectDiv.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
-                
+
                 const replyprofileDiv = document.createElement('div');
 
                 const replycontentDiv = document.createElement('div');
@@ -438,7 +438,7 @@ async function Star(event) {
                 indentSymbol.style.marginLeft = '10px';
                 indentSymbol.style.marginRight = '10px';
                 replyarrowDiv.appendChild(indentSymbol);
-                
+
                 const replyImgElement = document.createElement('img');
                 if (reply.src) {
                     replyImgElement.src = reply.src;
@@ -474,14 +474,14 @@ async function Star(event) {
     function formatTime(isoString) {
         // Parse the ISO string to a Date object
         const date = new Date(isoString);
-    
+
         // Extract components
         let year = date.getFullYear();
         let month = (date.getMonth() + 1).toString().padStart(2, '0');  // +1 because months start from 0
         let day = date.getDate().toString().padStart(2, '0');
         let hours = date.getHours().toString().padStart(2, '0');
         let minutes = date.getMinutes().toString().padStart(2, '0');
-    
+
         // Format to 'YYYY-MM-DD HH:MM'
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
