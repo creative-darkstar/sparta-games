@@ -322,96 +322,116 @@ async function Star(event) {
     // # 6 =====================게시글에 달린 댓글========================
     const commentContainerDiv = document.getElementById('commentContainerDiv');
     comment_response.forEach(comment => {
-      const commentDiv = document.createElement('div');
-      commentDiv.setAttribute('data-comment-id',comment.id)
-
-      const commentImgElement = document.createElement('img');
-      if (comment.src) {
-        commentImgElement.src = comment.src;
-      } else {
-        commentImgElement.src = '{% static 'image/user.png' %}'
-        commentImgElement.style.width = '30px';
-      }
-      commentImgElement.alt = '';
-      commentDiv.appendChild(commentImgElement);
-
-      const authorSpanElement = document.createElement('span');
-      authorSpanElement.textContent = `작성자: ${comment.author}`;
-      commentDiv.appendChild(authorSpanElement);
-
-      const contentSpanElement = document.createElement('span');
-      contentSpanElement.textContent = `댓글 내용: ${comment.content}`;
-      commentDiv.appendChild(contentSpanElement);
-
-      const commendCreatedAtSpan = document.createElement('span');
-      commendCreatedAtSpan.textContent = `작성 일시: ${comment.created_at}`;
-      commentDiv.appendChild(commendCreatedAtSpan);
-
-      const replyButton=document.createElement('button');
-      replyButton.textContent ="댓글 달기";
-      replyButton.onclick=function(){
-        let existReplyForm=commentDiv.querySelector('.replyForm');
-        if(existReplyForm){
-          existReplyForm.remove();
-        } else{
-          const replyForm=document.createElement('form');
-          replyForm.className = 'replyForm';
-          replyForm.onsubmit=function(e){ReplyCreate(e,comment.id);};
-  
-          const replyInput=document.createElement('input');
-          replyInput.type = 'text';
-          replyInput.name = 'content';
-          replyInput.placeholder = '답글을 입력하세요';
+        const commentDiv = document.createElement('div');
+        commentDiv.setAttribute('data-comment-id',comment.id)
+        commentDiv.setAttribute("class", "d-flex justify-content-between");
+      
+        const userDiv = document.createElement('div');
+        const subjectDiv = document.createElement('div');
+        subjectDiv.setAttribute("class", "d-flex justify-content-between")
           
-          const replySubmitButton = document.createElement('button');
-          replySubmitButton.type = 'submit';
-          replySubmitButton.textContent = '제출';
-  
-          replyForm.appendChild(replyInput);
-          replyForm.appendChild(replySubmitButton);
-  
-          commentDiv.appendChild(replyForm);
+        const contentDiv = document.createElement('div');
+        const dateDiv = document.createElement('div');
+          
+        commentDiv.appendChild(userDiv);
+        commentDiv.appendChild(subjectDiv);
+        subjectDiv.appendChild(contentDiv);
+        subjectDiv.appendChild(dateDiv);
+        
+        const commentImgElement = document.createElement('img');
+        if (comment.src) {
+            commentImgElement.src = comment.src;
         }
-      };
-      commentDiv.appendChild(replyButton);
+        else {
+            commentImgElement.src = '{% static 'image/user.png' %}'
+            commentImgElement.style.width = '30px';
+        }
+        commentImgElement.alt = '';
+        userDiv.appendChild(commentImgElement);
 
-      if (comment.replies && comment.replies.length > 0) {
-        const replyContainer = document.createElement('div');
-        replyContainer.classList.add('replies');
-        comment.replies.forEach(reply => {
-            const replyDiv = document.createElement('div');
-            replyDiv.classList.add('comment');
+        const authorSpanElement = document.createElement('span');
+        authorSpanElement.textContent = `${comment.author_name}`;
+        userDiv.appendChild(authorSpanElement);
 
-            const replyImgElement = document.createElement('img');
-            if (reply.src) {
-                replyImgElement.src = reply.src;
-            } else {
-                replyImgElement.src = '{% static 'image/user.png' %}';
-                replyImgElement.style.width = '30px';
+        const contentSpanElement = document.createElement('span');
+        contentSpanElement.textContent = `${comment.content}`;
+        contentDiv.appendChild(contentSpanElement);
+
+        const commendCreatedAtSpan = document.createElement('span');
+        commendCreatedAtSpan.textContent = `${comment.created_at}`;
+        dateDiv.appendChild(commendCreatedAtSpan);
+
+        const replyButton=document.createElement('button');
+        replyButton.textContent ="댓글 달기";
+        replyButton.onclick=function(){
+            let existReplyForm=commentDiv.querySelector('.replyForm');
+            if(existReplyForm) {
+                existReplyForm.remove();
+            } 
+            else {
+                const replyForm=document.createElement('form');
+                replyForm.className = 'replyForm';
+                replyForm.onsubmit=function(e){ReplyCreate(e,comment.id);};
+      
+                const replyInput=document.createElement('input');
+                replyInput.type = 'text';
+                replyInput.name = 'content';
+                replyInput.placeholder = '답글을 입력하세요';
+              
+                const replySubmitButton = document.createElement('button');
+                replySubmitButton.type = 'submit';
+                replySubmitButton.textContent = '제출';
+      
+                replyForm.appendChild(replyInput);
+                replyForm.appendChild(replySubmitButton);
+      
+                commentDiv.appendChild(replyForm);
             }
-            replyImgElement.alt = '';
-            replyDiv.appendChild(replyImgElement);
+        };
+        commentDiv.appendChild(replyButton);
 
-            const replyAuthorSpanElement = document.createElement('span');
-            replyAuthorSpanElement.textContent = `작성자: ${reply.author_name}`;
-            replyDiv.appendChild(replyAuthorSpanElement);
-
-            const replyContentSpanElement = document.createElement('span');
-            replyContentSpanElement.textContent = `댓글 내용: ${reply.content}`;
-            replyDiv.appendChild(replyContentSpanElement);
-
-            const replyCreatedAtSpan = document.createElement('span');
-            replyCreatedAtSpan.textContent = `작성 일시: ${reply.created_at}`;
-            replyDiv.appendChild(replyCreatedAtSpan);
-
-            replyContainer.appendChild(replyDiv);
-        });
-        commentDiv.appendChild(replyContainer);
-      }
-      const commentLineBreak = document.createElement('br');
-      commentDiv.appendChild(commentLineBreak);
-      commentContainerDiv.appendChild(commentDiv)
+        if (comment.replies && comment.replies.length > 0) {
+            const replyContainer = document.createElement('div');
+            replyContainer.classList.add('replies');
+            comment.replies.forEach(reply => {
+                
+                const replyDiv = document.createElement('div');
+                replyDiv.classList.add('comment');
+                const indentSymbol = document.createElement('span');
+                indentSymbol.textContent = '↳'; // 원하는 기호로 변경 가능
+                
+                indentSymbol.style.marginRight = '10px';
+                replyDiv.appendChild(indentSymbol);
+                const replyImgElement = document.createElement('img');
+                if (reply.src) {
+                    replyImgElement.src = reply.src;
+                } else {
+                    replyImgElement.src = '{% static 'image/user.png' %}';
+                    replyImgElement.style.width = '30px';
+                }
+                replyImgElement.alt = '';
+                replyDiv.appendChild(replyImgElement);
+    
+                const replyAuthorSpanElement = document.createElement('span');
+                replyAuthorSpanElement.textContent = `작성자: ${reply.author_name}`;
+                replyDiv.appendChild(replyAuthorSpanElement);
+    
+                const replyContentSpanElement = document.createElement('span');
+                replyContentSpanElement.textContent = `댓글 내용: ${reply.content}`;
+                replyDiv.appendChild(replyContentSpanElement);
+    
+                const replyCreatedAtSpan = document.createElement('span');
+                replyCreatedAtSpan.textContent = `작성 일시: ${reply.created_at}`;
+                replyDiv.appendChild(replyCreatedAtSpan);
+    
+                replyContainer.appendChild(replyDiv);
+            });
+            commentDiv.appendChild(replyContainer);
+        }
+        const commentLineBreak = document.createElement('hr');
+        commentContainerDiv.appendChild(commentLineBreak);
+        commentContainerDiv.appendChild(commentDiv)
     });
-  });
+});
 </script>
 {% endblock content %}
