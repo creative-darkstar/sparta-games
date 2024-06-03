@@ -236,10 +236,10 @@ class GameLikeAPIView(APIView):
         game = get_object_or_404(Game, pk=game_pk)
         if game.like.filter(pk=request.user.pk).exists():
             game.like.remove(request.user)
-            return Response("안좋아요", status=status.HTTP_200_OK)
+            return Response({'message':"즐겨찾기 취소"}, status=status.HTTP_200_OK)
         else:
             game.like.add(request.user)
-            return Response("좋아요", status=status.HTTP_200_OK)
+            return Response({'message':"즐겨찾기"}, status=status.HTTP_200_OK)
 
 
 class GameStarAPIView(APIView):
