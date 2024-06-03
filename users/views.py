@@ -20,6 +20,7 @@ class ProfileAPIView(APIView):
         profile_image = user.image.url if user.image else ''
         return Response({
             "username": user.username,
+            "user_pk": user_pk,
             "profile_image": profile_image,
             "email": user.email,
         }, status=status.HTTP_200_OK)
