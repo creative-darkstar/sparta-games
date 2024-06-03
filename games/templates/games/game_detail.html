@@ -7,41 +7,42 @@
 {% endblock css_block %}
 
 {% block content %}
-    <div id='titleContainer' class="d-flex flex-column align-items-center"></div>
-    <div class="container">
-        <div id='infoDiv'>
-            <span id='starScoreSpan'></span>
-            <span id='makerNameSpan'></span>
-            <span id='createdAtSpan'></span>
-        </div>
-        <div id='infoDiv2'>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
-        </div>
+<div id='titleContainer' class="d-flex flex-column align-items-center"></div>
+<div class='d-flex justify-content-start' style='width:100%;'>
+  <div class='d-flex justify-content-around' style='width:50%;'>
+    <div id='infoDiv' class='d-flex flex-column'>
+      <span id='starScoreSpan'></span>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
     </div>
-    <br>
-    <div class="container">
-        <div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
-            <div id='wrap-vertical' class="scroll-container"></div>
-            <br>
-            <div id="carouselExampleIndicators" class="carousel slide">
-                <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
-            </div>
-        </div>
-        <div id='contentDiv' class=''></div>
+    <div id='infoDiv2' class='d-flex flex-column'>
+      <span id='makerNameSpan'></span>
+      <button id='gameLikeBtn' onclick='like();'>즐겨찾기</button>
     </div>
-    <br>
-    <div class="container">
-      <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
-        {% csrf_token %}
-        <label for="comment">댓글</label>
-        <input type="text" id='comment' name='content'>
-        <button type="submit">제출</button>
-      </form>
-        <hr>
-      <div id='commentContainerDiv'></div>
+    <div id='infoDiv3' class='d-flex flex-column'>
+      <span id='createdAtSpan'></span>
     </div>
-    <br>
+  </div>
 
+</div>
+
+<div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
+  <div id='wrap-vertical' class="scroll-container"></div>
+  <br>
+  <div id="carouselExampleIndicators" class="carousel slide">
+    <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
+  </div>
+</div>
+<div id='contentDiv' class=''></div>
+
+<div>
+  <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
+    {% csrf_token %}
+    <label for="comment">댓글</label>
+    <input type="text" id='comment' name='content'>
+    <button type="submit">제출</button>
+  </form>
+  <div id='commentContainerDiv'></div>
+</div>
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -51,25 +52,39 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        별점을 선택해주세요
-        <form name="myform" id="myform" method="POST">
-          <fieldset class='d-flex justify-content-center'>
-              <input type="radio" name="star" value="5" id="rate1"><label for="rate1">⭐</label>
-              <input type="radio" name="star" value="4" id="rate2"><label for="rate2">⭐</label>
-              <input type="radio" name="star" value="3" id="rate3"><label for="rate3">⭐</label>
-              <input type="radio" name="star" value="2" id="rate4"><label for="rate4">⭐</label>
-              <input type="radio" name="star" value="1" id="rate5"><label for="rate5">⭐</label>
-          </fieldset>
-      </form>
+        <div id='login_modal_body' style='display:none;'>
+          <span>별점을 선택해주세요</span>
+          <form name="myform" id="myform" method="POST">
+            <fieldset class='d-flex justify-content-center'>
+                <input type="radio" name="star" value="5" id="rate1"><label for="rate1">⭐</label>
+                <input type="radio" name="star" value="4" id="rate2"><label for="rate2">⭐</label>
+                <input type="radio" name="star" value="3" id="rate3"><label for="rate3">⭐</label>
+                <input type="radio" name="star" value="2" id="rate4"><label for="rate4">⭐</label>
+                <input type="radio" name="star" value="1" id="rate5"><label for="rate5">⭐</label>
+            </fieldset>
+        </form>
+        </div>
+        <div id='logout_modal_body' style='display:none;'>
+          <span>로그인 해주세요</span>
+        </div>
       </div>
-      <div class="modal-footer">
+      <div id='login_modal_footer' style='display:none; justify-content:end;' class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나가기</button>
         <button type="submit" class="btn btn-primary" onclick='Star(event);'>확인</button>
+      </div>
+      <div id='logout_modal_footer' style='display:none;' class="modal-footer">
+        <a class="btn btn-primary" href='{% url 'accounts:login_page' %}'>로그인페이지로 이동</a>
       </div>
     </div>
   </div>
 </div>
 <script>
+  function getGameId(){
+    const path=window.location.pathname;
+    const parts =path.split('/');
+    return parseInt(parts[3]);
+  }
+
   async function CommentCreate(event) {
     event.preventDefault();  // 폼의 기본 제출 동작을 방지
 
@@ -144,6 +159,31 @@ async function Star(event) {
   window.location.href = "{% url 'games:game_test_page' game_pk %}";
 }
 
+async function like() {
+  const gameLikeBtn = document.getElementById('gameLikeBtn')
+  const game_pk = getGameId();
+  const url = '{% url 'games:game_like' 1 %}'.replace('1', game_pk)
+  const access = localStorage.getItem('access_token')
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+        'X-CSRFToken': '{{ csrf_token }}',
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${access}`
+    },
+  })
+
+  const data = await response.json()
+  if (data.message === '즐겨찾기') {
+    gameLikeBtn.innerText = '즐겨찾기 취소'
+  } else {
+    gameLikeBtn.innerText = '즐겨찾기'
+  }
+
+  // window.location.href = "{% url 'games:game_test_page' 1 %}".replace('1', game_pk);
+}
+
   window.addEventListener("load", async function PageLoad() {
 
     // context로 views.py에서 game_pk를 받아서 사용한다.
@@ -211,12 +251,23 @@ async function Star(event) {
     const createdAtSpan = document.getElementById('createdAtSpan');
     createdAtSpan.textContent = `업로드 일시: ${created_at}`;
 
-    infoDiv.appendChild(starScoreSpan)
-    infoDiv.appendChild(makerNameSpan)
-    infoDiv.appendChild(createdAtSpan)
+    // # 2-1 ==============게임 상세 span - star ================
+    const login_modal_body = document.getElementById('login_modal_body');
+    const logout_modal_body = document.getElementById('logout_modal_body');
+    const login_modal_footer = document.getElementById('login_modal_footer');
+    const logout_modal_footer = document.getElementById('logout_modal_footer');
 
-    // # 2-1 ==============게임 상세 span2===================
-    const infoDiv2 = document.getElementById('infoDiv2')
+    const user = await isLogIn();
+    if (user) {
+      login_modal_body.style.display = 'block';
+      login_modal_footer.style = 'display: flex; justify-content-end;';
+    } else {
+      logout_modal_body.style.display = 'block';
+      logout_modal_footer.style = 'display: flex; justify-content-end;';
+    }
+
+    // # 2-2 ==============게임 상세 span - tag===================
+    const infoDiv3 = document.getElementById('infoDiv3')
 
     const tagSpan = document.createElement('span');
     tagSpan.textContent = '태그: ';
@@ -231,7 +282,7 @@ async function Star(event) {
       tagSpan.appendChild(tagItemSpan);
     })
 
-    infoDiv2.appendChild(tagSpan)
+    infoDiv3.appendChild(tagSpan)
 
     // # 3 ==================video와 screenshot=====================
     // const containerDiv = document.createElement('div');

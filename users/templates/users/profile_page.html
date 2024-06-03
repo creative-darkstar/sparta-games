@@ -3,21 +3,36 @@
 
 {% block content %}
     <div class='d-flex justify-content-around'>
-        <div class='d-flex flex-column'>
-            <img id="user_profile_img" src="" alt="...">
-            <button>이미지 업로드</button>
-        </div>
-        <div>
-            <p id="username">닉네임:</p>
-            <label for="email">이메일: </label>
-            <input id="email" name="email" type="text">
-        </div>
+        <form method="PUT" enctype="multipart/form-data" id="profile_edit_form">
+            {% csrf_token %}
+            <div class='d-flex justify-content-around'>
+                <div class='d-flex flex-column'>
+                    <img id="user_profile_img" src="" alt="...">
+                    <div id="image_upload_area_div" style="display: none">
+                        <label for="id_thumbnail">
+                            <span class="btn btn-secondary">이미지 업로드</span>
+                        </label>
+                        <input type="file" name="image" accept="image/*" id="id_thumbnail" alt="..."
+                               style="display: none">
+                    </div>
+                </div>
+                <div>
+                    <p id="username">닉네임:</p>
+                    <div id="email_area_div" style="display: none">
+                        <label for="email">이메일: </label>
+                        <input id="email" name="email" type="text">
+                    </div>
+                </div>
+            </div>
+        </form>
         <div class='d-flex flex-column align-self-end'>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal1">프로필
+            <button id="edit_profile_btn" type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal1" style="display: none">프로필
                 수정
             </button>
             <br>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">비밀번호
+            <button id="edit_password_btn" type="button" class="btn btn-primary" data-bs-toggle="modal"
+                    data-bs-target="#exampleModal2" style="display: none">비밀번호
                 변경
             </button>
         </div>
@@ -35,8 +50,6 @@
         </div>
     </div>
 
-
-
     <!-- Modal -->
     <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
         <div class="modal-dialog">
@@ -46,7 +59,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method='PUT'>
+                    <form action="" method='PUT' id="profile_edit_password_form">
                         {% csrf_token %}
                         <label for="password">비밀번호</label>
                         <input type="password" id='password' name='password'>
@@ -54,7 +67,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-                    <button type="submit" class="btn btn-primary" onclick=''>확인</button>
+                    <button type="submit" class="btn btn-primary" onclick='editProfile(event);'>확인</button>
                 </div>
             </div>
         </div>
@@ -68,8 +81,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method='PUT'>
-                        {% csrf_token %}
+                    <form action="" method='PUT' id="password_edit_form">
                         <label for="password">기존 비밀번호</label>
                         <input type="password" name="password" id="password">
                         <br>
@@ -82,7 +94,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나가기</button>
-                    <button type="submit" class="btn btn-primary" onclick='Star(event);'>확인</button>
+                    <button type="submit" class="btn btn-primary" onclick='editPassword(event);'>확인</button>
                 </div>
             </div>
         </div>
@@ -95,7 +107,7 @@
             console.log("parts[3]: ", parts[2]);
             return parseInt(parts[2]);
         }
-        
+
         function switchRegisterLike(clicked_button_num) {
             const register_game_list_div = document.getElementById("user_games");
             const like_game_list_div = document.getElementById("user_like_games");
@@ -107,7 +119,56 @@
                 like_game_list_div.style.display = 'block';
             }
         }
-        
+
+        async function editProfile(event) {
+            // context로 views.py에서 game_pk를 받아서 사용한다.
+            const page_user_id = getPageUserId();
+
+            event.preventDefault();  // 폼의 기본 제출 동작을 방지
+
+            const profile_edit_form_tag = document.getElementById("profile_edit_form");
+            const profile_edit_password_form_tag = document.getElementById("profile_edit_password_form");
+            const formData = new FormData(profile_edit_form_tag);
+            const passwordFormData = new FormData(profile_edit_password_form_tag);
+            formData.append("password", passwordFormData.get("password"));
+
+            if (!formData.get("image").name) {
+                formData.delete("image");
+            }
+
+            const url = "{% url 'users:profile' 1 %}".replace('1', page_user_id);
+
+            await aSend({
+                url: url,
+                method: 'PUT',
+                is_token: true,
+                body: formData
+            })
+
+            window.location.href = "{% url 'users:profile_page' 1 %}".replace('1', page_user_id);
+        }
+
+        async function editPassword(event) {
+            // context로 views.py에서 game_pk를 받아서 사용한다.
+            const page_user_id = getPageUserId();
+
+            event.preventDefault();  // 폼의 기본 제출 동작을 방지
+
+            const password_edit_form_tag = document.getElementById("password_edit_form");
+            const formData = new FormData(password_edit_form_tag);
+
+            const url = "{% url 'users:change_password' 1 %}".replace('1', page_user_id);
+
+            await aSend({
+                url: url,
+                method: 'PUT',
+                is_token: true,
+                body: formData
+            })
+
+            window.location.href = "{% url 'users:profile_page' 1 %}".replace('1', page_user_id);
+        }
+
         window.addEventListener("load", async function PageLoad() {
             // context로 views.py에서 game_pk를 받아서 사용한다.
             const page_user_id = getPageUserId();
@@ -137,6 +198,10 @@
             const like_game_show_btn = document.getElementById("like_game_show_btn");
             const register_game_list_div = document.getElementById("user_games");
             const like_game_list_div = document.getElementById("user_like_games");
+            const edit_profile_btn = document.getElementById("edit_profile_btn");
+            const edit_password_btn = document.getElementById("edit_password_btn");
+            const image_upload_area_div = document.getElementById("image_upload_area_div");
+            const email_area_div = document.getElementById("email_area_div");
 
             const my_games_url = "{% url 'users:my_games' 1 %}".replace('1', page_user_id);
             let is_my_page = false;
@@ -149,6 +214,11 @@
 
                     like_game_show_btn.innerText = "내가 즐겨찾기한 게임";
                     like_game_show_btn.style.display = 'block';
+
+                    edit_profile_btn.style.display = 'block';
+                    edit_password_btn.style.display = 'block';
+                    image_upload_area_div.style.display = "block";
+                    email_area_div.style.display = "block";
 
                     // 내가 등록한 게임 일 경우 access token을 헤더에 포함해줘야 함
                     is_my_page = true;
@@ -196,7 +266,6 @@
 
                 // 내가 등록한 게임을 확인할 경우 등록 상태 확인
                 if (is_my_page) {
-                    console.log(item.register_state);
                     const gameRegisterStateElement = document.createElement("span");
                     if (item.register_state === 0) {
                         gameRegisterStateElement.innerText = "대기 중";
@@ -213,7 +282,7 @@
 
                 register_game_list_div.appendChild(divElement);
             }
-            
+
             // 내가 즐겨찾기한 게임
             if (is_my_page) {
                 const my_like_games_url = "{% url 'users:like_games' 1 %}".replace('1', page_user_id);
@@ -249,7 +318,7 @@
                     divElement.appendChild(gameTitleElement);
                     divElement.appendChild(gameUploadDtElement);
                     divElement.appendChild(gameTagsElement);
-                    
+
                     like_game_list_div.appendChild(divElement);
                 }
             }
