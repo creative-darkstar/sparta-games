@@ -507,8 +507,8 @@ async function like() {
                     replyImgElement.src = reply.src;
                 } else {
                     replyImgElement.src = '{% static 'image/user.png' %}';
-                    replyImgElement.style.width = '30px';
                 }
+                replyImgElement.style.width = '30px';
                 replyImgElement.alt = '';
                 replyprofileDiv.appendChild(replyImgElement);
 
