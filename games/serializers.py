@@ -29,6 +29,7 @@ class GameDetailSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     author_name = serializers.CharField(source='author.username', read_only=True)
     src = serializers.ImageField(source='author.image', read_only=True)
+    replies=serializers.SerializerMethodField()
 
     # def to_representation(self, instance):
     #     ret = super().to_representation(instance)
@@ -41,6 +42,10 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ('is_visible', 'game', 'author',)
     
+    def get_replies(self, obj):
+        if obj.reply.exists():
+            return CommentSerializer(obj.reply.filter(is_visible=True), many=True).data
+        return []
 
 
 class ScreenshotSerializer(serializers.ModelSerializer):
