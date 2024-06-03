@@ -2,131 +2,257 @@
 {% load static %}
 
 {% block content %}
-<div class='d-flex justify-content-around'>
-    <div class='d-flex flex-column'>
-        <img id="user_profile_img" src="" alt="...">
-        <button>이미지 업로드</button>
+    <div class='d-flex justify-content-around'>
+        <div class='d-flex flex-column'>
+            <img id="user_profile_img" src="" alt="...">
+            <button>이미지 업로드</button>
+        </div>
+        <div>
+            <p id="username">닉네임:</p>
+            <label for="email">이메일: </label>
+            <input id="email" name="email" type="text">
+        </div>
+        <div class='d-flex flex-column align-self-end'>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal1">프로필
+                수정
+            </button>
+            <br>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">비밀번호
+                변경
+            </button>
+        </div>
     </div>
+
+    <hr>
     <div>
-        <p id="username">닉네임:</p>
-        <label for="email">이메일: </label>
-        <input id="email" name="email" type="text">
+        <div class='d-flex justify-content-evenly'>
+            <button id="register_game_show_btn" style="display: none" onclick="switchRegisterLike(1)">내가 등록한 게임</button>
+            <button id="like_game_show_btn" style="display: none" onclick="switchRegisterLike(2)">내가 즐겨찾기한 게임</button>
+        </div>
+        <div id="user_games" style="display: block">
+        </div>
+        <div id="user_like_games" style="display: none">
+        </div>
     </div>
-    <div class='d-flex flex-column align-self-end'>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal1">프로필 수정</button>
-        <br>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">비밀번호 변경</button>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel1">비밀번호를 입력해주세요</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method='PUT'>
+                        {% csrf_token %}
+                        <label for="password">비밀번호</label>
+                        <input type="password" id='password' name='password'>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary" onclick=''>확인</button>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-
-<hr>
-<div>
-    <div class='d-flex justify-content-evenly'>
-        <button id="register_game_show_btn" style="display: none">내가 등록한 게임</button>
-        <button id="like_game_show_btn" style="display: none">내가 즐겨찾기한 게임</button>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel2">새로운 비밀번호를 입력해주세요</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="" method='PUT'>
+                        {% csrf_token %}
+                        <label for="password">기존 비밀번호</label>
+                        <input type="password" name="password" id="password">
+                        <br>
+                        <label for="new_password">새 비밀번호</label>
+                        <input type="password" name="new_password" id="new_password">
+                        <br>
+                        <label for="new_password_check">새 비밀번호 확인</label>
+                        <input type="password" name="new_password_check" id="new_password_check">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나가기</button>
+                    <button type="submit" class="btn btn-primary" onclick='Star(event);'>확인</button>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-
-
-<!-- Modal -->
-<div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel1">비밀번호를 입력해주세요</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form action="" method='PUT'>
-            {% csrf_token %}
-            <label for="password">비밀번호</label>
-            <input type="password" id='password' name='password'>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-          <button type="submit" class="btn btn-primary" onclick=''>확인</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Modal -->
-<div class="modal fade" id="exampleModal2" tabindex="-1" aria-labelledby="exampleModalLabel2" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel2">새로운 비밀번호를 입력해주세요</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form action="" method='PUT'>
-            {% csrf_token %}
-            <label for="password">기존 비밀번호</label>
-            <input type="password" name="password" id="password">
-            <br>
-            <label for="new_password">새 비밀번호</label>
-            <input type="password" name="new_password" id="new_password">
-            <br>
-            <label for="new_password_check">새 비밀번호 확인</label>
-            <input type="password" name="new_password_check" id="new_password_check">
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나가기</button>
-          <button type="submit" class="btn btn-primary" onclick='Star(event);'>확인</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<script>
-    function getPageUserId() {
-        const path = window.location.pathname;
-        const parts = path.split('/');
-        console.log("parts[3]: ", parts[2]);
-        return parseInt(parts[2]);
-    }
-
-    window.addEventListener("load", async function PageLoad() {
-        // context로 views.py에서 game_pk를 받아서 사용한다.
-        const page_user_id = getPageUserId();
-        
-        const url = "{% url 'users:profile' 1 %}".replace('1', page_user_id);
-        const page_user = await aSend({
-            url: url,
-            method: 'GET',
-            is_token: false,
-        });
-        
-        const user_profile_img = document.getElementById("user_profile_img");
-        if (page_user.profile_image) {
-            user_profile_img.src = page_user.profile_image;
-        } else {
-            user_profile_img.src = '{% static 'image/user.png' %}'
+    <script>
+        function getPageUserId() {
+            const path = window.location.pathname;
+            const parts = path.split('/');
+            console.log("parts[3]: ", parts[2]);
+            return parseInt(parts[2]);
         }
         
-        const username_tag = document.getElementById("username");
-        const email_tag = document.getElementById("email");
+        function switchRegisterLike(clicked_button_num) {
+            const register_game_list_div = document.getElementById("user_games");
+            const like_game_list_div = document.getElementById("user_like_games");
+            if (clicked_button_num === 1) {
+                register_game_list_div.style.display = 'block';
+                like_game_list_div.style.display = 'none';
+            } else {
+                register_game_list_div.style.display = 'none';
+                like_game_list_div.style.display = 'block';
+            }
+        }
         
-        username_tag.innerText += ` ${page_user.username}`;
-        email_tag.setAttribute('value', page_user.email);
-        
-        // (<username> or 내)가 등록한 게임 / 내가 즐겨찾기한 게임
-        const register_game_show_btn = document.getElementById("register_game_show_btn");
-        const like_game_show_btn = document.getElementById("like_game_show_btn");
-        
-        const user = await isLogIn();
-        if (user.username === page_user.username) {
-            register_game_show_btn.innerText = "내가 등록한 게임";
-            register_game_show_btn.style.display = 'block';
+        window.addEventListener("load", async function PageLoad() {
+            // context로 views.py에서 game_pk를 받아서 사용한다.
+            const page_user_id = getPageUserId();
+
+            const user_info_url = "{% url 'users:profile' 1 %}".replace('1', page_user_id);
+            const page_user = await aSend({
+                url: user_info_url,
+                method: 'GET',
+                is_token: false,
+            });
+
+            const user_profile_img = document.getElementById("user_profile_img");
+            if (page_user.profile_image) {
+                user_profile_img.src = page_user.profile_image;
+            } else {
+                user_profile_img.src = '{% static 'image/user.png' %}'
+            }
+
+            const username_tag = document.getElementById("username");
+            const email_tag = document.getElementById("email");
+
+            username_tag.innerText += ` ${page_user.username}`;
+            email_tag.setAttribute('value', page_user.email);
+
+            // (<username> or 내)가 등록한 게임 / 내가 즐겨찾기한 게임
+            const register_game_show_btn = document.getElementById("register_game_show_btn");
+            const like_game_show_btn = document.getElementById("like_game_show_btn");
+            const register_game_list_div = document.getElementById("user_games");
+            const like_game_list_div = document.getElementById("user_like_games");
+
+            const my_games_url = "{% url 'users:my_games' 1 %}".replace('1', page_user_id);
+            let is_my_page = false;
+
+            const user = await isLogIn();
+            if (user) {
+                if (user.username === page_user.username) {
+                    register_game_show_btn.innerText = "내가 등록한 게임";
+                    register_game_show_btn.style.display = 'block';
+
+                    like_game_show_btn.innerText = "내가 즐겨찾기한 게임";
+                    like_game_show_btn.style.display = 'block';
+
+                    // 내가 등록한 게임 일 경우 access token을 헤더에 포함해줘야 함
+                    is_my_page = true;
+                } else {
+                    register_game_show_btn.innerText = `${page_user.username}가 등록한 게임`;
+                    register_game_show_btn.style.display = 'block';
+                }
+            } else {
+                register_game_show_btn.innerText = `${page_user.username}가 등록한 게임`;
+                register_game_show_btn.style.display = 'block';
+            }
+
+            const page_user_games = await aSend({
+                url: my_games_url,
+                method: 'GET',
+                is_token: is_my_page,
+            })
+
+            for (let item of page_user_games.item_list) {
+                const divElement = document.createElement('div');
+
+                const gameThumbnailElement = document.createElement("img");
+                gameThumbnailElement.setAttribute("width", "100");
+                gameThumbnailElement.setAttribute("height", "100");
+                if (!item.thumbnail) {
+                    gameThumbnailElement.setAttribute("src", "{% static 'image/image_cap.svg' %}");
+                } else {
+                    gameThumbnailElement.setAttribute("src", item.thumbnail);
+                }
+                gameThumbnailElement.setAttribute("alt", "...");
+
+                const gameTitleElement = document.createElement("span");
+                gameTitleElement.innerText = item.title;
+
+                const gameUploadDtElement = document.createElement("span");
+                gameUploadDtElement.innerText = item.created_at;
+
+                const gameTagsElement = document.createElement("span");
+                gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;
+
+                divElement.appendChild(gameThumbnailElement);
+                divElement.appendChild(gameTitleElement);
+                divElement.appendChild(gameUploadDtElement);
+                divElement.appendChild(gameTagsElement);
+
+                // 내가 등록한 게임을 확인할 경우 등록 상태 확인
+                if (is_my_page) {
+                    console.log(item.register_state);
+                    const gameRegisterStateElement = document.createElement("span");
+                    if (item.register_state === 0) {
+                        gameRegisterStateElement.innerText = "대기 중";
+                        gameRegisterStateElement.setAttribute("style", "color:gray;");
+                    } else if (item.register_state === 1) {
+                        gameRegisterStateElement.innerText = "승인";
+                        gameRegisterStateElement.setAttribute("style", "color:green;");
+                    } else {
+                        gameRegisterStateElement.innerText = "거부";
+                        gameRegisterStateElement.setAttribute("style", "color:red;");
+                    }
+                    divElement.appendChild(gameRegisterStateElement);
+                }
+
+                register_game_list_div.appendChild(divElement);
+            }
             
-            like_game_show_btn.innerText = "내가 즐겨찾기한 게임";
-            like_game_show_btn.style.display = 'block';
-        } else {
-            register_game_show_btn.innerText = `${page_user.username}가 등록한 게임`;
-            register_game_show_btn.style.display = 'block';
-        }
-    });
-</script>
+            // 내가 즐겨찾기한 게임
+            if (is_my_page) {
+                const my_like_games_url = "{% url 'users:like_games' 1 %}".replace('1', page_user_id);
+                const page_user_like_games = await aSend({
+                    url: my_like_games_url,
+                    method: 'GET',
+                    is_token: false,
+                })
+
+                for (let item of page_user_like_games.item_list) {
+                    const divElement = document.createElement('div');
+
+                    const gameThumbnailElement = document.createElement("img");
+                    gameThumbnailElement.setAttribute("width", "100");
+                    gameThumbnailElement.setAttribute("height", "100");
+                    if (!item.thumbnail) {
+                        gameThumbnailElement.setAttribute("src", "{% static 'image/image_cap.svg' %}");
+                    } else {
+                        gameThumbnailElement.setAttribute("src", item.thumbnail);
+                    }
+                    gameThumbnailElement.setAttribute("alt", "...");
+
+                    const gameTitleElement = document.createElement("span");
+                    gameTitleElement.innerText = item.title;
+
+                    const gameUploadDtElement = document.createElement("span");
+                    gameUploadDtElement.innerText = item.created_at;
+
+                    const gameTagsElement = document.createElement("span");
+                    gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;
+
+                    divElement.appendChild(gameThumbnailElement);
+                    divElement.appendChild(gameTitleElement);
+                    divElement.appendChild(gameUploadDtElement);
+                    divElement.appendChild(gameTagsElement);
+                    
+                    like_game_list_div.appendChild(divElement);
+                }
+            }
+        });
+    </script>
 {% endblock content %}
