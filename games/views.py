@@ -271,16 +271,22 @@ class CommentAPIView(APIView):
         return permissions
 
     def get(self, request, game_pk):
-        comments = Comment.objects.all().filter(game=game_pk, is_visible=True)
+        comments = Comment.objects.all().filter(game=game_pk, is_visible=True,root__isnull=True)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
     def post(self, request, game_pk):
-        game = get_object_or_404(Game, pk=game_pk)
+        game = get_object_or_404(Game, pk=game_pk)  # game 객체를 올바르게 설정
+        root_id = request.data.get('root')
+        root = None
+        if root_id:
+            root = get_object_or_404(Comment, pk=root_id)
+
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(author=request.user, game=game)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer.save(author=request.user, game=game, root=root)  # 데이터베이스에 저장
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentDetailAPIView(APIView):
