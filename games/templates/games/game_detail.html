@@ -319,71 +319,10 @@ async function Star(event) {
       content_idx += 1
     }
 
-    /*const videoIframeElement = document.createElement('iframe');
-    videoIframeElement.width = '560';
-    videoIframeElement.height = '315';
-    videoIframeElement.src = 'https://www.youtube.com/embed/_2MtnLyBdbk';
-    videoIframeElement.frameBorder = '0';
-    videoIframeElement.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-    videoIframeElement.referrerPolicy = 'strict-origin-when-cross-origin';
-    videoIframeElement.allowFullscreen = true;
-
-    containerDiv.appendChild(videoIframeElement);
-
-    for (let i = 0; i < screenshot.length; i++) {
-      const imgElement = document.createElement('img');
-      imgElement.src = screenshot[i].src;
-      imgElement.alt = '';
-      imgElement.style.width = '300px';
-      containerDiv.appendChild(imgElement);
-    }*/
-    
-    // document.body.appendChild(containerDiv);
-
-    // #4 ====================작성자의 게임 설명===========================
-    // const contentDiv = document.createElement('div');
-    // contentDiv.textContent = `content: ${content}`;
-    // document.body.appendChild(contentDiv);
-    const contentDiv = document.getElementById('contentDiv');
-
-    // # 5==================댓글 작성 form, 수정 필요======================
-    /* const formElement = document.createElement('form');
-    formElement.action = ''
-    formElement.method = 'POST';
-    formElement.className = 'd-flex';
-
-    const csrfTokenInput = document.createElement('input');
-    csrfTokenInput.type = 'hidden';
-    csrfTokenInput.name = 'csrfmiddlewaretoken';
-    csrfTokenInput.value = '{{ csrf_token }}';
-
-    const labelElement = document.createElement('label');
-    labelElement.htmlFor = 'comment';
-    labelElement.textContent = '댓글';
-
-    const inputElement = document.createElement('input');
-    inputElement.type = 'text';
-    inputElement.name = 'comment';
-    inputElement.id = 'comment';
-
-    const buttonElement = document.createElement('button');
-    buttonElement.type = 'submit';
-    buttonElement.textContent = '게시';
-
-    formElement.appendChild(csrfTokenInput);
-    formElement.appendChild(labelElement);
-    formElement.appendChild(inputElement);
-    formElement.appendChild(buttonElement);
-
-    document.body.appendChild(formElement);*/
-
     // # 6 =====================게시글에 달린 댓글========================
-    // const commentContainerDiv = document.createElement('div');
     const commentContainerDiv = document.getElementById('commentContainerDiv');
-// 
     comment_response.forEach(comment => {
       const commentDiv = document.createElement('div');
-      commentDiv.classList.add('comment');
       commentDiv.setAttribute('data-comment-id',comment.id)
 
       const commentImgElement = document.createElement('img');
@@ -411,22 +350,28 @@ async function Star(event) {
       const replyButton=document.createElement('button');
       replyButton.textContent ="댓글 달기";
       replyButton.onclick=function(){
-        const replyForm=document.createElement('form');
-        replyForm.onsubmit=function(e){ReplyCreate(e,comment.id);};
-
-        const replyInput=document.createElement('input');
-        replyInput.type = 'text';
-        replyInput.name = 'content';
-        replyInput.placeholder = '답글을 입력하세요';
-
-        const replySubmitButton = document.createElement('button');
-        replySubmitButton.type = 'submit';
-        replySubmitButton.textContent = '제출';
-
-        replyForm.appendChild(replyInput);
-        replyForm.appendChild(replySubmitButton);
-
-        commentDiv.appendChild(replyForm);
+        let existReplyForm=commentDiv.querySelector('.replyForm');
+        if(existReplyForm){
+          existReplyForm.remove();
+        } else{
+          const replyForm=document.createElement('form');
+          replyForm.className = 'replyForm';
+          replyForm.onsubmit=function(e){ReplyCreate(e,comment.id);};
+  
+          const replyInput=document.createElement('input');
+          replyInput.type = 'text';
+          replyInput.name = 'content';
+          replyInput.placeholder = '답글을 입력하세요';
+          
+          const replySubmitButton = document.createElement('button');
+          replySubmitButton.type = 'submit';
+          replySubmitButton.textContent = '제출';
+  
+          replyForm.appendChild(replyInput);
+          replyForm.appendChild(replySubmitButton);
+  
+          commentDiv.appendChild(replyForm);
+        }
       };
       commentDiv.appendChild(replyButton);
 
@@ -463,16 +408,10 @@ async function Star(event) {
         });
         commentDiv.appendChild(replyContainer);
       }
-
-
       const commentLineBreak = document.createElement('br');
       commentDiv.appendChild(commentLineBreak);
-
       commentContainerDiv.appendChild(commentDiv)
-      // document.body.appendChild(commentContainerDiv)
     });
   });
-  
-
 </script>
 {% endblock content %}
