@@ -138,7 +138,7 @@ def my_games(request, user_pk):
         tag_list = list(item.tag.values_list('name', flat=True))
         item_list.append({
             "title": item.title,
-            "thumbnail": item.thumbnail.url if item.thumbnail.url else None,
+            "thumbnail": item.thumbnail.url if item.thumbnail else None,
             "register_state": item.register_state,
             "created_at": item.created_at,
             "tag_list": tag_list,
@@ -159,7 +159,7 @@ def like_games(request, user_pk):
         tag_list = list(item.tag.values_list('name', flat=True))
         item_list.append({
             "title": item.title,
-            "thumbnail": item.thumbnail.url if item.thumbnail.url else None,
+            "thumbnail": item.thumbnail.url if item.thumbnail else None,
             "register_state": item.register_state,
             "created_at": item.created_at,
             "tag_list": tag_list,
