@@ -4,14 +4,20 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center">
         <div style="position:relative; top:10px">
-            <form action="javascript:search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0" role="search">
-                    <input type="search" class="form-control" placeholder="키워드 검색하시오." aria-label="Search" id="search_input">
+            <form action="javascript:qna_search();" method="GET" class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 pl-0" role="search">
+                <div class="d-flex align-items-center">
+                    <select class="btn btn-secondary dropdown-toggle text-left me-1" type="button" aria-expanded="false"
+                            aria-label="Default select example" id="qna_search_option">
+                    </select>
+                    <input type="search" class="form-control" placeholder="키워드 검색하시오." aria-label="QnA_Search" id="qna_search_input">
+                </div>
             </form>
         </div>
         <div>
             <a class="btn btn-secondary" href={% url 'qnas:qna_create' %} aria-expanded="false">생성</a>
         </div>
     </div>
+    <br>
         
     <table class="table">
         <thead>
@@ -26,7 +32,12 @@
 </div>
 <script>
     window.addEventListener("load", async function PageLoad() {
-        const url_qnas_list_all = '{% url 'qnas:qna_list' %}'
+        const params = new URLSearchParams(decodeURIComponent(window.location.search));
+        
+        {% comment %} params.set('page', page);  // 페이지 번호 추가
+        params.set('search', 'search');   {% endcomment %}
+
+        const url_qnas_list_all = '{% url 'qnas:qna_list' %}'+ params.toString();
 
         const qna_list = await aSend({
             url: url_qnas_list_all,
@@ -40,10 +51,21 @@
             method: 'GET',
             is_token: false,
         });
-        
+
+        const qna_option_list = document.getElementById('qna_search_option');
+        qna_option_list.innerHTML = ``;
+        const opt= document.createElement('option');
+        opt.value="";
+        opt.innerHTML="전체 카테고리";
+        qna_option_list.appendChild(opt);
+
         let category_list = {}
         category_response.forEach(c=>{
             category_list[c.code]=c.name;
+            const opt= document.createElement('option');
+            opt.value=c.code;
+            opt.innerHTML=`${c.name}`;
+            qna_option_list.appendChild(opt);
         });
 
         for (let row of qna_list) {
@@ -73,5 +95,16 @@
             qna_tr.appendChild(qna_category_td);
         }
     });
+
+    function qna_search() {
+        let search_option_qna = document.getElementById('qna_search_option');
+        let search_input_qna = document.getElementById('qna_search_input');
+        window.location.href = "{% url 'qnas:qna_list' %}" + `?qna-q=${search_input_qna.value}`;
+        if (!search_option_qna.value) {
+            window.location.href = "{% url 'qnas:qna_list' %}";
+        } else {
+            window.location.href = "{% url 'qnas:qna_main' %}" + `?qna-q=${search_input_qna.value}`;
+        }
+    }
 </script>
 {% endblock %}

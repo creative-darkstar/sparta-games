@@ -29,7 +29,12 @@ class QnAPostListAPIView(APIView):
     QnA 목록 조회
     """
     def get(self, request):
-        qnas = QnA.objects.all().filter(is_visible=True)
+        qna_q = request.query_params.get('qna-q')
+
+        if qna_q:
+            qnas=QnA.objects.filter(is_visible=True,title__icontains=qna_q)
+        else:
+            qnas = QnA.objects.all().filter(is_visible=True)
         serializer = QnAPostListSerializer(qnas, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
