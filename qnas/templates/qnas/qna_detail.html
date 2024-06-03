@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base_no_search.html" %}
 
 {% block content %}
 <div class="container">
@@ -31,8 +31,21 @@
             method: 'GET',
             is_token: false
         });
+
+        const category_url='{% url 'qnas:category_list' %}';
+        const category_response = await aSend({
+            url: category_url,
+            method: 'GET',
+            is_token: false,
+        });
+        
+        let category_list = {}
+        category_response.forEach(c=>{
+            category_list[c.code]=c.name;
+        });
+
         const qna_category_p = document.getElementById('detail_category');
-        qna_category_p.textContent=qna_data.category;
+        qna_category_p.textContent=category_list[qna_data.category];
 
         const qna_title_h1 = document.getElementById('detail_title');
         qna_title_h1.textContent=qna_data.title;
