@@ -37,6 +37,7 @@
         <input type="text" id='comment' name='content'>
         <button type="submit">제출</button>
       </form>
+        <hr>
       <div id='commentContainerDiv'></div>
     </div>
     <br>
@@ -322,86 +323,122 @@ async function Star(event) {
     // # 6 =====================게시글에 달린 댓글========================
     const commentContainerDiv = document.getElementById('commentContainerDiv');
     comment_response.forEach(comment => {
+        const containDiv = document.createElement('div');
+
         const commentDiv = document.createElement('div');
         commentDiv.setAttribute('data-comment-id',comment.id)
         commentDiv.setAttribute("class", "d-flex justify-content-between");
-      
+        containDiv.appendChild(commentDiv)
+        
+        const profilewidth = 10;
+        const replyarrowwidth = 2.5;
+        
         const userDiv = document.createElement('div');
+        userDiv.setAttribute("class", "d-flex align-items-center");
+        userDiv.setAttribute("style", `width:${profilewidth}%`);
+        
+        const profileDiv = document.createElement('div');
+        
         const subjectDiv = document.createElement('div');
-        subjectDiv.setAttribute("class", "d-flex justify-content-between")
-          
+        subjectDiv.setAttribute("class", "btn d-flex align-items-center justify-content-between");
+        subjectDiv.setAttribute("style", `width:${100-profilewidth}%`);
+
         const contentDiv = document.createElement('div');
         const dateDiv = document.createElement('div');
-          
+
         commentDiv.appendChild(userDiv);
         commentDiv.appendChild(subjectDiv);
+        userDiv.appendChild(profileDiv);
         subjectDiv.appendChild(contentDiv);
         subjectDiv.appendChild(dateDiv);
-        
+
         const commentImgElement = document.createElement('img');
         if (comment.src) {
             commentImgElement.src = comment.src;
         }
         else {
-            commentImgElement.src = '{% static 'image/user.png' %}'
+            commentImgElement.src = '{% static 'image/user.png' %}';
             commentImgElement.style.width = '30px';
         }
         commentImgElement.alt = '';
-        userDiv.appendChild(commentImgElement);
+        profileDiv.appendChild(commentImgElement);
 
         const authorSpanElement = document.createElement('span');
         authorSpanElement.textContent = `${comment.author_name}`;
-        userDiv.appendChild(authorSpanElement);
+        profileDiv.appendChild(authorSpanElement);
 
         const contentSpanElement = document.createElement('span');
         contentSpanElement.textContent = `${comment.content}`;
         contentDiv.appendChild(contentSpanElement);
 
         const commendCreatedAtSpan = document.createElement('span');
-        commendCreatedAtSpan.textContent = `${comment.created_at}`;
+        commendCreatedAtSpan.textContent = `${formatTime(comment.created_at)}`;
         dateDiv.appendChild(commendCreatedAtSpan);
 
-        const replyButton=document.createElement('button');
-        replyButton.textContent ="댓글 달기";
-        replyButton.onclick=function(){
-            let existReplyForm=commentDiv.querySelector('.replyForm');
+        subjectDiv.onclick=function(){
+            let existReplyForm=containDiv.querySelector('.replyForm');
             if(existReplyForm) {
                 existReplyForm.remove();
-            } 
+            }
             else {
                 const replyForm=document.createElement('form');
-                replyForm.className = 'replyForm';
+                replyForm.className = 'replyForm mt-3';
                 replyForm.onsubmit=function(e){ReplyCreate(e,comment.id);};
-      
+
                 const replyInput=document.createElement('input');
                 replyInput.type = 'text';
                 replyInput.name = 'content';
                 replyInput.placeholder = '답글을 입력하세요';
-              
+                replyInput.setAttribute("class", "me-2")
+
                 const replySubmitButton = document.createElement('button');
                 replySubmitButton.type = 'submit';
-                replySubmitButton.textContent = '제출';
-      
+                replySubmitButton.textContent = '댓글 달기';
+
                 replyForm.appendChild(replyInput);
                 replyForm.appendChild(replySubmitButton);
-      
-                commentDiv.appendChild(replyForm);
+
+                containDiv.appendChild(replyForm);
             }
         };
-        commentDiv.appendChild(replyButton);
 
         if (comment.replies && comment.replies.length > 0) {
             const replyContainer = document.createElement('div');
             replyContainer.classList.add('replies');
             comment.replies.forEach(reply => {
-                
                 const replyDiv = document.createElement('div');
-                replyDiv.classList.add('comment');
+                replyDiv.setAttribute("class", "comment d-flex justify-content-between mt-3");
+                
+                const replyarrowDiv = document.createElement('div');
+                replyarrowDiv.setAttribute("class", "d-flex align-items-center");
+                replyarrowDiv.setAttribute("style", `width:${replyarrowwidth}%`);
+
+                const replyuserDiv = document.createElement('div');
+                replyuserDiv.setAttribute("class", "d-flex align-items-center");
+                replyuserDiv.setAttribute("style", `width:${profilewidth}%`);
+                
+                const replysubjectDiv = document.createElement('div');
+                replysubjectDiv.setAttribute("class", "d-flex align-items-center justify-content-between");
+                replysubjectDiv.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
+                
+                const replyprofileDiv = document.createElement('div');
+
+                const replycontentDiv = document.createElement('div');
+                const replydateDiv = document.createElement('div');
+
+                replyDiv.appendChild(replyarrowDiv);
+                replyDiv.appendChild(replyuserDiv);
+                replyDiv.appendChild(replysubjectDiv);
+                replyuserDiv.appendChild(replyprofileDiv);
+                replysubjectDiv.appendChild(replycontentDiv);
+                replysubjectDiv.appendChild(replydateDiv);
+
                 const indentSymbol = document.createElement('span');
                 indentSymbol.textContent = '↳'; // 원하는 기호로 변경 가능
-                
+                indentSymbol.style.marginLeft = '10px';
                 indentSymbol.style.marginRight = '10px';
-                replyDiv.appendChild(indentSymbol);
+                replyarrowDiv.appendChild(indentSymbol);
+                
                 const replyImgElement = document.createElement('img');
                 if (reply.src) {
                     replyImgElement.src = reply.src;
@@ -410,28 +447,43 @@ async function Star(event) {
                     replyImgElement.style.width = '30px';
                 }
                 replyImgElement.alt = '';
-                replyDiv.appendChild(replyImgElement);
-    
+                replyprofileDiv.appendChild(replyImgElement);
+
                 const replyAuthorSpanElement = document.createElement('span');
-                replyAuthorSpanElement.textContent = `작성자: ${reply.author_name}`;
-                replyDiv.appendChild(replyAuthorSpanElement);
-    
+                replyAuthorSpanElement.textContent = `${reply.author_name}`;
+                replyprofileDiv.appendChild(replyAuthorSpanElement);
+
                 const replyContentSpanElement = document.createElement('span');
-                replyContentSpanElement.textContent = `댓글 내용: ${reply.content}`;
-                replyDiv.appendChild(replyContentSpanElement);
-    
+                replyContentSpanElement.textContent = `${reply.content}`;
+                replycontentDiv.appendChild(replyContentSpanElement);
+
                 const replyCreatedAtSpan = document.createElement('span');
-                replyCreatedAtSpan.textContent = `작성 일시: ${reply.created_at}`;
-                replyDiv.appendChild(replyCreatedAtSpan);
-    
+                replyCreatedAtSpan.textContent = `${formatTime(reply.created_at)}`;
+                replyCreatedAtSpan.style.marginRight = '13px';
+                replydateDiv.appendChild(replyCreatedAtSpan);
+
                 replyContainer.appendChild(replyDiv);
             });
-            commentDiv.appendChild(replyContainer);
+            containDiv.appendChild(replyContainer);
         }
+        commentContainerDiv.appendChild(containDiv);
         const commentLineBreak = document.createElement('hr');
         commentContainerDiv.appendChild(commentLineBreak);
-        commentContainerDiv.appendChild(commentDiv)
     });
 });
+    function formatTime(isoString) {
+        // Parse the ISO string to a Date object
+        const date = new Date(isoString);
+    
+        // Extract components
+        let year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString().padStart(2, '0');  // +1 because months start from 0
+        let day = date.getDate().toString().padStart(2, '0');
+        let hours = date.getHours().toString().padStart(2, '0');
+        let minutes = date.getMinutes().toString().padStart(2, '0');
+    
+        // Format to 'YYYY-MM-DD HH:MM'
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
 </script>
 {% endblock content %}
