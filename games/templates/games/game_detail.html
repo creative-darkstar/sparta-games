@@ -47,20 +47,28 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        별점을 선택해주세요
-        <form name="myform" id="myform" method="POST">
-          <fieldset class='d-flex justify-content-center'>
-              <input type="radio" name="star" value="5" id="rate1"><label for="rate1">⭐</label>
-              <input type="radio" name="star" value="4" id="rate2"><label for="rate2">⭐</label>
-              <input type="radio" name="star" value="3" id="rate3"><label for="rate3">⭐</label>
-              <input type="radio" name="star" value="2" id="rate4"><label for="rate4">⭐</label>
-              <input type="radio" name="star" value="1" id="rate5"><label for="rate5">⭐</label>
-          </fieldset>
-      </form>
+        <div id='login_modal_body' style='display:none;'>
+          <span>별점을 선택해주세요</span>
+          <form name="myform" id="myform" method="POST">
+            <fieldset class='d-flex justify-content-center'>
+                <input type="radio" name="star" value="5" id="rate1"><label for="rate1">⭐</label>
+                <input type="radio" name="star" value="4" id="rate2"><label for="rate2">⭐</label>
+                <input type="radio" name="star" value="3" id="rate3"><label for="rate3">⭐</label>
+                <input type="radio" name="star" value="2" id="rate4"><label for="rate4">⭐</label>
+                <input type="radio" name="star" value="1" id="rate5"><label for="rate5">⭐</label>
+            </fieldset>
+        </form>
+        </div>
+        <div id='logout_modal_body' style='display:none;'>
+          <span>로그인 해주세요</span>
+        </div>
       </div>
-      <div class="modal-footer">
+      <div id='login_modal_footer' style='display:none; justify-content:end;' class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나가기</button>
         <button type="submit" class="btn btn-primary" onclick='Star(event);'>확인</button>
+      </div>
+      <div id='logout_modal_footer' style='display:none;' class="modal-footer">
+        <a class="btn btn-primary" href='{% url 'accounts:login_page' %}'>로그인페이지로 이동</a>
       </div>
     </div>
   </div>
@@ -176,7 +184,22 @@ async function Star(event) {
     infoDiv.appendChild(makerNameSpan)
     infoDiv.appendChild(createdAtSpan)
 
-    // # 2-1 ==============게임 상세 span2===================
+    // # 2-1 ==============게임 상세 span - star ================
+    const login_modal_body = document.getElementById('login_modal_body');
+    const logout_modal_body = document.getElementById('logout_modal_body');
+    const login_modal_footer = document.getElementById('login_modal_footer');
+    const logout_modal_footer = document.getElementById('logout_modal_footer');
+
+    const user = await isLogIn();
+    if (user) {
+      login_modal_body.style.display = 'block';
+      login_modal_footer.style = 'display: flex; justify-content-end;';
+    } else {
+      logout_modal_body.style.display = 'block';
+      logout_modal_footer.style = 'display: flex; justify-content-end;';
+    }
+
+    // # 2-2 ==============게임 상세 span - tag===================
     const infoDiv2 = document.getElementById('infoDiv2')
 
     const tagSpan = document.createElement('span');
