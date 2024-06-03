@@ -30,11 +30,14 @@ class QnAPostListAPIView(APIView):
     """
     def get(self, request):
         qna_q = request.query_params.get('qna-q')
+        category = request.query_params.get('category')
+
+        qnas = QnA.objects.filter(is_visible=True)
 
         if qna_q:
-            qnas=QnA.objects.filter(is_visible=True,title__icontains=qna_q)
-        else:
-            qnas = QnA.objects.all().filter(is_visible=True)
+            qnas = qnas.filter(title__icontains=qna_q)
+        if category:
+            qnas = qnas.filter(category=category)
         serializer = QnAPostListSerializer(qnas, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 

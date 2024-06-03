@@ -33,11 +33,8 @@
 <script>
     window.addEventListener("load", async function PageLoad() {
         const params = new URLSearchParams(decodeURIComponent(window.location.search));
-        
-        {% comment %} params.set('page', page);  // 페이지 번호 추가
-        params.set('search', 'search');   {% endcomment %}
 
-        const url_qnas_list_all = '{% url 'qnas:qna_list' %}'+ params.toString();
+        const url_qnas_list_all = '{% url 'qnas:qna_list' %}?'+ params.toString();
 
         const qna_list = await aSend({
             url: url_qnas_list_all,
@@ -53,24 +50,20 @@
         });
 
         const qna_option_list = document.getElementById('qna_search_option');
-        qna_option_list.innerHTML = ``;
-        const opt= document.createElement('option');
-        opt.value="";
-        opt.innerHTML="전체 카테고리";
-        qna_option_list.appendChild(opt);
+        qna_option_list.innerHTML = `<option selected value="">전체 카테고리</option>`;
 
         let category_list = {}
         category_response.forEach(c=>{
             category_list[c.code]=c.name;
             const opt= document.createElement('option');
             opt.value=c.code;
-            opt.innerHTML=`${c.name}`;
+            opt.innerHTML=c.name;
             qna_option_list.appendChild(opt);
         });
 
-        for (let row of qna_list) {
-            const qna_list_tbody = document.getElementById('qnalist');
-
+        const qna_list_tbody = document.getElementById('qnalist');
+        qna_list_tbody.innerHTML = '';
+        qna_list.forEach(row => {
             const qna_tr = document.createElement('tr');
             qna_tr.setAttribute("class", "align-middle");
 
@@ -79,32 +72,37 @@
             qna_th.textContent = row.id;
 
             const qna_title_td = document.createElement('td');
+            const qna_a = document.createElement('a');
+            qna_a.setAttribute("href", '{% url 'qnas:qna_detail_page' 1 %}'.replace('1', row.id));
+            qna_a.textContent = row.title;
+            qna_title_td.appendChild(qna_a);
 
             const qna_category_td = document.createElement('td');
             qna_category_td.textContent = category_list[row.category];
 
-            const qna_page_url = '{% url 'qnas:qna_detail_page' 1 %}'; // 여기서 1은 임시 값입니다.
-            const qna_a = document.createElement('a');
-            qna_a.setAttribute("href", qna_page_url.replace('1', row.id));
-            qna_a.textContent=row.title
-
-            qna_list_tbody.appendChild(qna_tr);
             qna_tr.appendChild(qna_th);
             qna_tr.appendChild(qna_title_td);
-            qna_title_td.appendChild(qna_a);
             qna_tr.appendChild(qna_category_td);
+            qna_list_tbody.appendChild(qna_tr);
+        });
+
+        const selectedCategory = params.get('category');
+        if (selectedCategory) {
+            qna_option_list.value = selectedCategory;
         }
     });
 
     function qna_search() {
         let search_option_qna = document.getElementById('qna_search_option');
         let search_input_qna = document.getElementById('qna_search_input');
-        window.location.href = "{% url 'qnas:qna_list' %}" + `?qna-q=${search_input_qna.value}`;
-        if (!search_option_qna.value) {
-            window.location.href = "{% url 'qnas:qna_list' %}";
-        } else {
-            window.location.href = "{% url 'qnas:qna_main' %}" + `?qna-q=${search_input_qna.value}`;
+        const searchParams = new URLSearchParams();
+        if (search_option_qna.value) {
+            searchParams.set('category', search_option_qna.value);
         }
+        if (search_input_qna.value) {
+            searchParams.set('qna-q', search_input_qna.value);
+        }
+        window.location.href = "{% url 'qnas:qna_main' %}?" + searchParams.toString();
     }
 </script>
 {% endblock %}
