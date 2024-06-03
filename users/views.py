@@ -137,11 +137,11 @@ def my_games(request, user_pk):
     for item in my_games:
         tag_list = list(item.tag.values_list('name', flat=True))
         item_list.append({
-            "title":item.title,
-            "thumbnail":item.thumbnail if item.thumbnail else None,
-            "register_state":item.register_state,
-            "created_at":item.created_at,
-            "tag_list":tag_list,
+            "title": item.title,
+            "thumbnail": item.thumbnail.url if item.thumbnail.url else None,
+            "register_state": item.register_state,
+            "created_at": item.created_at,
+            "tag_list": tag_list,
         })
 
     return Response({
@@ -158,16 +158,17 @@ def like_games(request, user_pk):
     for item in like_games:
         tag_list = list(item.tag.values_list('name', flat=True))
         item_list.append({
-            "title":item.title,
-            "thumbnail":item.thumbnail if item.thumbnail else None,
-            "register_state":item.register_state,
-            "created_at":item.created_at,
-            "tag_list":tag_list,
+            "title": item.title,
+            "thumbnail": item.thumbnail.url if item.thumbnail.url else None,
+            "register_state": item.register_state,
+            "created_at": item.created_at,
+            "tag_list": tag_list,
         })
 
     return Response({
         "item_list": item_list
     },status=status.HTTP_200_OK)
+
 
 def profile_page(request, user_pk):
     return render(request, 'users/profile_page.html')
