@@ -91,6 +91,35 @@
     }
     window.location.href = "{% url 'games:game_test_page' game_pk %}";
 }
+
+async function ReplyCreate(event, root_id) {
+  event.preventDefault();  // 폼의 기본 제출 동작을 방지
+
+  const replyForm=event.target;
+  const formData = new FormData(replyForm);
+  formData.append('root', root_id);
+  const content = formData.get('content');
+  if (!content) {
+      alert("댓글 내용을 입력하세요.");
+      return;
+  }
+  const url = '{% url 'games:comments' game_pk %}'
+
+  try {
+      await aSend({
+          url: url,
+          method: 'POST',
+          is_token: true,
+          body: formData
+      })
+      
+  } catch (error) {
+      console.error('Error:', error);
+      return false;
+  }
+  window.location.href = "{% url 'games:game_test_page' game_pk %}";
+}
+
 async function Star(event) {
   event.preventDefault();  // 폼의 기본 제출 동작을 방지
 
@@ -113,6 +142,7 @@ async function Star(event) {
   }
   window.location.href = "{% url 'games:game_test_page' game_pk %}";
 }
+
   window.addEventListener("load", async function PageLoad() {
 
     // context로 views.py에서 game_pk를 받아서 사용한다.
@@ -353,6 +383,8 @@ async function Star(event) {
 // 
     comment_response.forEach(comment => {
       const commentDiv = document.createElement('div');
+      commentDiv.classList.add('comment');
+      commentDiv.setAttribute('data-comment-id',comment.id)
 
       const commentImgElement = document.createElement('img');
       if (comment.src) {
@@ -376,12 +408,69 @@ async function Star(event) {
       commendCreatedAtSpan.textContent = `작성 일시: ${comment.created_at}`;
       commentDiv.appendChild(commendCreatedAtSpan);
 
+      const replyButton=document.createElement('button');
+      replyButton.textContent ="댓글 달기";
+      replyButton.onclick=function(){
+        const replyForm=document.createElement('form');
+        replyForm.onsubmit=function(e){ReplyCreate(e,comment.id);};
+
+        const replyInput=document.createElement('input');
+        replyInput.type = 'text';
+        replyInput.name = 'content';
+        replyInput.placeholder = '답글을 입력하세요';
+
+        const replySubmitButton = document.createElement('button');
+        replySubmitButton.type = 'submit';
+        replySubmitButton.textContent = '제출';
+
+        replyForm.appendChild(replyInput);
+        replyForm.appendChild(replySubmitButton);
+
+        commentDiv.appendChild(replyForm);
+      };
+      commentDiv.appendChild(replyButton);
+
+      if (comment.replies && comment.replies.length > 0) {
+        const replyContainer = document.createElement('div');
+        replyContainer.classList.add('replies');
+        comment.replies.forEach(reply => {
+            const replyDiv = document.createElement('div');
+            replyDiv.classList.add('comment');
+
+            const replyImgElement = document.createElement('img');
+            if (reply.src) {
+                replyImgElement.src = reply.src;
+            } else {
+                replyImgElement.src = '{% static 'image/user.png' %}';
+                replyImgElement.style.width = '30px';
+            }
+            replyImgElement.alt = '';
+            replyDiv.appendChild(replyImgElement);
+
+            const replyAuthorSpanElement = document.createElement('span');
+            replyAuthorSpanElement.textContent = `작성자: ${reply.author_name}`;
+            replyDiv.appendChild(replyAuthorSpanElement);
+
+            const replyContentSpanElement = document.createElement('span');
+            replyContentSpanElement.textContent = `댓글 내용: ${reply.content}`;
+            replyDiv.appendChild(replyContentSpanElement);
+
+            const replyCreatedAtSpan = document.createElement('span');
+            replyCreatedAtSpan.textContent = `작성 일시: ${reply.created_at}`;
+            replyDiv.appendChild(replyCreatedAtSpan);
+
+            replyContainer.appendChild(replyDiv);
+        });
+        commentDiv.appendChild(replyContainer);
+      }
+
+
       const commentLineBreak = document.createElement('br');
       commentDiv.appendChild(commentLineBreak);
 
       commentContainerDiv.appendChild(commentDiv)
       // document.body.appendChild(commentContainerDiv)
-    })
+    });
   });
   
 
