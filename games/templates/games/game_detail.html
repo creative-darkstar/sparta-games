@@ -270,10 +270,12 @@ async function like() {
     }
     // # 2-2 ================= 게임 상세 span - like==============
     const gameLikeBtn = document.getElementById('gameLikeBtn');
-    for (let item of game_detail_response.like) {
-      if (item === user.user_pk) {
-        gameLikeBtn.innerText = '즐겨찾기 취소'
-      } 
+    if (user) {
+        for (let item of game_detail_response.like) {
+            if (item === user.user_pk) {
+                gameLikeBtn.innerText = '즐겨찾기 취소'
+            } 
+        }
     }
 
     // # 2-3 ==============게임 상세 span - tag===================
