@@ -7,36 +7,39 @@
 {% endblock css_block %}
 
 {% block content %}
-
-<div id='titleContainer' class="d-flex flex-column align-items-center"></div>
-<div id='infoDiv'>
-  <span id='starScoreSpan'></span>
-  <span id='makerNameSpan'></span>
-  <span id='createdAtSpan'></span>
-</div>
-<div id='infoDiv2'>
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
-
-</div>
-
-<div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
-  <div id='wrap-vertical' class="scroll-container"></div>
-  <br>
-  <div id="carouselExampleIndicators" class="carousel slide">
-    <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
-  </div>
-</div>
-<div id='contentDiv' class=''></div>
-
-<div>
-  <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
-    {% csrf_token %}
-    <label for="comment">댓글</label>
-    <input type="text" id='comment' name='content'>
-    <button type="submit">제출</button>
-  </form>
-  <div id='commentContainerDiv'></div>
-</div>
+    <div id='titleContainer' class="d-flex flex-column align-items-center"></div>
+    <div class="container">
+        <div id='infoDiv'>
+            <span id='starScoreSpan'></span>
+            <span id='makerNameSpan'></span>
+            <span id='createdAtSpan'></span>
+        </div>
+        <div id='infoDiv2'>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
+        </div>
+    </div>
+    <br>
+    <div class="container">
+        <div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
+            <div id='wrap-vertical' class="scroll-container"></div>
+            <br>
+            <div id="carouselExampleIndicators" class="carousel slide">
+                <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
+            </div>
+        </div>
+    </div>
+    <div id='contentDiv' class=''></div>
+    <br>
+    <div class="container">
+      <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
+        {% csrf_token %}
+        <label for="comment">댓글</label>
+        <input type="text" id='comment' name='content'>
+        <button type="submit">제출</button>
+      </form>
+      <div id='commentContainerDiv'></div>
+    </div>
+    <br>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
