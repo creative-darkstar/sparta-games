@@ -8,41 +8,44 @@
 
 {% block content %}
 <div id='titleContainer' class="d-flex flex-column align-items-center"></div>
-<div class='d-flex justify-content-start' style='width:100%;'>
-  <div class='d-flex justify-content-around' style='width:50%;'>
-    <div id='infoDiv' class='d-flex flex-column'>
-      <span id='starScoreSpan'></span>
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
+    <div class="container">
+        <div class='d-flex justify-content-start' style='width:100%;'>
+            <div class='d-flex justify-content-around' style='width:50%;'>
+                <div id='infoDiv' class='d-flex flex-column'>
+                    <span id='starScoreSpan'></span>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
+                </div>
+                <div id='infoDiv2' class='d-flex flex-column'>
+                    <span id='makerNameSpan'></span>
+                    <button id='gameLikeBtn' onclick='like();'>즐겨찾기</button>
+                </div>
+                <div id='infoDiv3' class='d-flex flex-column'>
+                    <span id='createdAtSpan'></span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id='infoDiv2' class='d-flex flex-column'>
-      <span id='makerNameSpan'></span>
-      <button id='gameLikeBtn' onclick='like();'>즐겨찾기</button>
+    <div class="container">
+        <div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
+            <div id='wrap-vertical' class="scroll-container"></div>
+            <br>
+            <div id="carouselExampleIndicators" class="carousel slide">
+                <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
+            </div>
+        </div>
+        <div id='contentDiv' class=''></div>
     </div>
-    <div id='infoDiv3' class='d-flex flex-column'>
-      <span id='createdAtSpan'></span>
+    <div class="container">
+        <div>
+            <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
+                {% csrf_token %}
+                <label for="comment">댓글</label>
+                <input type="text" id='comment' name='content'>
+                <button type="submit">제출</button>
+            </form>
+            <div id='commentContainerDiv'></div>
+        </div>
     </div>
-  </div>
-
-</div>
-
-<div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
-  <div id='wrap-vertical' class="scroll-container"></div>
-  <br>
-  <div id="carouselExampleIndicators" class="carousel slide">
-    <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
-  </div>
-</div>
-<div id='contentDiv' class=''></div>
-
-<div>
-  <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
-    {% csrf_token %}
-    <label for="comment">댓글</label>
-    <input type="text" id='comment' name='content'>
-    <button type="submit">제출</button>
-  </form>
-  <div id='commentContainerDiv'></div>
-</div>
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -387,16 +390,16 @@ async function like() {
         commentDiv.setAttribute('data-comment-id',comment.id)
         commentDiv.setAttribute("class", "d-flex justify-content-between");
         containDiv.appendChild(commentDiv)
-        
+
         const profilewidth = 10;
         const replyarrowwidth = 2.5;
-        
+
         const userDiv = document.createElement('div');
         userDiv.setAttribute("class", "d-flex align-items-center");
         userDiv.setAttribute("style", `width:${profilewidth}%`);
-        
+
         const profileDiv = document.createElement('div');
-        
+
         const subjectDiv = document.createElement('div');
         subjectDiv.setAttribute("class", "btn d-flex align-items-center justify-content-between");
         subjectDiv.setAttribute("style", `width:${100-profilewidth}%`);
@@ -466,7 +469,7 @@ async function like() {
             comment.replies.forEach(reply => {
                 const replyDiv = document.createElement('div');
                 replyDiv.setAttribute("class", "comment d-flex justify-content-between mt-3");
-                
+
                 const replyarrowDiv = document.createElement('div');
                 replyarrowDiv.setAttribute("class", "d-flex align-items-center");
                 replyarrowDiv.setAttribute("style", `width:${replyarrowwidth}%`);
@@ -474,11 +477,11 @@ async function like() {
                 const replyuserDiv = document.createElement('div');
                 replyuserDiv.setAttribute("class", "d-flex align-items-center");
                 replyuserDiv.setAttribute("style", `width:${profilewidth}%`);
-                
+
                 const replysubjectDiv = document.createElement('div');
                 replysubjectDiv.setAttribute("class", "d-flex align-items-center justify-content-between");
                 replysubjectDiv.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
-                
+
                 const replyprofileDiv = document.createElement('div');
 
                 const replycontentDiv = document.createElement('div');
@@ -496,7 +499,7 @@ async function like() {
                 indentSymbol.style.marginLeft = '10px';
                 indentSymbol.style.marginRight = '10px';
                 replyarrowDiv.appendChild(indentSymbol);
-                
+
                 const replyImgElement = document.createElement('img');
                 if (reply.src) {
                     replyImgElement.src = reply.src;
@@ -532,14 +535,14 @@ async function like() {
     function formatTime(isoString) {
         // Parse the ISO string to a Date object
         const date = new Date(isoString);
-    
+
         // Extract components
         let year = date.getFullYear();
         let month = (date.getMonth() + 1).toString().padStart(2, '0');  // +1 because months start from 0
         let day = date.getDate().toString().padStart(2, '0');
         let hours = date.getHours().toString().padStart(2, '0');
         let minutes = date.getMinutes().toString().padStart(2, '0');
-    
+
         // Format to 'YYYY-MM-DD HH:MM'
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
