@@ -505,25 +505,26 @@ async function like() {
         commentDiv.appendChild(comment_EditDelete_div);
         const commentEditBtn = document.createElement('i');
         const commentDeleteBtn = document.createElement('i');
-      
-        if (user) {
-            if (user.user_pk === comment.author) {
-                
-                commentEditBtn.setAttribute('id', "commentEditBtn");
-                commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
-                
-                commentEditBtn.setAttribute('onclick', `commentEdit('${comment.id}','${comment.content}');`);
-                commentDeleteBtn.setAttribute('onclick', `commentDelete('${comment.id}');`);
-                
-                commentEditBtn.setAttribute('class', "bi bi-pencil-square btn");
-                commentDeleteBtn.setAttribute('class', "bi bi-x-square btn");
-                
-                commentEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
-                commentDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
-                
-                comment_EditDelete_div.appendChild(commentEditBtn);
-                comment_EditDelete_div.appendChild(commentDeleteBtn);
-            }
+        if (comment.is_visible){
+          if (user) {
+              if (user.user_pk === comment.author) {
+                  
+                  commentEditBtn.setAttribute('id', "commentEditBtn");
+                  commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
+                  
+                  commentEditBtn.setAttribute('onclick', `commentEdit('${comment.id}','${comment.content}');`);
+                  commentDeleteBtn.setAttribute('onclick', `commentDelete('${comment.id}');`);
+                  
+                  commentEditBtn.setAttribute('class', "bi bi-pencil-square btn");
+                  commentDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                  
+                  commentEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                  commentDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                  
+                  comment_EditDelete_div.appendChild(commentEditBtn);
+                  comment_EditDelete_div.appendChild(commentDeleteBtn);
+              }
+          }
         }
 
         subjectDiv.onclick=function(){
@@ -616,7 +617,7 @@ async function like() {
 
                 const replyContentSpanElement = document.createElement('span');
                 replyContentSpanElement.textContent = `${reply.content}`;
-                replyContentSpanElement.setAttribute('class', 'editable-reply-content');
+                replyContentSpanElement.setAttribute('class', 'editable-comment-content');
                 replycontentDiv.appendChild(replyContentSpanElement);
 
                 const replyCreatedAtSpan = document.createElement('span');
@@ -628,25 +629,27 @@ async function like() {
                 replyDiv.appendChild(reply_EditDelete_div)
                 const replyEditBtn = document.createElement('i');
                 const replyDeleteBtn = document.createElement('i');
-              
-                if (user) {
-                    if (user.user_pk === reply.author) {
-                        
-                        replyEditBtn.setAttribute('id', "replyEditBtn");
-                        replyDeleteBtn.setAttribute('id', "replyDeleteBtn");
-                        
-                        replyEditBtn.setAttribute('onclick', "replyEdit();");
-                        replyDeleteBtn.setAttribute('onclick', "replyDelete();");
-                        
-                        replyEditBtn.setAttribute('class', "bi bi-pencil-square btn");
-                        replyDeleteBtn.setAttribute('class', "bi bi-x-square btn");
                 
-                        replyEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
-                        replyDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
-                        
-                        reply_EditDelete_div.appendChild(replyEditBtn);
-                        reply_EditDelete_div.appendChild(replyDeleteBtn);
-                    }
+                if(reply.is_visible){
+                  if (user) {
+                      if (user.user_pk === reply.author) {
+                          
+                          replyEditBtn.setAttribute('id', "replyEditBtn");
+                          replyDeleteBtn.setAttribute('id', "replyDeleteBtn");
+                          
+                          replyEditBtn.setAttribute('onclick', `commentEdit('${reply.id}');`);
+                          replyDeleteBtn.setAttribute('onclick', `commentDelete('${reply.id}');`);
+                          
+                          replyEditBtn.setAttribute('class', "bi bi-pencil-square btn");
+                          replyDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                  
+                          replyEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                          replyDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                          
+                          reply_EditDelete_div.appendChild(replyEditBtn);
+                          reply_EditDelete_div.appendChild(replyDeleteBtn);
+                      }
+                  }
                 }
 
                 replyContainer.appendChild(replyDiv);
@@ -673,35 +676,6 @@ async function like() {
         return `${year}-${month}-${day} ${hours}:${minutes}`;
     }
 
-    async function commentEdit(commentId,commentContent){
-      const contentSpan = document.querySelector(`div[data-comment-id="${commentId}"] .editable-comment-content`);
-      const newContent = prompt("수정할 댓글 내용:",commentContent);
-      if(newContent !==null&& newContent!==commentContent){
-        const comment_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
-        const access=localStorage.getItem('access_token');
-
-        try {
-          const response = await fetch(comment_URL, {
-              method: 'PUT',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${access}`,
-                  'X-CSRFToken': '{{ csrf_token }}'
-              },
-              body: JSON.stringify({ content: newContent })
-          });
-
-          if (response.ok) {
-              contentSpan.textContent = newContent;
-          } else {
-              console.error('Failed to update comment');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-        }
-      }
-    }
-
     async function commentDelete(commentId){
       const comment_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
       const access=localStorage.getItem('access_token');
@@ -717,8 +691,7 @@ async function like() {
           });
 
           if (response.ok) {
-            
-              {% comment %} document.querySelector(`div[data-comment-id="${commentId}"]`).style.display = 'none'; {% endcomment %}
+            window.location.reload();
           } else {
               console.error('Failed to delete comment');
           }
@@ -727,12 +700,11 @@ async function like() {
       }
     }
 
-    async function replyEdit(){
-      const replytId = document.querySelector('#replyEditBtn').getAttribute('data-comment-id');
-      const replyContentSpans = document.querySelector(`div[data-comment-id="${replytId}"] div.editable-reply-content`);
+    async function commentEdit(commentId){
+      const replyContentSpans = document.querySelector(`div[data-comment-id="${commentId}"] .editable-comment-content`);
       const newContent = prompt("수정할 댓글 내용:",replyContentSpans.textContent);
       if(newContent!==null&& newContent!==replyContentSpans.textContent){
-        const reply_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',replytId);
+        const reply_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
         const access=localStorage.getItem('access_token');
 
         try {
@@ -747,7 +719,7 @@ async function like() {
           });
 
           if (response.ok) {
-            replyContentSpans.textContent = newContent;
+            window.location.reload();
           } else {
               console.error('Failed to update comment');
           }
