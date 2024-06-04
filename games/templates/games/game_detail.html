@@ -494,6 +494,7 @@ async function like() {
 
         const contentSpanElement = document.createElement('span');
         contentSpanElement.textContent = `${comment.content}`;
+        contentSpanElement.setAttribute('class', 'editable-comment-content');
         contentDiv.appendChild(contentSpanElement);
 
         const commendCreatedAtSpan = document.createElement('span');
@@ -511,8 +512,8 @@ async function like() {
                 commentEditBtn.setAttribute('id', "commentEditBtn");
                 commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
                 
-                commentEditBtn.setAttribute('onclick', "commentEdit();");
-                commentDeleteBtn.setAttribute('onclick', "commentDelete();");
+                commentEditBtn.setAttribute('onclick', `commentEdit('${comment.id}','${comment.content}');`);
+                commentDeleteBtn.setAttribute('onclick', `commentDelete('${comment.id}');`);
                 
                 commentEditBtn.setAttribute('class', "bi bi-pencil-square btn");
                 commentDeleteBtn.setAttribute('class', "bi bi-x-square btn");
@@ -526,6 +527,7 @@ async function like() {
         }
 
         subjectDiv.onclick=function(){
+          if(comment.is_visible){
             let existReplyForm=containDiv.querySelector('.replyForm');
             if(existReplyForm) {
                 existReplyForm.remove();
@@ -553,6 +555,7 @@ async function like() {
 
                 containDiv.appendChild(replyForm);
             }
+          }
         };
 
         if (comment.replies && comment.replies.length > 0) {
@@ -560,6 +563,7 @@ async function like() {
             replyContainer.classList.add('replies');
             comment.replies.forEach(reply => {
                 const replyDiv = document.createElement('div');
+                replyDiv.setAttribute('data-comment-id',comment.id)
                 replyDiv.setAttribute("class", "comment d-flex justify-content-between mt-3");
 
                 const replyarrowDiv = document.createElement('div');
@@ -612,6 +616,7 @@ async function like() {
 
                 const replyContentSpanElement = document.createElement('span');
                 replyContentSpanElement.textContent = `${reply.content}`;
+                replyContentSpanElement.setAttribute('class', 'editable-reply-content');
                 replycontentDiv.appendChild(replyContentSpanElement);
 
                 const replyCreatedAtSpan = document.createElement('span');
@@ -666,6 +671,60 @@ async function like() {
 
         // Format to 'YYYY-MM-DD HH:MM'
         return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+
+    async function commentEdit(commentId,commentContent){
+      const contentSpan = document.querySelector(`div[data-comment-id="${commentId}"] .editable-comment-content`);
+      const newContent = prompt("수정할 댓글 내용:",commentContent);
+      if(newContent !==null&& newContent!==commentContent){
+        const comment_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
+        const access=localStorage.getItem('access_token');
+
+        try {
+          const response = await fetch(comment_URL, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${access}`,
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+              body: JSON.stringify({ content: newContent })
+          });
+
+          if (response.ok) {
+              contentSpan.textContent = newContent;
+          } else {
+              console.error('Failed to update comment');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    }
+
+    async function commentDelete(commentId){
+      const comment_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
+      const access=localStorage.getItem('access_token');
+
+      try {
+          const response = await fetch(comment_URL, {
+              method: 'DELETE',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${access}`,
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+          });
+
+          if (response.ok) {
+            
+              {% comment %} document.querySelector(`div[data-comment-id="${commentId}"]`).style.display = 'none'; {% endcomment %}
+          } else {
+              console.error('Failed to delete comment');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+      }
     }
 </script>
 {% endblock content %}
