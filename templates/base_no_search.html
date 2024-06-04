@@ -65,6 +65,26 @@
     </div>
   </div>
 </div>
+<footer class="d-flex flex-wrap mt-auto justify-content-between align-items-center py-3 my-4 border-top">
+    <div class="container">
+        <div class="d-flex justify-content-between">
+            <div class="col-md-4 d-flex align-items-center" style='width:30%;'>
+              <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 me-2 link-body-emphasis text-decoration-none">
+                <img src="{% static 'image/gaming.png' %}" alt="" width='32'>
+              </a>
+              <span class="mb-3 mb-md-0 text-body-secondary">2024 Sparta Games</span>
+            </div>
+            <div style='width:30%; text-align: center; align-content: center;'>
+                <span>Contact Us: (Email)</span>
+            </div>
+            <div style='width:30%;'>
+                <ul class="nav justify-content-end list-unstyled d-flex">
+                  <li class="ms-3"><a class="text-body-secondary" href="#"><i class="bi bi-discord" style="font-size: 30px;"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
 <script>
     async function tokenRefresh() {
         const refresh = localStorage.getItem('refresh_token');
