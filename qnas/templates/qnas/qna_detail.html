@@ -8,7 +8,6 @@
         </div>
         <div id="qnaDetailBtn"></div>
     </div>
-
     <h1 id="detail_title"></h1>
     <hr>
     <pre id="detail_content"></pre>
@@ -25,8 +24,9 @@
         if (user){
             if (user.is_staff){
                 const createBtnDiv = document.getElementById('qnaDetailBtn');
-                createBtnDiv.innerHTML = `<a id="updatebtn" class="btn btn-secondary">수정</a>`;
-                createBtnDiv.innerHTML = `<button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>`;
+                createBtnDiv.innerHTML = `<a id="updatebtn" class="btn btn-secondary">수정</a>
+                                          <button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>`;
+
                 const qna_update_btn = document.getElementById('updatebtn');
                 qna_update_btn.setAttribute('href',`{% url 'qnas:qna_update' qna_pk %}`);
             }
