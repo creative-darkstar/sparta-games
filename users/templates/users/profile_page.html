@@ -254,7 +254,7 @@
                 gameTitleElement.innerText = item.title;
 
                 const gameUploadDtElement = document.createElement("span");
-                gameUploadDtElement.innerText = item.created_at;
+                gameUploadDtElement.innerText = `${formatTime(item.created_at)}`;
 
                 const gameTagsElement = document.createElement("span");
                 gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;
@@ -309,7 +309,7 @@
                     gameTitleElement.innerText = item.title;
 
                     const gameUploadDtElement = document.createElement("span");
-                    gameUploadDtElement.innerText = item.created_at;
+                    gameUploadDtElement.innerText = `${formatTime(item.created_at)}`;
 
                     const gameTagsElement = document.createElement("span");
                     gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;

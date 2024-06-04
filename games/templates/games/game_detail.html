@@ -277,7 +277,7 @@ async function like() {
     makerNameSpan.textContent = `제작자: ${maker_name}`;
 
     const createdAtSpan = document.getElementById('createdAtSpan');
-    createdAtSpan.textContent = `업로드 일시: ${created_at}`;
+    createdAtSpan.textContent = `업로드 일시: ${formatTime(created_at)}`;
 
     // # 2-1 ============== 게임 상세 span - star ================
     const login_modal_body = document.getElementById('login_modal_body');
