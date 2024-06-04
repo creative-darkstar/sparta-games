@@ -23,6 +23,7 @@ class ProfileAPIView(APIView):
             "user_pk": user_pk,
             "profile_image": profile_image,
             "email": user.email,
+            "is_staff": user.is_staff,
         }, status=status.HTTP_200_OK)
 
     def put(self, request, user_pk):

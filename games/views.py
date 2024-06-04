@@ -69,7 +69,8 @@ class GameListAPIView(APIView):
                 username__icontains=maker_q).games.filter(is_visible=True, register_state=1)
         elif gm_q:
             rows = Game.objects.filter(
-            Q(title__icontains=gm_q) | Q(maker__username__icontains=gm_q))
+                Q(title__icontains=gm_q) | Q(maker__username__icontains=gm_q)
+            ).filter(is_visible=True, register_state=1)
         else:
             rows = Game.objects.filter(is_visible=True, register_state=1)
 

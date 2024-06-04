@@ -6,12 +6,8 @@
         <div>
             <p id="detail_category"></p>
         </div>
-        <div>
-            <a id="updatebtn" class="btn btn-secondary">수정</a>
-            <button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>
-        </div>
+        <div id="qnaDetailBtn"></div>
     </div>
-
     <h1 id="detail_title"></h1>
     <hr>
     <pre id="detail_content"></pre>
@@ -24,6 +20,18 @@
     }
 
     window.addEventListener("load", async function PageLoad() {
+        const user = await isLogIn();
+        if (user){
+            if (user.is_staff){
+                const createBtnDiv = document.getElementById('qnaDetailBtn');
+                createBtnDiv.innerHTML = `<a id="updatebtn" class="btn btn-secondary">수정</a>
+                                          <button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>`;
+
+                const qna_update_btn = document.getElementById('updatebtn');
+                qna_update_btn.setAttribute('href',`{% url 'qnas:qna_update' qna_pk %}`);
+            }
+        }
+
         const qna_pk=getQnaId();
         const url_qna = '{% url 'qnas:qna_detail' qna_pk %}';
         const qna_data = await aSend({
@@ -52,9 +60,6 @@
 
         const qna_content_pre = document.getElementById('detail_content');
         qna_content_pre.textContent=qna_data.content;
-
-        const qna_update_btn = document.getElementById('updatebtn');
-        qna_update_btn.setAttribute('href',`{% url 'qnas:qna_update' qna_pk %}`);
     });
 
     async function deleteQnA(){
