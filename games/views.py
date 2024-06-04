@@ -271,7 +271,7 @@ class CommentAPIView(APIView):
         return permissions
 
     def get(self, request, game_pk):
-        comments = Comment.objects.all().filter(game=game_pk, is_visible=True,root__isnull=True)
+        comments = Comment.objects.all().filter(game=game_pk,root__isnull=True)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
@@ -308,6 +308,7 @@ class CommentDetailAPIView(APIView):
         comment = get_object_or_404(Comment, pk=comment_id)
         if request.user == comment.author:
             comment.is_visible = False
+            comment.content="삭제된 댓글입니다."
             comment.save()
             return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
         else:
