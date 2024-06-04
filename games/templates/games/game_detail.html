@@ -501,26 +501,29 @@ async function like() {
         dateDiv.appendChild(commendCreatedAtSpan);
 
         const comment_EditDelete_div= document.createElement('div');
-        commentContainerDiv.appendChild(comment_EditDelete_div)
-        const commentEditBtn = document.createElement('button');
-        const commentDeleteBtn = document.createElement('button');
+        commentDiv.appendChild(comment_EditDelete_div);
+        const commentEditBtn = document.createElement('i');
+        const commentDeleteBtn = document.createElement('i');
       
-      if (user) {
-        if (user.user_pk === comment.author) {
-            
-            commentEditBtn.setAttribute('id', "commentEditBtn");
-            commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
-            
-            commentEditBtn.setAttribute('onclick', "commentEdit();");
-            commentDeleteBtn.setAttribute('onclick', "commentDelete();");
-            
-            commentEditBtn.innerText = "수정"
-            commentDeleteBtn.innerText = "삭제"
-            
-            comment_EditDelete_div.appendChild(commentEditBtn);
-            comment_EditDelete_div.appendChild(commentDeleteBtn);
+        if (user) {
+            if (user.user_pk === comment.author) {
+                
+                commentEditBtn.setAttribute('id', "commentEditBtn");
+                commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
+                
+                commentEditBtn.setAttribute('onclick', "commentEdit();");
+                commentDeleteBtn.setAttribute('onclick', "commentDelete();");
+                
+                commentEditBtn.setAttribute('class', "bi bi-pencil-square btn");
+                commentDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                
+                commentEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                commentDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                
+                comment_EditDelete_div.appendChild(commentEditBtn);
+                comment_EditDelete_div.appendChild(commentDeleteBtn);
+            }
         }
-      }
 
         subjectDiv.onclick=function(){
             let existReplyForm=containDiv.querySelector('.replyForm');
@@ -615,6 +618,31 @@ async function like() {
                 replyCreatedAtSpan.textContent = `${formatTime(reply.created_at)}`;
                 replyCreatedAtSpan.style.marginRight = '13px';
                 replydateDiv.appendChild(replyCreatedAtSpan);
+                
+                const reply_EditDelete_div= document.createElement('div');
+                replyDiv.appendChild(reply_EditDelete_div)
+                const replyEditBtn = document.createElement('i');
+                const replyDeleteBtn = document.createElement('i');
+              
+                if (user) {
+                    if (user.user_pk === reply.author) {
+                        
+                        replyEditBtn.setAttribute('id', "commentEditBtn");
+                        replyDeleteBtn.setAttribute('id', "commentDeleteBtn");
+                        
+                        replyEditBtn.setAttribute('onclick', "commentEdit();");
+                        replyDeleteBtn.setAttribute('onclick', "commentDelete();");
+                        
+                        replyEditBtn.setAttribute('class', "bi bi-pencil-square btn");
+                        replyDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                
+                        replyEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                        replyDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                        
+                        reply_EditDelete_div.appendChild(replyEditBtn);
+                        reply_EditDelete_div.appendChild(replyDeleteBtn);
+                    }
+                }
 
                 replyContainer.appendChild(replyDiv);
             });
