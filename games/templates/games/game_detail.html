@@ -9,7 +9,7 @@
 {% block content %}
 <div id='titleContainer' class="d-flex flex-column align-items-center"></div>
     <div class="container">
-        <div class='d-flex justify-content-start' style='width:100%;'>
+        <div class='d-flex justify-content-between' style='width:100%;'>
             <div class='d-flex justify-content-around' style='width:50%;'>
                 <div id='infoDiv' class='d-flex flex-column'>
                     <span id='starScoreSpan'></span>
@@ -23,6 +23,7 @@
                     <span id='createdAtSpan'></span>
                 </div>
             </div>
+            <div id="editDeleteBtn" class="d-flex"></div>
         </div>
     </div>
     <div class="container">
@@ -195,6 +196,30 @@ async function like() {
   // window.location.href = "{% url 'games:game_test_page' 1 %}".replace('1', game_pk);
 }
 
+  function gameEdit() {
+      const game_pk = getGameId();
+      window.location.href = "{% url 'games:game_update_page' 1 %}".replace('1', game_pk);
+  }
+  
+  async function gameDelete() {
+      const game_pk = getGameId();
+      
+      const url = '{% url 'games:game_detail' 1 %}'.replace('1', game_pk);
+      const access = localStorage.getItem('access_token');
+
+      const resp = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${access}`
+          },
+      });
+      
+      if (resp.status >= 200 && resp.status < 300) {
+          window.location.href = "{% url 'test_main_view' %}"
+      }
+  }
+  
   window.addEventListener("load", async function PageLoad() {
 
     // context로 views.py에서 game_pk를 받아서 사용한다.
@@ -262,7 +287,7 @@ async function like() {
     const createdAtSpan = document.getElementById('createdAtSpan');
     createdAtSpan.textContent = `업로드 일시: ${created_at}`;
 
-    // # 2-1 ==============게임 상세 span - star ================
+    // # 2-1 ============== 게임 상세 span - star ================
     const login_modal_body = document.getElementById('login_modal_body');
     const logout_modal_body = document.getElementById('logout_modal_body');
     const login_modal_footer = document.getElementById('login_modal_footer');
@@ -276,15 +301,17 @@ async function like() {
       logout_modal_body.style.display = 'block';
       logout_modal_footer.style = 'display: flex; justify-content-end;';
     }
-    // # 2-2 ================= 게임 상세 span - like==============
+    // # 2-2 ================= 게임 상세 span - like ==============
     const gameLikeBtn = document.getElementById('gameLikeBtn');
-    for (let item of game_detail_response.like) {
-      if (item === user.user_pk) {
-        gameLikeBtn.innerText = '즐겨찾기 취소'
-      } 
+    if (user) {
+        for (let item of game_detail_response.like) {
+            if (item === user.user_pk) {
+                gameLikeBtn.innerText = '즐겨찾기 취소'
+            } 
+        }
     }
 
-    // # 2-3 ==============게임 상세 span - tag===================
+    // # 2-3 ============== 게임 상세 span - tag ===================
     const infoDiv3 = document.getElementById('infoDiv3')
 
     const tagSpan = document.createElement('span');
@@ -301,8 +328,33 @@ async function like() {
     })
 
     infoDiv3.appendChild(tagSpan)
-
-    // # 3 ==================video와 screenshot=====================
+      
+      // # 3 ============== 게임 상세 - 수정 / 삭제 버튼 ===================
+      const gameEditBtn = document.createElement('button');
+      const gameDeleteBtn = document.createElement('button');
+      
+      if (user) {
+          if (user.user_pk === game_detail_response.maker) {
+              const editDeleteBtn = document.getElementById("editDeleteBtn");
+              
+              gameEditBtn.setAttribute('id', "gameEditBtn");
+              gameDeleteBtn.setAttribute('id', "gameDeleteBtn");
+              
+              gameEditBtn.setAttribute('class', "mt-3 mb-3 me-2 btn btn btn-info");
+              gameDeleteBtn.setAttribute('class', "mt-3 mb-3 me-2 btn btn-danger");
+              
+              gameEditBtn.setAttribute('onclick', "gameEdit();");
+              gameDeleteBtn.setAttribute('onclick', "gameDelete();");
+              
+              gameEditBtn.innerText = "수정"
+              gameDeleteBtn.innerText = "삭제"
+              
+              editDeleteBtn.appendChild(gameEditBtn);
+              editDeleteBtn.appendChild(gameDeleteBtn);
+          }
+      }
+      
+    // # 4 ================== video와 screenshot ====================
     // const containerDiv = document.createElement('div');
     // containerDiv.className = 'd-flex align-items-center justify-content-around'
     const carouselButtonDiv = document.getElementById('wrap-vertical');
@@ -431,8 +483,8 @@ async function like() {
         }
         else {
             commentImgElement.src = '{% static 'image/user.png' %}';
-            commentImgElement.style.width = '30px';
         }
+        commentImgElement.style.width = '30px';
         commentImgElement.alt = '';
         profileDiv.appendChild(commentImgElement);
 
@@ -524,8 +576,8 @@ async function like() {
                     replyImgElement.src = reply.src;
                 } else {
                     replyImgElement.src = '{% static 'image/user.png' %}';
-                    replyImgElement.style.width = '30px';
                 }
+                replyImgElement.style.width = '30px';
                 replyImgElement.alt = '';
                 replyprofileDiv.appendChild(replyImgElement);
 
