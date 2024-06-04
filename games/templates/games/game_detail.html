@@ -285,7 +285,7 @@ async function like() {
     makerNameSpan.textContent = `제작자: ${maker_name}`;
 
     const createdAtSpan = document.getElementById('createdAtSpan');
-    createdAtSpan.textContent = `업로드 일시: ${created_at}`;
+    createdAtSpan.textContent = `업로드 일시: ${formatTime(created_at)}`;
 
     // # 2-1 ============== 게임 상세 span - star ================
     const login_modal_body = document.getElementById('login_modal_body');
@@ -309,6 +309,9 @@ async function like() {
                 gameLikeBtn.innerText = '즐겨찾기 취소'
             } 
         }
+    } else {
+        // 로그아웃 상태일 경우 즐겨찾기 버튼 클릭 시 로그인 해주세요 모달창 띄우도록 설정
+        setModal("gameLikeBtn");
     }
 
     // # 2-3 ============== 게임 상세 span - tag ===================
@@ -661,21 +664,6 @@ async function like() {
         commentContainerDiv.appendChild(commentLineBreak);
     });
 });
-    function formatTime(isoString) {
-        // Parse the ISO string to a Date object
-        const date = new Date(isoString);
-
-        // Extract components
-        let year = date.getFullYear();
-        let month = (date.getMonth() + 1).toString().padStart(2, '0');  // +1 because months start from 0
-        let day = date.getDate().toString().padStart(2, '0');
-        let hours = date.getHours().toString().padStart(2, '0');
-        let minutes = date.getMinutes().toString().padStart(2, '0');
-
-        // Format to 'YYYY-MM-DD HH:MM'
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
-    }
-
     async function commentDelete(commentId){
       const comment_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
       const access=localStorage.getItem('access_token');

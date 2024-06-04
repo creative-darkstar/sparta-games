@@ -51,6 +51,23 @@
 </header>
 {% block content %}
 {% endblock %}
+<!-- Modal -->
+<div class="modal fade" id="baseModal" tabindex="-1" aria-labelledby="baseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="baseModalLabel">로그인이 필요한 기능입니다.</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <span>로그인 해주세요</span>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary" href='{% url 'accounts:login_page' %}'>로그인페이지로 이동</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
     async function tokenRefresh() {
         const refresh = localStorage.getItem('refresh_token');
@@ -118,6 +135,28 @@
         const response = await fetch(`${url}`, data);
 
         return response.json();
+    }
+
+    function formatTime(isoString) {
+        // Parse the ISO string to a Date object
+        const date = new Date(isoString);
+
+        // Extract components
+        let year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString().padStart(2, '0');  // +1 because months start from 0
+        let day = date.getDate().toString().padStart(2, '0');
+        let hours = date.getHours().toString().padStart(2, '0');
+        let minutes = date.getMinutes().toString().padStart(2, '0');
+
+        // Format to 'YYYY-MM-DD HH:MM'
+        return `${year}-${month}-${day} ${hours}:${minutes}`;
+    }
+
+    function setModal(elementId) {
+        const target = document.getElementById(elementId);
+        target.setAttribute("data-bs-toggle", "modal");
+        target.setAttribute("data-bs-target", "#exampleModal");
+        target.removeAttribute("onclick");
     }
 
     async function navbar() {
@@ -189,7 +228,7 @@
     }
 
     window.addEventListener("load", navbar());
-    
+
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

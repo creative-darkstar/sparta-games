@@ -44,9 +44,36 @@
             <button id="register_game_show_btn" style="display: none" onclick="switchRegisterLike(1)">내가 등록한 게임</button>
             <button id="like_game_show_btn" style="display: none" onclick="switchRegisterLike(2)">내가 즐겨찾기한 게임</button>
         </div>
-        <div id="user_games" style="display: block">
-        </div>
-        <div id="user_like_games" style="display: none">
+        <div class="container">
+            <div id="user_games" style="display: block">
+                <table class="table">
+                    <thead>
+                    <tr id="user_games_table_head">
+                        <th scope="col"></th>
+                        <th scope="col">게임 제목</th>
+                        <th scope="col">업로드 일시</th>
+                        <th scope="col">태그 목록</th>
+                    </tr>
+                    </thead>
+                    <tbody id="user_games_table_body">
+                    </tbody>
+                </table>
+            </div>
+            <div id="user_like_games" style="display: none">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">게임 제목</th>
+                        <th scope="col">제작자</th>
+                        <th scope="col">업로드 일시</th>
+                        <th scope="col">태그 목록</th>
+                    </tr>
+                    </thead>
+                    <tbody id="user_like_games_table_body">
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -196,8 +223,6 @@
             // (<username> or 내)가 등록한 게임 / 내가 즐겨찾기한 게임
             const register_game_show_btn = document.getElementById("register_game_show_btn");
             const like_game_show_btn = document.getElementById("like_game_show_btn");
-            const register_game_list_div = document.getElementById("user_games");
-            const like_game_list_div = document.getElementById("user_like_games");
             const edit_profile_btn = document.getElementById("edit_profile_btn");
             const edit_password_btn = document.getElementById("edit_password_btn");
             const image_upload_area_div = document.getElementById("image_upload_area_div");
@@ -222,6 +247,14 @@
 
                     // 내가 등록한 게임 일 경우 access token을 헤더에 포함해줘야 함
                     is_my_page = true;
+                    
+                    // 내가 등록한 게임 일 경우 table head에 '승인여부' column 추가
+                    const user_games_table_head = document.getElementById("user_games_table_head");
+                    
+                    const thElement = document.createElement('th');
+                    thElement.setAttribute("scope", "col");
+                    thElement.innerText = "승인 여부"
+                    user_games_table_head.appendChild(thElement);
                 } else {
                     register_game_show_btn.innerText = `${page_user.username}가 등록한 게임`;
                     register_game_show_btn.style.display = 'block';
@@ -230,7 +263,8 @@
                 register_game_show_btn.innerText = `${page_user.username}가 등록한 게임`;
                 register_game_show_btn.style.display = 'block';
             }
-
+            
+            const user_games_table_body = document.getElementById("user_games_table_body");
             const page_user_games = await aSend({
                 url: my_games_url,
                 method: 'GET',
@@ -238,7 +272,8 @@
             })
 
             for (let item of page_user_games.item_list) {
-                const divElement = document.createElement('div');
+                const trElement = document.createElement('tr');
+                trElement.setAttribute("class", "align-middle");
 
                 const gameThumbnailElement = document.createElement("img");
                 gameThumbnailElement.setAttribute("width", "100");
@@ -250,19 +285,33 @@
                 }
                 gameThumbnailElement.setAttribute("alt", "...");
 
-                const gameTitleElement = document.createElement("span");
-                gameTitleElement.innerText = item.title;
+                const gameTitleElement = document.createElement("a");
+                gameTitleElement.setAttribute("href", '{% url 'games:game_test_page' 1 %}'.replace('1', item.game_pk));
+                const gameTitleTextElement = document.createElement("span");
+                gameTitleTextElement.innerText = item.title;
+                gameTitleElement.appendChild(gameTitleTextElement);
 
                 const gameUploadDtElement = document.createElement("span");
-                gameUploadDtElement.innerText = item.created_at;
+                gameUploadDtElement.innerText = `${formatTime(item.created_at)}`;
 
                 const gameTagsElement = document.createElement("span");
                 gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;
-
-                divElement.appendChild(gameThumbnailElement);
-                divElement.appendChild(gameTitleElement);
-                divElement.appendChild(gameUploadDtElement);
-                divElement.appendChild(gameTagsElement);
+                
+                let tdElement = document.createElement('td');
+                tdElement.appendChild(gameThumbnailElement);
+                trElement.appendChild(tdElement);
+                
+                tdElement = document.createElement('td');
+                tdElement.appendChild(gameTitleElement);
+                trElement.appendChild(tdElement);
+                
+                tdElement = document.createElement('td');
+                tdElement.appendChild(gameUploadDtElement);
+                trElement.appendChild(tdElement);
+                
+                tdElement = document.createElement('td');
+                tdElement.appendChild(gameTagsElement);
+                trElement.appendChild(tdElement);
 
                 // 내가 등록한 게임을 확인할 경우 등록 상태 확인
                 if (is_my_page) {
@@ -277,14 +326,19 @@
                         gameRegisterStateElement.innerText = "거부";
                         gameRegisterStateElement.setAttribute("style", "color:red;");
                     }
-                    divElement.appendChild(gameRegisterStateElement);
+                    
+                    tdElement = document.createElement('td');
+                    tdElement.appendChild(gameRegisterStateElement);
+                    trElement.appendChild(tdElement);
                 }
-
-                register_game_list_div.appendChild(divElement);
+                
+                user_games_table_body.appendChild(trElement);
             }
 
             // 내가 즐겨찾기한 게임
             if (is_my_page) {
+                const user_like_games_table_body = document.getElementById("user_like_games_table_body");
+                
                 const my_like_games_url = "{% url 'users:like_games' 1 %}".replace('1', page_user_id);
                 const page_user_like_games = await aSend({
                     url: my_like_games_url,
@@ -293,7 +347,8 @@
                 })
 
                 for (let item of page_user_like_games.item_list) {
-                    const divElement = document.createElement('div');
+                    const trElement = document.createElement('tr');
+                    trElement.setAttribute("class", "align-middle");
 
                     const gameThumbnailElement = document.createElement("img");
                     gameThumbnailElement.setAttribute("width", "100");
@@ -304,22 +359,46 @@
                         gameThumbnailElement.setAttribute("src", item.thumbnail);
                     }
                     gameThumbnailElement.setAttribute("alt", "...");
-
-                    const gameTitleElement = document.createElement("span");
-                    gameTitleElement.innerText = item.title;
-
+                    
+                    const gameTitleElement = document.createElement("a");
+                    gameTitleElement.setAttribute("href", '{% url 'games:game_test_page' 1 %}'.replace('1', item.game_pk));
+                    const gameTitleTextElement = document.createElement("span");
+                    gameTitleTextElement.innerText = item.title;
+                    gameTitleElement.appendChild(gameTitleTextElement);
+                    
+                    const gameUploaderElement = document.createElement("a");
+                    gameUploaderElement.setAttribute("href", '{% url 'users:profile_page' 1 %}'.replace('1', item.maker_info.pk));
+                    const gameUploaderTextElement = document.createElement("span");
+                    gameUploaderTextElement.innerText = item.maker_info.name;
+                    gameUploaderElement.appendChild(gameUploaderTextElement);
+                    
                     const gameUploadDtElement = document.createElement("span");
-                    gameUploadDtElement.innerText = item.created_at;
+                    gameUploadDtElement.innerText = `${formatTime(item.created_at)}`;
 
                     const gameTagsElement = document.createElement("span");
                     gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;
 
-                    divElement.appendChild(gameThumbnailElement);
-                    divElement.appendChild(gameTitleElement);
-                    divElement.appendChild(gameUploadDtElement);
-                    divElement.appendChild(gameTagsElement);
+                    let tdElement = document.createElement('td');
+                    tdElement.appendChild(gameThumbnailElement);
+                    trElement.appendChild(tdElement);
+                    
+                    tdElement = document.createElement('td');
+                    tdElement.appendChild(gameTitleElement);
+                    trElement.appendChild(tdElement);
+                    
+                    tdElement = document.createElement('td');
+                    tdElement.appendChild(gameUploaderElement);
+                    trElement.appendChild(tdElement);
+                    
+                    tdElement = document.createElement('td');
+                    tdElement.appendChild(gameUploadDtElement);
+                    trElement.appendChild(tdElement);
+                    
+                    tdElement = document.createElement('td');
+                    tdElement.appendChild(gameTagsElement);
+                    trElement.appendChild(tdElement);
 
-                    like_game_list_div.appendChild(divElement);
+                    user_like_games_table_body.appendChild(trElement);
                 }
             }
         });
