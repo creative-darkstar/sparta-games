@@ -584,19 +584,5 @@ async function like() {
         commentContainerDiv.appendChild(commentLineBreak);
     });
 });
-    function formatTime(isoString) {
-        // Parse the ISO string to a Date object
-        const date = new Date(isoString);
-
-        // Extract components
-        let year = date.getFullYear();
-        let month = (date.getMonth() + 1).toString().padStart(2, '0');  // +1 because months start from 0
-        let day = date.getDate().toString().padStart(2, '0');
-        let hours = date.getHours().toString().padStart(2, '0');
-        let minutes = date.getMinutes().toString().padStart(2, '0');
-
-        // Format to 'YYYY-MM-DD HH:MM'
-        return `${year}-${month}-${day} ${hours}:${minutes}`;
-    }
 </script>
 {% endblock content %}
