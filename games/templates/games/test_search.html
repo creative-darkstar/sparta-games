@@ -94,9 +94,24 @@
                     star = "평점없음";
                 }
 
+                const card_content_maker = document.createElement('p');
+                card_content_maker.setAttribute("class", "card-text");
+                card_content_maker.innerHTML = `제작자: ${row.maker_name}`;
+                
+                const card_maker_a=document.createElement('a');
+                let url_maker="{% url 'users:profile_page' 1 %}".replace('1',row.maker);
+                card_maker_a.setAttribute("href", url_maker);
+                card_maker_a.setAttribute("style","text-decoration:none;");
+                card_maker_a.setAttribute("class","text-dark");
+                card_maker_a.appendChild(card_content_maker);
+
+                const card_content_star = document.createElement('p');
+                card_content_star.setAttribute("class", "card-text");
+                card_content_star.innerHTML = `평점: ${star}`;
+
                 const card_content = document.createElement('p');
-                card_content.setAttribute("class", "card-text");
-                card_content.innerHTML = `maker: ${row.maker}<br>평점: ${star}`;
+                card_content.appendChild(card_maker_a);
+                card_content.appendChild(card_content_star);
 
                 const game_test_page_url = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
                 const card_a = document.createElement('a');
@@ -109,14 +124,7 @@
                 card_div.appendChild(card_body_div);
                 game_list_div.appendChild(card_div);
             }
-            
-            console.log(test_r);
-            console.log(test_r.previous);
-            console.log(test_r.next);
-            console.log(test_r.results);
-            console.log(test_r.count);
-            
-            
+
             // 페이지네이션 업데이트
             const pagination_div = document.getElementById('pagination');
             pagination_div.innerHTML = '';

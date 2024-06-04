@@ -90,6 +90,10 @@
 
   async function CommentCreate(event) {
     event.preventDefault();  // 폼의 기본 제출 동작을 방지
+    {% comment %} if(!user){
+      //modal
+      return
+    } {% endcomment %}
 
     const form_tag = document.getElementById('formElement');
     const formData = new FormData(form_tag);
@@ -113,6 +117,10 @@
 
 async function ReplyCreate(event, root_id) {
   event.preventDefault();  // 폼의 기본 제출 동작을 방지
+  {% comment %} if(!user){
+    //modal
+    return
+  } {% endcomment %}
 
   const replyForm=event.target;
   const formData = new FormData(replyForm);
@@ -398,7 +406,11 @@ async function like() {
         userDiv.setAttribute("class", "d-flex align-items-center");
         userDiv.setAttribute("style", `width:${profilewidth}%`);
 
-        const profileDiv = document.createElement('div');
+        const profileDiv = document.createElement('a');
+        let url_author="{% url 'users:profile_page' 1 %}".replace('1',comment.author);
+        profileDiv.setAttribute("href", url_author);
+        profileDiv.setAttribute("style","text-decoration:none;");
+        profileDiv.setAttribute("class","text-dark");
 
         const subjectDiv = document.createElement('div');
         subjectDiv.setAttribute("class", "btn d-flex align-items-center justify-content-between");
@@ -453,6 +465,9 @@ async function like() {
                 replyInput.setAttribute("class", "me-2")
 
                 const replySubmitButton = document.createElement('button');
+                if(user){
+
+                }
                 replySubmitButton.type = 'submit';
                 replySubmitButton.textContent = '댓글 달기';
 
@@ -482,7 +497,11 @@ async function like() {
                 replysubjectDiv.setAttribute("class", "d-flex align-items-center justify-content-between");
                 replysubjectDiv.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
 
-                const replyprofileDiv = document.createElement('div');
+                const replyprofileDiv = document.createElement('a');
+                let url_reply_author="{% url 'users:profile_page' 1 %}".replace('1',comment.author);
+                replyprofileDiv.setAttribute("href", url_reply_author);
+                replyprofileDiv.setAttribute("style","text-decoration:none;");
+                replyprofileDiv.setAttribute("class","text-dark");
 
                 const replycontentDiv = document.createElement('div');
                 const replydateDiv = document.createElement('div');

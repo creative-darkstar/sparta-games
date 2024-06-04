@@ -160,7 +160,7 @@
         if (user) {
             navbar_login_userinfo.style.display = 'block';
             navbar_login_userinfo_username.innerText = user.username;
-            navbar_userimage_anchor.href = `{% url 'users:profile_page' 1 %}`.replace('1', user.user_pk)
+            navbar_userimage_anchor.href = `{% url 'users:profile_page' 1 %}`.replace('1', user.user_pk);
             game_publish_btn.style.display = 'block';
             if (user.profile_image) {
                 navbar_login_userinfo_userimage.src = user.profile_image;

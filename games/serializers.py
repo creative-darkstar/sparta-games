@@ -4,10 +4,11 @@ from .models import Game, Comment, Screenshot, Tag
 
 class GameListSerializer(serializers.ModelSerializer):
     star = serializers.FloatField(read_only=True)
+    maker_name = serializers.CharField(source='maker.username')
 
     class Meta:
         model = Game
-        fields = ("pk", "title", "maker", "thumbnail", "star")
+        fields = ("pk", "title", "maker", "thumbnail", "star","maker_name",)
 
 
 class GameCreateSerializer(serializers.ModelSerializer):
