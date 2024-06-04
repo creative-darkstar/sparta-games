@@ -257,23 +257,39 @@ async function like() {
     // titleContainer.className = 'd-flex flex-column align-items-center';
     const titleContainer = document.getElementById('titleContainer');
 
-    const divElement = document.createElement('div');
-    divElement.style.position = 'relative';
-    divElement.style.width = '53%';
-    divElement.style.paddingBottom = '36%';
-
     const titleElement = document.createElement('h1');
     titleElement.textContent = title;
-    
-    const iframeElement = document.createElement('iframe');
-    iframeElement.style.cssText = 'position: absolute; width: 100%; height: 100%;'
-    iframeElement.src = `${gamepath}/index.html`;
-    
-    // document.body.appendChild(titleContainer);
-
     titleContainer.appendChild(titleElement);
-    titleContainer.appendChild(divElement);
-    divElement.appendChild(iframeElement);
+    
+    if (game_detail_response.register_state === 1) {
+        const divElement = document.createElement('div');
+        divElement.style.position = 'relative';
+        divElement.style.width = '53%';
+        divElement.style.paddingBottom = '36%';
+        
+        const iframeElement = document.createElement('iframe');
+        iframeElement.style.cssText = 'position: absolute; width: 100%; height: 100%;'
+        iframeElement.src = `${gamepath}/index.html`;
+        
+        divElement.appendChild(iframeElement);
+        titleContainer.appendChild(divElement);
+    } else {
+        const divElement = document.createElement('div');
+        divElement.style.position = 'relative';
+        divElement.style.width = '78%';
+        divElement.style.paddingTop = '19%';
+        divElement.style.paddingBottom = '19%';
+        divElement.style.backgroundColor = "gray";
+        divElement.style.textAlign = "center";
+        divElement.style.alignSelf = "center";
+        
+        const spanElement = document.createElement("span");
+        spanElement.innerText = "서비스 준비 중입니다."
+        spanElement.style.fontSize = "50px";
+        
+        divElement.appendChild(spanElement);
+        titleContainer.appendChild(divElement);
+    }
 
     // # 2 ================게임 상세 span==================
     const infoDiv = document.getElementById('infoDiv');
@@ -499,6 +515,7 @@ async function like() {
         }
         commentImgElement.style.width = '30px';
         commentImgElement.alt = '';
+        commentImgElement.setAttribute("class", "me-1");
         profileDiv.appendChild(commentImgElement);
 
         const authorSpanElement = document.createElement('span');
@@ -623,6 +640,7 @@ async function like() {
                 }
                 replyImgElement.style.width = '30px';
                 replyImgElement.alt = '';
+                replyImgElement.setAttribute("class", "me-1");
                 replyprofileDiv.appendChild(replyImgElement);
 
                 const replyAuthorSpanElement = document.createElement('span');
