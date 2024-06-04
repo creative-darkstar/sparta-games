@@ -13,9 +13,7 @@
                 </div>
             </form>
         </div>
-        <div>
-            <a class="btn btn-secondary" href={% url 'qnas:qna_create' %} aria-expanded="false">생성</a>
-        </div>
+        <div id="createBtnDiv"></div>
     </div>
     <br>
         
@@ -32,6 +30,13 @@
 </div>
 <script>
     window.addEventListener("load", async function PageLoad() {
+        const user = await isLogIn();
+        if (user){
+            if (user.is_staff){
+                const createBtnDiv = document.getElementById('createBtnDiv');
+                createBtnDiv.innerHTML = `<a class="btn btn-secondary" href={% url 'qnas:qna_create' %} aria-expanded="false">생성</a>`;
+            }
+        }
         const params = new URLSearchParams(decodeURIComponent(window.location.search));
 
         const url_qnas_list_all = '{% url 'qnas:qna_list' %}?'+ params.toString();
@@ -74,6 +79,8 @@
             const qna_title_td = document.createElement('td');
             const qna_a = document.createElement('a');
             qna_a.setAttribute("href", '{% url 'qnas:qna_detail_page' 1 %}'.replace('1', row.id));
+            qna_a.setAttribute("class", "btn");
+            qna_a.setAttribute('style', "padding:0; outline:none; border:none;");
             qna_a.textContent = row.title;
             qna_title_td.appendChild(qna_a);
 
