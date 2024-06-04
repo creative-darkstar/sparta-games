@@ -36,14 +36,23 @@
             {% csrf_token %}
             회원가입
             <p></p>
-            <label for="username">ID</label>
-            <input type="text" name="username" id='username'>
+            <div>
+                <label for="username">ID</label>
+                <input type="text" name="username" id='username'>
+            </div>
+            <span class="ml-1" style="font-size:12px;">* 4자~20자리의 영문자, 숫자 / @,#$등 특수문자는 제외</span>
             <p></p>
-            <label for="password">PW</label>
-            <input type="password" name="password" id="password">
+            <div>
+                <label for="password">PW</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <span class="ml-1" style="font-size:12px;">* 8~32자리의 숫자, 대문자, 소문자 최소 1개씩 포함</span>
             <p></p>
-            <label for="password_check">PW_check</label>
-            <input type="password" name="password_check" id="password_check">
+            <div>
+                <label for="password_check">PW_check</label>
+                <input type="password" name="password_check" id="password_check">
+            </div>
+            <span class="ml-1" style="font-size:12px;">* 비밀번호를 다시 한번 입력해주세요.</span>
             <p></p>
             <label for="email">email</label>
             <input type="email" name="email" id="email">
