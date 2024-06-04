@@ -301,6 +301,9 @@ async function like() {
                 gameLikeBtn.innerText = '즐겨찾기 취소'
             } 
         }
+    } else {
+        // 로그아웃 상태일 경우 즐겨찾기 버튼 클릭 시 로그인 해주세요 모달창 띄우도록 설정
+        setModal("gameLikeBtn");
     }
 
     // # 2-3 ============== 게임 상세 span - tag ===================
