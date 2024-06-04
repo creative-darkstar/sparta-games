@@ -563,7 +563,7 @@ async function like() {
             replyContainer.classList.add('replies');
             comment.replies.forEach(reply => {
                 const replyDiv = document.createElement('div');
-                replyDiv.setAttribute('data-comment-id',comment.id)
+                replyDiv.setAttribute('data-comment-id',reply.id)
                 replyDiv.setAttribute("class", "comment d-flex justify-content-between mt-3");
 
                 const replyarrowDiv = document.createElement('div');
@@ -579,7 +579,7 @@ async function like() {
                 replysubjectDiv.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
 
                 const replyprofileDiv = document.createElement('a');
-                let url_reply_author="{% url 'users:profile_page' 1 %}".replace('1',comment.author);
+                let url_reply_author="{% url 'users:profile_page' 1 %}".replace('1',reply.author);
                 replyprofileDiv.setAttribute("href", url_reply_author);
                 replyprofileDiv.setAttribute("style","text-decoration:none;");
                 replyprofileDiv.setAttribute("class","text-dark");
@@ -632,11 +632,11 @@ async function like() {
                 if (user) {
                     if (user.user_pk === reply.author) {
                         
-                        replyEditBtn.setAttribute('id', "commentEditBtn");
-                        replyDeleteBtn.setAttribute('id', "commentDeleteBtn");
+                        replyEditBtn.setAttribute('id', "replyEditBtn");
+                        replyDeleteBtn.setAttribute('id', "replyDeleteBtn");
                         
-                        replyEditBtn.setAttribute('onclick', "commentEdit();");
-                        replyDeleteBtn.setAttribute('onclick', "commentDelete();");
+                        replyEditBtn.setAttribute('onclick', "replyEdit();");
+                        replyDeleteBtn.setAttribute('onclick', "replyDelete();");
                         
                         replyEditBtn.setAttribute('class', "bi bi-pencil-square btn");
                         replyDeleteBtn.setAttribute('class', "bi bi-x-square btn");
@@ -724,6 +724,36 @@ async function like() {
           }
       } catch (error) {
           console.error('Error:', error);
+      }
+    }
+
+    async function replyEdit(){
+      const replytId = document.querySelector('#replyEditBtn').getAttribute('data-comment-id');
+      const replyContentSpans = document.querySelector(`div[data-comment-id="${replytId}"] div.editable-reply-content`);
+      const newContent = prompt("수정할 댓글 내용:",replyContentSpans.textContent);
+      if(newContent!==null&& newContent!==replyContentSpans.textContent){
+        const reply_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',replytId);
+        const access=localStorage.getItem('access_token');
+
+        try {
+          const response = await fetch(reply_URL, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${access}`,
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+              body: JSON.stringify({ content: newContent })
+          });
+
+          if (response.ok) {
+            replyContentSpans.textContent = newContent;
+          } else {
+              console.error('Failed to update comment');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
       }
     }
 </script>
