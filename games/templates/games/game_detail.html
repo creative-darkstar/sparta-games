@@ -500,6 +500,28 @@ async function like() {
         commendCreatedAtSpan.textContent = `${formatTime(comment.created_at)}`;
         dateDiv.appendChild(commendCreatedAtSpan);
 
+        const comment_EditDelete_div= document.createElement('div');
+        commentContainerDiv.appendChild(comment_EditDelete_div)
+        const commentEditBtn = document.createElement('button');
+        const commentDeleteBtn = document.createElement('button');
+      
+      if (user) {
+        if (user.user_pk === comment.author) {
+            
+            commentEditBtn.setAttribute('id', "commentEditBtn");
+            commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
+            
+            commentEditBtn.setAttribute('onclick', "commentEdit();");
+            commentDeleteBtn.setAttribute('onclick', "commentDelete();");
+            
+            commentEditBtn.innerText = "수정"
+            commentDeleteBtn.innerText = "삭제"
+            
+            comment_EditDelete_div.appendChild(commentEditBtn);
+            comment_EditDelete_div.appendChild(commentDeleteBtn);
+        }
+      }
+
         subjectDiv.onclick=function(){
             let existReplyForm=containDiv.querySelector('.replyForm');
             if(existReplyForm) {
