@@ -91,6 +91,10 @@
 
   async function CommentCreate(event) {
     event.preventDefault();  // 폼의 기본 제출 동작을 방지
+    {% comment %} if(!user){
+      //modal
+      return
+    } {% endcomment %}
 
     const form_tag = document.getElementById('formElement');
     const formData = new FormData(form_tag);
@@ -114,6 +118,10 @@
 
 async function ReplyCreate(event, root_id) {
   event.preventDefault();  // 폼의 기본 제출 동작을 방지
+  {% comment %} if(!user){
+    //modal
+    return
+  } {% endcomment %}
 
   const replyForm=event.target;
   const formData = new FormData(replyForm);
@@ -453,7 +461,11 @@ async function like() {
         userDiv.setAttribute("class", "d-flex align-items-center");
         userDiv.setAttribute("style", `width:${profilewidth}%`);
 
-        const profileDiv = document.createElement('div');
+        const profileDiv = document.createElement('a');
+        let url_author="{% url 'users:profile_page' 1 %}".replace('1',comment.author);
+        profileDiv.setAttribute("href", url_author);
+        profileDiv.setAttribute("style","text-decoration:none;");
+        profileDiv.setAttribute("class","text-dark");
 
         const subjectDiv = document.createElement('div');
         subjectDiv.setAttribute("class", "btn d-flex align-items-center justify-content-between");
@@ -485,13 +497,41 @@ async function like() {
 
         const contentSpanElement = document.createElement('span');
         contentSpanElement.textContent = `${comment.content}`;
+        contentSpanElement.setAttribute('class', 'editable-comment-content');
         contentDiv.appendChild(contentSpanElement);
 
         const commendCreatedAtSpan = document.createElement('span');
         commendCreatedAtSpan.textContent = `${formatTime(comment.created_at)}`;
         dateDiv.appendChild(commendCreatedAtSpan);
 
+        const comment_EditDelete_div= document.createElement('div');
+        commentDiv.appendChild(comment_EditDelete_div);
+        const commentEditBtn = document.createElement('i');
+        const commentDeleteBtn = document.createElement('i');
+        if (comment.is_visible){
+          if (user) {
+              if (user.user_pk === comment.author) {
+                  
+                  commentEditBtn.setAttribute('id', "commentEditBtn");
+                  commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
+                  
+                  commentEditBtn.setAttribute('onclick', `commentEdit('${comment.id}','${comment.content}');`);
+                  commentDeleteBtn.setAttribute('onclick', `commentDelete('${comment.id}');`);
+                  
+                  commentEditBtn.setAttribute('class', "bi bi-pencil-square btn");
+                  commentDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                  
+                  commentEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                  commentDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                  
+                  comment_EditDelete_div.appendChild(commentEditBtn);
+                  comment_EditDelete_div.appendChild(commentDeleteBtn);
+              }
+          }
+        }
+
         subjectDiv.onclick=function(){
+          if(comment.is_visible){
             let existReplyForm=containDiv.querySelector('.replyForm');
             if(existReplyForm) {
                 existReplyForm.remove();
@@ -508,6 +548,9 @@ async function like() {
                 replyInput.setAttribute("class", "me-2")
 
                 const replySubmitButton = document.createElement('button');
+                if(user){
+
+                }
                 replySubmitButton.type = 'submit';
                 replySubmitButton.textContent = '댓글 달기';
 
@@ -516,6 +559,7 @@ async function like() {
 
                 containDiv.appendChild(replyForm);
             }
+          }
         };
 
         if (comment.replies && comment.replies.length > 0) {
@@ -523,6 +567,7 @@ async function like() {
             replyContainer.classList.add('replies');
             comment.replies.forEach(reply => {
                 const replyDiv = document.createElement('div');
+                replyDiv.setAttribute('data-comment-id',reply.id)
                 replyDiv.setAttribute("class", "comment d-flex justify-content-between mt-3");
 
                 const replyarrowDiv = document.createElement('div');
@@ -537,7 +582,11 @@ async function like() {
                 replysubjectDiv.setAttribute("class", "d-flex align-items-center justify-content-between");
                 replysubjectDiv.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
 
-                const replyprofileDiv = document.createElement('div');
+                const replyprofileDiv = document.createElement('a');
+                let url_reply_author="{% url 'users:profile_page' 1 %}".replace('1',reply.author);
+                replyprofileDiv.setAttribute("href", url_reply_author);
+                replyprofileDiv.setAttribute("style","text-decoration:none;");
+                replyprofileDiv.setAttribute("class","text-dark");
 
                 const replycontentDiv = document.createElement('div');
                 const replydateDiv = document.createElement('div');
@@ -571,12 +620,40 @@ async function like() {
 
                 const replyContentSpanElement = document.createElement('span');
                 replyContentSpanElement.textContent = `${reply.content}`;
+                replyContentSpanElement.setAttribute('class', 'editable-comment-content');
                 replycontentDiv.appendChild(replyContentSpanElement);
 
                 const replyCreatedAtSpan = document.createElement('span');
                 replyCreatedAtSpan.textContent = `${formatTime(reply.created_at)}`;
                 replyCreatedAtSpan.style.marginRight = '13px';
                 replydateDiv.appendChild(replyCreatedAtSpan);
+                
+                const reply_EditDelete_div= document.createElement('div');
+                replyDiv.appendChild(reply_EditDelete_div)
+                const replyEditBtn = document.createElement('i');
+                const replyDeleteBtn = document.createElement('i');
+                
+                if(reply.is_visible){
+                  if (user) {
+                      if (user.user_pk === reply.author) {
+                          
+                          replyEditBtn.setAttribute('id', "replyEditBtn");
+                          replyDeleteBtn.setAttribute('id', "replyDeleteBtn");
+                          
+                          replyEditBtn.setAttribute('onclick', `commentEdit('${reply.id}');`);
+                          replyDeleteBtn.setAttribute('onclick', `commentDelete('${reply.id}');`);
+                          
+                          replyEditBtn.setAttribute('class', "bi bi-pencil-square btn");
+                          replyDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                  
+                          replyEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                          replyDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                          
+                          reply_EditDelete_div.appendChild(replyEditBtn);
+                          reply_EditDelete_div.appendChild(replyDeleteBtn);
+                      }
+                  }
+                }
 
                 replyContainer.appendChild(replyDiv);
             });
@@ -587,5 +664,57 @@ async function like() {
         commentContainerDiv.appendChild(commentLineBreak);
     });
 });
+    async function commentDelete(commentId){
+      const comment_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
+      const access=localStorage.getItem('access_token');
+
+      try {
+          const response = await fetch(comment_URL, {
+              method: 'DELETE',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${access}`,
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+          });
+
+          if (response.ok) {
+            window.location.reload();
+          } else {
+              console.error('Failed to delete comment');
+          }
+      } catch (error) {
+          console.error('Error:', error);
+      }
+    }
+
+    async function commentEdit(commentId){
+      const replyContentSpans = document.querySelector(`div[data-comment-id="${commentId}"] .editable-comment-content`);
+      const newContent = prompt("수정할 댓글 내용:",replyContentSpans.textContent);
+      if(newContent!==null&& newContent!==replyContentSpans.textContent){
+        const reply_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
+        const access=localStorage.getItem('access_token');
+
+        try {
+          const response = await fetch(reply_URL, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${access}`,
+                  'X-CSRFToken': '{{ csrf_token }}'
+              },
+              body: JSON.stringify({ content: newContent })
+          });
+
+          if (response.ok) {
+            window.location.reload();
+          } else {
+              console.error('Failed to update comment');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    }
 </script>
 {% endblock content %}

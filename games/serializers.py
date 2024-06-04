@@ -4,10 +4,11 @@ from .models import Game, Comment, Screenshot, Tag
 
 class GameListSerializer(serializers.ModelSerializer):
     star = serializers.FloatField(read_only=True)
+    maker_name = serializers.CharField(source='maker.username')
 
     class Meta:
         model = Game
-        fields = ("pk", "title", "maker", "thumbnail", "star")
+        fields = ("pk", "title", "maker", "thumbnail", "star","maker_name",)
 
 
 class GameCreateSerializer(serializers.ModelSerializer):
@@ -44,7 +45,7 @@ class CommentSerializer(serializers.ModelSerializer):
     
     def get_replies(self, obj):
         if obj.reply.exists():
-            return CommentSerializer(obj.reply.filter(is_visible=True), many=True).data
+            return CommentSerializer(obj.reply, many=True).data
         return []
 
 
