@@ -42,7 +42,7 @@
                 {% csrf_token %}
                 <label for="comment">댓글</label>
                 <input type="text" id='comment' name='content'>
-                <button type="submit">제출</button>
+                <button id="comment_id" type="submit">제출</button>
             </form>
             <div id='commentContainerDiv'></div>
         </div>
@@ -91,10 +91,11 @@
 
   async function CommentCreate(event) {
     event.preventDefault();  // 폼의 기본 제출 동작을 방지
-    {% comment %} if(!user){
-      //modal
+    const user = await isLogIn();
+    if(!user){
+      setModal("comment_id")
       return
-    } {% endcomment %}
+    }
 
     const form_tag = document.getElementById('formElement');
     const formData = new FormData(form_tag);
@@ -118,10 +119,11 @@
 
 async function ReplyCreate(event, root_id) {
   event.preventDefault();  // 폼의 기본 제출 동작을 방지
-  {% comment %} if(!user){
-    //modal
+  const user = await isLogIn();
+  if(!user){
+    setModal("reply_id")
     return
-  } {% endcomment %}
+  }
 
   const replyForm=event.target;
   const formData = new FormData(replyForm);
@@ -552,6 +554,7 @@ async function like() {
 
                 }
                 replySubmitButton.type = 'submit';
+                replySubmitButton.setAttribute("id","reply_id")
                 replySubmitButton.textContent = '댓글 달기';
 
                 replyForm.appendChild(replyInput);
