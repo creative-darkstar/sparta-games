@@ -34,7 +34,9 @@
                 <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
             </div>
         </div>
-        <div id='contentDiv' class=''></div>
+        <div id='contentDiv' class='mt-3 mb-3 px-3 py-3 border border-info rounded'>
+            <p>게임 설명: </p>
+        </div>
     </div>
     <div class="container">
         <div>
@@ -445,6 +447,11 @@ async function like() {
       carouselContentDiv.appendChild(screenshot_div)
       content_idx += 1
     }
+    // ===================== 텍스트 영역 (게임 설명) =====================
+    const contentDiv = document.getElementById("contentDiv");
+    const contentText = document.createElement("span");
+    contentText.innerText = content;
+    contentDiv.appendChild(contentText);
 
     // # 6 =====================게시글에 달린 댓글========================
     const commentContainerDiv = document.getElementById('commentContainerDiv');
