@@ -207,12 +207,12 @@ class GameDetailAPIView(APIView):
                 tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',') if item.strip()]
                 game.tag.set(tags)
 
-                pre_screenshots_data = Screenshot.objects.filter(game=game)
-                pre_screenshots_data.delete()
+            pre_screenshots_data = Screenshot.objects.filter(game=game)
+            pre_screenshots_data.delete()
 
-                if request.data.get('screenshots'):
-                    for item in request.FILES.getlist("screenshots"):
-                        game.screenshots.create(src=item)
+            if request.data.get('screenshots'):
+                for item in request.FILES.getlist("screenshots"):
+                    game.screenshots.create(src=item)
 
             return Response({"messege": "수정이 완료됐습니다"},status=status.HTTP_200_OK)
         else:
