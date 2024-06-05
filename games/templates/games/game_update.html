@@ -22,8 +22,8 @@
                     <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
                 </div>
                 <div>
-                    <label for="id_screenshots">스크린샷: </label>
-                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple onchange="previewScreenshots()">
+                    <label for="id_screenshots">스크린샷: <span class="btn btn-secondary">파일 선택</span></label>
+                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple onchange="previewScreenshots()" style="display: none">
                     <div id="selectedScreenshots"></div>
                 </div>
                 <div>
@@ -147,19 +147,7 @@
             tagstring = tagstring.substr(1)
             formData.append('tag', tagstring);
             
-            {#const selectedScreenshots = document.querySelectorAll("#selectedScreenshots img");#}
-            {#selectedScreenshots.forEach((img, index) => {#}
-            {#    const blob = dataURItoBlob(img.src);#}
-            {#    formData.append('screenshots', blob, `screenshot${index}.png`);#}
-            {# });#}
-            const screenshotsDiv = document.getElementById('selectedScreenshots');
-            const images = screenshotsDiv.querySelectorAll('img');
-            let imageIndex = 0;
-            for (const img of images) {
-                const blob = dataURItoBlob(img.src);
-                formData.append('screenshots', blob, `screenshot${imageIndex}.png`);
-                imageIndex++;
-            }
+            await addScreenshotsToFormData(formData);
             
             const url = '{% url 'games:game_detail' game_pk %}'
 
@@ -180,16 +168,17 @@
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
         }
         
-        // 데이터 URI를 Blob로 변환하는 함수
-        function dataURItoBlob(dataURI) {
-            const byteString = atob(dataURI.split(',')[1]);
-            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
+        async function addScreenshotsToFormData(formData) {
+            const screenshotsDiv = document.getElementById('selectedScreenshots');
+            const images = screenshotsDiv.querySelectorAll('img');
+            formData.delete("screenshots")
+            for (const img of images) {
+                const imageUrl = img.src;
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                formData.append('screenshots', blob, 'screenshot.png');
             }
-            return new Blob([ab], { type: mimeString });
+            return formData;
         }
     </script>
     <script>
