@@ -23,7 +23,8 @@
                 </div>
                 <div>
                     <label for="id_screenshots">스크린샷: </label>
-                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple>
+                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple onchange="previewScreenshots()">
+                    <div id="selectedScreenshots"></div>
                 </div>
                 <div>
                     <label for="id_gamefile">게임 파일: </label>
@@ -49,6 +50,25 @@
             const path=window.location.pathname;
             const parts =path.split('/');
             return parseInt(parts[3]);
+        }
+        function previewScreenshots() {
+            const screenshotsInput = document.getElementById('id_screenshots');
+            const selectedScreenshots = document.getElementById('selectedScreenshots');
+            {#selectedScreenshots.innerHTML = '';#}
+            
+            for (const file of screenshotsInput.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('screenshot-preview');
+                    img.onclick = function() {
+                        selectedScreenshots.removeChild(img);
+                    };
+                    selectedScreenshots.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
         }
         async function loadGameDetails(){
             const game_pk = getGameId();
@@ -82,6 +102,20 @@
                     })
                 }
                 
+                const screenshotsDiv = document.getElementById("selectedScreenshots");
+                if (game_detail_response.screenshot) {
+                    screenshotsDiv.innerHTML = ``;
+                    game_detail_response.screenshot.forEach(screenshotUrl => {
+                        const img = document.createElement('img');
+                        img.src = screenshotUrl.src;
+                        img.classList.add('screenshot-preview');
+                        img.onclick = function() {
+                            screenshotsDiv.removeChild(img);
+                        };
+                        screenshotsDiv.appendChild(img);
+                    });
+                }
+                
                 const tag_response = await aSend({
                     url: tag_url,
                     method: 'GET',
@@ -113,6 +147,20 @@
             tagstring = tagstring.substr(1)
             formData.append('tag', tagstring);
             
+            {#const selectedScreenshots = document.querySelectorAll("#selectedScreenshots img");#}
+            {#selectedScreenshots.forEach((img, index) => {#}
+            {#    const blob = dataURItoBlob(img.src);#}
+            {#    formData.append('screenshots', blob, `screenshot${index}.png`);#}
+            {# });#}
+            const screenshotsDiv = document.getElementById('selectedScreenshots');
+            const images = screenshotsDiv.querySelectorAll('img');
+            let imageIndex = 0;
+            for (const img of images) {
+                const blob = dataURItoBlob(img.src);
+                formData.append('screenshots', blob, `screenshot${imageIndex}.png`);
+                imageIndex++;
+            }
+            
             const url = '{% url 'games:game_detail' game_pk %}'
 
             try {
@@ -130,6 +178,18 @@
         }
         window.onload = function() {
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
+        }
+        
+        // 데이터 URI를 Blob로 변환하는 함수
+        function dataURItoBlob(dataURI) {
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+            return new Blob([ab], { type: mimeString });
         }
     </script>
     <script>
