@@ -202,8 +202,9 @@ class GameDetailAPIView(APIView):
             game.save()
 
             tag_data = request.data.get('tag')
-            if tag_data:
-                tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',')]
+            if tag_data is not None:
+                game.tag.clear()
+                tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',') if item.strip()]
                 game.tag.set(tags)
 
             pre_screenshots_data = Screenshot.objects.all().filter(game=game)
