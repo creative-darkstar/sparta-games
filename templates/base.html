@@ -21,6 +21,10 @@
             cursor: pointer;
             border: 1px solid #ccc;
         }
+        .main-content {
+            transition: margin-left 0.3s;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -74,6 +78,10 @@
 </header>
 {% block content %}
 {% endblock %}
+
+
+
+
 <!-- Modal -->
 <div class="modal fade" id="baseModal" tabindex="-1" aria-labelledby="baseModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -112,6 +120,10 @@
     </div>
 </footer>
 <script>
+    document.querySelector('.navbar-toggler').addEventListener('click', function() {
+        document.body.classList.toggle('sidebar-shown');
+    });
+
     async function tokenRefresh() {
         const refresh = localStorage.getItem('refresh_token');
         const response = await fetch('{% url 'accounts:refresh_token' %}', {
@@ -222,6 +234,25 @@
         const navbar_login_userinfo_userimage = document.getElementById("userimage")
         const navbar_userimage_anchor = document.getElementById("navbar_userimage_anchor")
         const game_publish_btn = document.getElementById("game_publish_btn")
+
+        const tags_anchor = document.getElementById("tags_list")
+        const tag_url='{% url 'games:tags' %}'
+        const tag_response = await aSend({
+            url: tag_url,
+            method: 'GET',
+            is_token: false,
+        });
+
+        tag_response.forEach(t=>{
+            const tag_li=document.createElement("li");
+            tag_li.className ="nav-item";
+            const tag_a=document.createElement("a");
+            tag_a.className = "nav-link link-body-emphasis fs-4";
+            tag_a.innerText = t.name;
+            tag_a.href = "{% url 'test_search_view' %}" + `?tag-q=${t.name}`;
+            tags_anchor.appendChild(tag_li)
+            tag_li.appendChild(tag_a)
+        });
 
         if (user) {
             navbar_login_userinfo.style.display = 'block';
