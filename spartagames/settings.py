@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
+    "storages",
 
     # Apps
     "accounts",
@@ -160,18 +161,36 @@ USE_I18N = True
 
 USE_TZ = True
 
+# django-storages settings
+# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+
+AWS_S3_ACCESS_KEY_ID = config.AWS_AUTH["aws_access_key_id"]
+AWS_S3_SECRET_ACCESS_KEY = config.AWS_AUTH["aws_secret_access_key"]
+
+AWS_STORAGE_BUCKET_NAME = "sparta-games-static-bucket"
+AWS_S3_REGION_NAME = "ap-northeast-2"
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+
+AWS_S3_FILE_OVERWRITE = False
+AWS_QUERYSTRING_AUTH = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# boto3 settings
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # Media files
 
-MEDIA_URL = "/media/"
+# MEDIA_URL = "/media/"
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# boto3 settings
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
