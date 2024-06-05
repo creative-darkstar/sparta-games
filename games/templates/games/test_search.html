@@ -40,7 +40,7 @@
                     <div></div>
                 </div>
                 <br>
-                <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list">
+                <div class="row row-cols-1 row-cols-md-4 g-4" id="game_list">
                 </div>
                 <br>
                 <br>
@@ -115,6 +115,9 @@
             game_list_div.innerHTML = '';
             
             for (let row of test_r.results) {
+                const card_col = document.createElement('div');
+                card_col.setAttribute("class", "col");
+                
                 const card_div = document.createElement('div');
                 card_div.setAttribute("class", "card");
                 card_div.setAttribute("style", "width: 18rem;");
@@ -171,7 +174,8 @@
                 card_div.appendChild(card_a)
                 card_a.appendChild(card_img);
                 card_div.appendChild(card_body_div);
-                game_list_div.appendChild(card_div);
+                card_col.appendChild(card_div);
+                game_list_div.appendChild(card_col);
             }
 
             // 페이지네이션 업데이트
