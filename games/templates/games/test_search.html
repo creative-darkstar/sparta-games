@@ -56,8 +56,8 @@
         document.querySelector('.navbar-toggler').addEventListener('click', function() {
             document.body.classList.toggle('sidebar-shown');
         });
-        window.addEventListener("load", function() {
-            updateOrder();
+        window.addEventListener("load", async function() {
+            await updateOrder();
             const tags_anchor = document.getElementById("tags_list")
             const tag_url='{% url 'games:tags' %}'
             const tag_response = await aSend({
