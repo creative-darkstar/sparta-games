@@ -52,7 +52,29 @@
     </div>
 </div>
     <script>
+        document.querySelector('.navbar-toggler').addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-shown');
+        });
         window.addEventListener("load", async function PageLoad() {
+            const tags_anchor = document.getElementById("tags_list")
+            const tag_url='{% url 'games:tags' %}'
+            const tag_response = await aSend({
+                url: tag_url,
+                method: 'GET',
+                is_token: false,
+            });
+
+            tag_response.forEach(t=>{
+                const tag_li=document.createElement("li");
+                tag_li.className ="nav-item";
+                const tag_a=document.createElement("a");
+                tag_a.className = "nav-link link-body-emphasis fs-4";
+                tag_a.innerText = t.name;
+                tag_a.href = "{% url 'test_search_view' %}" + `?tag-q=${t.name}`;
+                tags_anchor.appendChild(tag_li)
+                tag_li.appendChild(tag_a)
+            });
+
             const param_tag1 = "?tag-q=fps";
             const param_tag2 = "?tag-q=rpg";
 
