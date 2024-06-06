@@ -1,3 +1,4 @@
+import re
 import requests
 import os
 import zipfile
@@ -29,6 +30,9 @@ from .serializers import (
     ScreenshotSerializer,
     TagSerailizer,
 )
+
+from django.conf import settings
+from openai import OpenAI
 
 
 class GameListAPIView(APIView):
@@ -433,6 +437,32 @@ def game_dzip(request, game_pk):
     # FileResponse 객체를 리턴
     return response
 
+CLIENT=OpenAI(api_key=settings.OPEN_API_KEY)
+
+#chatbot API
+@api_view(['POST'])
+def ChatbotAPIView(request):
+    input_data=request.data.get('input_data') #이름변경해야함
+    taglist=list(Tag.objects.values_list('name',flat=True))
+    instructions=f"""
+    내가 제한한 태그 목록 : {taglist} 여기서만 이야기를 해줘, 이외에는 말하지마
+    받은 내용을 요약해서 내가 제한한 목록에서 제일 관련 있는 항목 한 개를 골라줘
+    결과 형식은 다른 말은 없이 꾸미지도 말고 딱! '태그:'라는 형식으로만 작성해줘
+    결과에 특수문자 붙이지마
+    """
+    completion=CLIENT.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": instructions},
+            {"role": "user", "content": f"받은 내용: {input_data}"},
+        ],
+    )
+    gpt_response=completion.choices[0].message.content
+    about_tag=gpt_response.split('태그: ')[1]
+    about_tag=re.sub('[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\'…》\”\“\’·]', '', about_tag)
+    about_tag=about_tag.strip()
+    return Response({"tag":about_tag},status=status.HTTP_200_OK)
+    
 
 # 게임 등록 Api 테스트용 페이지 렌더링
 def game_detail_view(request, game_pk):
@@ -472,3 +502,6 @@ def game_create_view(request):
 
 def game_update_view(request, game_pk):
     return render(request,"games/game_update.html",{'game_pk':game_pk})
+
+def chatbot_view(request):
+    return render(request,"games/chatbot.html")
