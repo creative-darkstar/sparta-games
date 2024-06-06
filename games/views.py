@@ -1,6 +1,9 @@
+import io
 import requests
 import os
 import zipfile
+
+import boto3
 
 from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse
@@ -29,6 +32,7 @@ from .serializers import (
     ScreenshotSerializer,
     TagSerailizer,
 )
+from spartagames import config
 
 
 class GameListAPIView(APIView):
@@ -408,23 +412,48 @@ def game_register_deny(request, game_pk):
     row.save()
     return redirect("games:admin_list")
 
+# @api_view(['POST'])
+# def game_dzip(request, game_pk):
+#     row = get_object_or_404(Game, pk=game_pk, register_state=0, is_visible=True)
+#     zip_path = row.gamefile.url
+#     zip_folder_path = "./media/zips/"
+#     zip_name = os.path.basename(zip_path)
+#
+#     # FileSystemStorage 인스턴스 생성
+#     # zip_folder_path에 대해 FILE_UPLOAD_PERMISSIONS = 0o644 권한 설정
+#     # 파일을 어디서 가져오는지를 정하는 것으로 보면 됨
+#     # 디폴트 값: '/media/' 에서 가져옴
+#     fs = FileSystemStorage(zip_folder_path)
+#
+#     # FileResponse 인스턴스 생성
+#     # FILE_UPLOAD_PERMISSIONS 권한을 가진 상태로 zip_folder_path 경로 내의 zip_name 파일에 'rb' 모드로 접근
+#     # content_type 으로 zip 파일임을 명시
+#     response = FileResponse(fs.open(zip_name, 'rb'), content_type='application/zip')
+#
+#     # 'Content-Disposition' value 값(HTTP Response 헤더값)을 설정
+#     # 파일 이름을 zip_name 으로 다운로드 폴더에 받겠다는 뜻
+#     response['Content-Disposition'] = f'attachment; filename="{zip_name}"'
+#
+#     # FileResponse 객체를 리턴
+#     return response
+
+
 @api_view(['POST'])
 def game_dzip(request, game_pk):
     row = get_object_or_404(Game, pk=game_pk, register_state=0, is_visible=True)
-    zip_path = row.gamefile.url
-    zip_folder_path = "./media/zips/"
+    zip_path = "media/" + row.gamefile.name
     zip_name = os.path.basename(zip_path)
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=config.AWS_AUTH["aws_access_key_id"],
+        aws_secret_access_key=config.AWS_AUTH["aws_secret_access_key"],
+        region_name='ap-northeast-2'
+    )
+    s3_response = s3_client.get_object(Bucket=config.AWS_S3_BUCKET_NAME, Key=zip_path)
+    file_stream = s3_response['Body'].read()
 
-    # FileSystemStorage 인스턴스 생성
-    # zip_folder_path에 대해 FILE_UPLOAD_PERMISSIONS = 0o644 권한 설정
-    # 파일을 어디서 가져오는지를 정하는 것으로 보면 됨
-    # 디폴트 값: '/media/' 에서 가져옴
-    fs = FileSystemStorage(zip_folder_path)
-
-    # FileResponse 인스턴스 생성
-    # FILE_UPLOAD_PERMISSIONS 권한을 가진 상태로 zip_folder_path 경로 내의 zip_name 파일에 'rb' 모드로 접근
-    # content_type 으로 zip 파일임을 명시
-    response = FileResponse(fs.open(zip_name, 'rb'), content_type='application/zip')
+    # 메모리 스트림을 FileResponse로 반환
+    response = FileResponse(io.BytesIO(file_stream), content_type='application/zip')
 
     # 'Content-Disposition' value 값(HTTP Response 헤더값)을 설정
     # 파일 이름을 zip_name 으로 다운로드 폴더에 받겠다는 뜻
