@@ -65,11 +65,10 @@ class GameListAPIView(APIView):
                 title__icontains=game_q
             )
         elif maker_q:
-            rows = get_user_model().objects.get(
-                username__icontains=maker_q).games.filter(is_visible=True, register_state=1)
+            rows = Game.objects.filter(maker__username__icontains=maker_q).filter(is_visible=True, register_state=1)
         elif gm_q:
             rows = Game.objects.filter(
-                Q(title__icontains=gm_q) | Q(maker__username__icontains=gm_q)
+                Q(title__contains=gm_q) | Q(maker__username__icontains=gm_q)
             ).filter(is_visible=True, register_state=1)
         else:
             rows = Game.objects.filter(is_visible=True, register_state=1)
