@@ -27,6 +27,17 @@
         </div>
     </div>
     <script>
+    window.onload = async () => {
+        const user = await isLogIn();
+        if (!user){
+            window.location.href = '/'
+        }
+        if (!user.is_staff){
+            window.location.href = '/'
+        }
+    }
+    </script>
+    <script>
         async function QnACreate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
@@ -51,7 +62,7 @@
             }
         }
 
-        window.onload = async function() {
+        window.addEventListener('load', async function() {
             const category_url='{% url 'qnas:category_list' %}'
             const category_response = await aSend({
                 url: category_url,
@@ -66,7 +77,7 @@
                 opt.innerHTML=`${c.name}`;
                 category_list.appendChild(opt);
             })
-        }
+        });
 
     </script>
 {% endblock %}

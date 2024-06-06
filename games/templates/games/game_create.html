@@ -46,6 +46,14 @@
         </div>
     </div>
     <script>
+    window.onload = async () => {
+        const user = await isLogIn();
+        if (!user){
+            window.location.href = '/'
+        }
+    }
+    </script>
+    <script>
         async function GameCreate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
@@ -156,7 +164,7 @@
             screenshotsInput.files = dataTransfer.files;
         }
         
-        window.onload = async function() {
+        window.addEventListener('load', async function() {
             const tag_url='{% url 'games:tags' %}'
             const tag_response = await aSend({
                 url: tag_url,
@@ -171,6 +179,6 @@
                 opt.innerHTML=`${tag.name}`;
                 tag_list.appendChild(opt);
             })
-        }
+        });
     </script>
 {% endblock %}

@@ -4,10 +4,16 @@ import zipfile
 
 from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse
-from django.shortcuts import render, get_object_or_404,redirect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Avg, Q
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
+from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+
 from .models import (
     Game,
     Comment,
@@ -23,12 +29,6 @@ from .serializers import (
     ScreenshotSerializer,
     TagSerailizer,
 )
-from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.db.models import Avg,Q
-from rest_framework.pagination import PageNumberPagination
-
 
 
 class GameListAPIView(APIView):
@@ -439,10 +439,6 @@ def game_detail_view(request, game_pk):
     return render(request, "games/game_detail.html", {'game_pk':game_pk})
 
 
-def game_create_view(request):
-    return render(request, "games/game_create.html")
-
-
 # 테스트용 base.html 렌더링
 def test_base_view(request):
     return render(request, "base.html")
@@ -464,9 +460,15 @@ def admin_list(request):
     rows = Game.objects.filter(is_visible=True, register_state=0)
     return render(request, "games/admin_list.html", context={"rows":rows})
 
+
 def admin_tag(request):
     tags=Tag.objects.all()
     return render(request, "games/admin_tags.html", context={"tags":tags})
+
+
+def game_create_view(request):
+    return render(request, "games/game_create.html")
+
 
 def game_update_view(request, game_pk):
     return render(request,"games/game_update.html",{'game_pk':game_pk})
