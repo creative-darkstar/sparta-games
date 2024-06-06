@@ -13,6 +13,19 @@
     {% block css_block %}
     {% endblock css_block %}
     <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+    <style>
+        .screenshot-preview {
+            width: 100px;
+            height: auto;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        .main-content {
+            transition: margin-left 0.3s;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
 <header class="p-3 mb-3 border-bottom">
@@ -65,6 +78,10 @@
 </header>
 {% block content %}
 {% endblock %}
+
+
+
+
 <!-- Modal -->
 <div class="modal fade" id="baseModal" tabindex="-1" aria-labelledby="baseModalLabel" aria-hidden="true">
   <div class="modal-dialog">

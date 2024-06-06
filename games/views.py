@@ -4,10 +4,16 @@ import zipfile
 
 from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse
-from django.shortcuts import render, get_object_or_404,redirect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Avg, Q
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
+from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
+
 from .models import (
     Game,
     Comment,
@@ -23,12 +29,6 @@ from .serializers import (
     ScreenshotSerializer,
     TagSerailizer,
 )
-from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
-from rest_framework import status
-from django.contrib.auth import get_user_model
-from django.db.models import Avg,Q
-from rest_framework.pagination import PageNumberPagination
-
 
 
 class GameListAPIView(APIView):
@@ -65,11 +65,10 @@ class GameListAPIView(APIView):
                 title__icontains=game_q
             )
         elif maker_q:
-            rows = get_user_model().objects.get(
-                username__icontains=maker_q).games.filter(is_visible=True, register_state=1)
+            rows = Game.objects.filter(maker__username__icontains=maker_q).filter(is_visible=True, register_state=1)
         elif gm_q:
             rows = Game.objects.filter(
-                Q(title__icontains=gm_q) | Q(maker__username__icontains=gm_q)
+                Q(title__contains=gm_q) | Q(maker__username__icontains=gm_q)
             ).filter(is_visible=True, register_state=1)
         else:
             rows = Game.objects.filter(is_visible=True, register_state=1)
@@ -202,15 +201,17 @@ class GameDetailAPIView(APIView):
             game.save()
 
             tag_data = request.data.get('tag')
-            if tag_data:
-                tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',')]
+            if tag_data is not None:
+                game.tag.clear()
+                tags = [Tag.objects.get_or_create(name=item.strip())[0] for item in tag_data.split(',') if item.strip()]
                 game.tag.set(tags)
 
-            pre_screenshots_data = Screenshot.objects.all().filter(game=game)
+            pre_screenshots_data = Screenshot.objects.filter(game=game)
             pre_screenshots_data.delete()
 
-            for item in request.FILES.getlist("screenshots"):
-                game.screenshots.create(src=item)
+            if request.data.get('screenshots'):
+                for item in request.FILES.getlist("screenshots"):
+                    game.screenshots.create(src=item)
 
             return Response({"messege": "수정이 완료됐습니다"},status=status.HTTP_200_OK)
         else:
@@ -438,10 +439,6 @@ def game_detail_view(request, game_pk):
     return render(request, "games/game_detail.html", {'game_pk':game_pk})
 
 
-def game_create_view(request):
-    return render(request, "games/game_create.html")
-
-
 # 테스트용 base.html 렌더링
 def test_base_view(request):
     return render(request, "base.html")
@@ -463,9 +460,15 @@ def admin_list(request):
     rows = Game.objects.filter(is_visible=True, register_state=0)
     return render(request, "games/admin_list.html", context={"rows":rows})
 
+
 def admin_tag(request):
     tags=Tag.objects.all()
     return render(request, "games/admin_tags.html", context={"tags":tags})
+
+
+def game_create_view(request):
+    return render(request, "games/game_create.html")
+
 
 def game_update_view(request, game_pk):
     return render(request,"games/game_update.html",{'game_pk':game_pk})

@@ -22,8 +22,9 @@
                     <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
                 </div>
                 <div>
-                    <label for="id_screenshots">스크린샷: </label>
-                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple>
+                    <label for="id_screenshots">스크린샷: <span class="btn btn-secondary">파일 선택</span></label>
+                    <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple onchange="previewScreenshots()" style="display: none">
+                    <div id="selectedScreenshots"></div>
                 </div>
                 <div>
                     <label for="id_gamefile">게임 파일: </label>
@@ -44,13 +45,42 @@
             </div>
         </div>
     </div>
+    
+    <script>
+    window.onload = async () => {
+        const user = await isLogIn();
+        if (!user){
+            window.location.href = '/'
+        }
+    }
+    </script>
     <script>
         function getGameId(){
             const path=window.location.pathname;
             const parts =path.split('/');
             return parseInt(parts[3]);
         }
+        function previewScreenshots() {
+            const screenshotsInput = document.getElementById('id_screenshots');
+            const selectedScreenshots = document.getElementById('selectedScreenshots');
+            {#selectedScreenshots.innerHTML = '';#}
+            
+            for (const file of screenshotsInput.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('screenshot-preview');
+                    img.onclick = function() {
+                        selectedScreenshots.removeChild(img);
+                    };
+                    selectedScreenshots.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
         async function loadGameDetails(){
+            const user = await isLogIn();
             const game_pk = getGameId();
             const game_detail_url = '{% url 'games:game_detail' game_pk %}';
             const tag_url='{% url 'games:tags' %}'
@@ -60,6 +90,9 @@
                     method: 'GET',
                     is_token: false,
                 });
+                if (game_detail_response.maker !== user.user_pk){
+                    window.location.href = '/'
+                }
                 const title = game_detail_response.title;
                 const content = game_detail_response.content;
                 const youtube_url =game_detail_response.youtube_url;
@@ -80,6 +113,20 @@
                         };
                         itemsDiv.appendChild(newItem);
                     })
+                }
+                
+                const screenshotsDiv = document.getElementById("selectedScreenshots");
+                if (game_detail_response.screenshot) {
+                    screenshotsDiv.innerHTML = ``;
+                    game_detail_response.screenshot.forEach(screenshotUrl => {
+                        const img = document.createElement('img');
+                        img.src = screenshotUrl.src;
+                        img.classList.add('screenshot-preview');
+                        img.onclick = function() {
+                            screenshotsDiv.removeChild(img);
+                        };
+                        screenshotsDiv.appendChild(img);
+                    });
                 }
                 
                 const tag_response = await aSend({
@@ -113,6 +160,8 @@
             tagstring = tagstring.substr(1)
             formData.append('tag', tagstring);
             
+            await addScreenshotsToFormData(formData);
+            
             const url = '{% url 'games:game_detail' game_pk %}'
 
             try {
@@ -128,8 +177,20 @@
             }
             window.location.href = '{% url 'games:game_test_page' game_pk %}';
         }
-        window.onload = function() {
+        window.addEventListener('load', function() {
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
+        });        
+        async function addScreenshotsToFormData(formData) {
+            const screenshotsDiv = document.getElementById('selectedScreenshots');
+            const images = screenshotsDiv.querySelectorAll('img');
+            formData.delete("screenshots")
+            for (const img of images) {
+                const imageUrl = img.src;
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                formData.append('screenshots', blob, 'screenshot.png');
+            }
+            return formData;
         }
     </script>
     <script>

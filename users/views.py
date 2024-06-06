@@ -137,7 +137,7 @@ def my_games(request, user_pk):
     my_games = user.games.filter(is_visible=True)
 
     if user != request.user:
-        my_games = user.games.filter(register_state=1)
+        my_games = my_games.filter(register_state=1)
 
     item_list = list()
     for item in my_games:

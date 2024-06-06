@@ -2,31 +2,80 @@
 {% load static %}
 
 {% block content %}
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center">
-            <div style="position:relative; right:15px;">
-                <button type="button" onclick="updateOrder('new')">최신순</button>
-                <button type="button" onclick="updateOrder('star')">평점순</button>
-                <button type="button" onclick="updateOrder('view')">조회순</button>
-            </div>
-            <div style="position:relative; right:100px;">
-                <h3 id=tagtitle style="position:relative; top:4px;"></h3>
-            </div>
-            <div></div>
-        </div>
-        <br>
-        <div class="d-grid gap-2 d-md-flex row row-cols-1 row-cols-md-4 g-4" id="game_list">
-        </div>
-        <br>
-        <br>
-        <nav aria-label="Page navigation example">
-            <ul class="pagination" id="pagination">
+<div class="d-flex">
+    <div class="collapse" id="side">
+        <div class="d-flex flex-column flex-shrink-0 p-3 bg-body-tertiary" style="width: 280px;">
+                <span class="fs-2">태그 목록</span>
+            <hr>
+            <ul class="nav nav-pills flex-column mb-auto" id="tags_list">
+                <li class="nav-item fs-4">
+                <a href="{% url "test_search_view" %}" class="nav-link link-body-emphasis">
+                    전체보기
+                </a>
+                </li>
             </ul>
-        </nav>
+        </div>
     </div>
+    <div class="main-content container" id="mainContent">
+        <div style="position:relative; right:15px">
+            <nav class="navbar">
+                <div class="container-fluid">
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#side" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+            </nav>
+        </div>
+        <div>
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div style="position:relative; right:15px;">
+                        <button type="button" onclick="updateOrder('new')">최신순</button>
+                        <button type="button" onclick="updateOrder('star')">평점순</button>
+                        <button type="button" onclick="updateOrder('view')">조회순</button>
+                    </div>
+                    <div style="position:relative; right:157px;">
+                        <h3 id=tagtitle style="position:relative; top:4px;"></h3>
+                    </div>
+                    <div></div>
+                </div>
+                <br>
+                <div class="row row-cols-1 row-cols-md-4 g-4" id="game_list">
+                </div>
+                <br>
+                <br>
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination" id="pagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
     <script>
-        window.addEventListener("load", function() {
-            updateOrder();
+        document.querySelector('.navbar-toggler').addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-shown');
+        });
+        window.addEventListener("load", async function() {
+            await updateOrder();
+            const tags_anchor = document.getElementById("tags_list")
+            const tag_url='{% url 'games:tags' %}'
+            const tag_response = await aSend({
+                url: tag_url,
+                method: 'GET',
+                is_token: false,
+            });
+
+            tag_response.forEach(t=>{
+                const tag_li=document.createElement("li");
+                tag_li.className ="nav-item";
+                const tag_a=document.createElement("a");
+                tag_a.className = "nav-link link-body-emphasis fs-4";
+                tag_a.innerText = t.name;
+                tag_a.href = "{% url 'test_search_view' %}" + `?tag-q=${t.name}`;
+                tags_anchor.appendChild(tag_li)
+                tag_li.appendChild(tag_a)
+            });
         });
         async function updateOrder(order='new', page=1){
             const params = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -43,13 +92,13 @@
 
             let displayTitle = "전체게임"; // Default title
             if (tag_q) {
-                displayTitle = tag_q;
+                displayTitle = `태그 : ${tag_q}`;
             } else if (game_q) {
-                displayTitle = `${game_q}`;
+                displayTitle = `게임명 : ${game_q}`;
             } else if (maker_q) {
-                displayTitle = `${maker_q}`;
+                displayTitle = `작성자 : ${maker_q}`;
             } else if (gm_q) {
-                displayTitle = `${gm_q}`;
+                displayTitle = `게임명+작성자 : ${gm_q}`;
             }
             const  tagtitle= document.getElementById('tagtitle');
             tagtitle.textContent=displayTitle;
@@ -66,6 +115,9 @@
             game_list_div.innerHTML = '';
             
             for (let row of test_r.results) {
+                const card_col = document.createElement('div');
+                card_col.setAttribute("class", "col");
+                
                 const card_div = document.createElement('div');
                 card_div.setAttribute("class", "card");
                 card_div.setAttribute("style", "width: 18rem;");
@@ -122,7 +174,8 @@
                 card_div.appendChild(card_a)
                 card_a.appendChild(card_img);
                 card_div.appendChild(card_body_div);
-                game_list_div.appendChild(card_div);
+                card_col.appendChild(card_div);
+                game_list_div.appendChild(card_col);
             }
 
             // 페이지네이션 업데이트
