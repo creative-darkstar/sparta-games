@@ -340,6 +340,7 @@ class TagAPIView(APIView):
         tag.delete()
         return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
 
+
 @api_view(['POST'])
 def game_register(request, game_pk):
     # game_pk에 해당하는 row 가져오기 (게시 중인 상태이면서 '등록 중' 상태)
@@ -347,25 +348,44 @@ def game_register(request, game_pk):
         Game, pk=game_pk, is_visible=True, register_state=0)
 
     # gamefile 필드에 저장한 경로값을 'path' 변수에 저장
-    path = row.gamefile.url
+    path = "media/" + row.gamefile.name
 
     # ~/<업로드시각>_<압축파일명>.zip 에서 '<업로드시각>_<압축파일명>' 추출
     game_folder = path.split('/')[-1].split('.')[0]
 
-    # 게임 폴더 경로(압축을 풀 경로): './media/games/<업로드시각>_<압축파일명>'
-    game_folder_path = f"./media/games/{game_folder}"
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=config.AWS_AUTH["aws_access_key_id"],
+        aws_secret_access_key=config.AWS_AUTH["aws_secret_access_key"],
+        region_name='ap-northeast-2'
+    )
 
+    # S3에서 zip 파일을 읽어옴
+    zip_resp = s3.get_object(Bucket='sparta-games-static-bucket', Key=path)
+
+    # BytesIO를 사용하여 메모리에 파일 데이터를 읽음
+    zip_data = io.BytesIO(zip_resp['Body'].read())
+
+    # 압축 해제
+    zip_ref = zipfile.ZipFile(zip_data)
+    for file_name in zip_ref.namelist():
+        response = s3.upload_fileobj(
+            zip_ref.open(file_name),
+            Bucket='sparta-games-static-bucket',
+            Key=f"media/games/{game_folder}/{file_name}"
+        )
+    zip_ref.close()
+
+    """
     # index.html 우선 압축 해제
     zipfile.ZipFile(f"./{path}").extract("index.html", game_folder_path)
 
-    """
-    index.html 내용 수정
-    <link> 태그 href 값 수정 (line: 7, 8)
-    var buildUrl 변수 값 수정 (line: 59)
+    # index.html 내용 수정
+    # <link> 태그 href 값 수정 (line: 7, 8)
+    # var buildUrl 변수 값 수정 (line: 59)
     
-    new_lines: 덮어쓸 내용 저장
-    is_check_build: Build 키워드 찾은 후 True로 변경 (이후 라인에서 Build 찾는 것을 피하기 위함)
-    """
+    # new_lines: 덮어쓸 내용 저장
+    # is_check_build: Build 키워드 찾은 후 True로 변경 (이후 라인에서 Build 찾는 것을 피하기 위함)
 
     new_lines = str()
     is_check_build = False
@@ -400,10 +420,12 @@ def game_register(request, game_pk):
     row.gamepath = game_folder_path[1:]
     row.register_state = 1
     row.save()
+    """
 
     # 알맞은 HTTP Response 리턴
     # return Response({"message": f"등록을 성공했습니다. (게시물 id: {game_pk})"}, status=status.HTTP_200_OK)
     return redirect("games:admin_list")
+
 
 @api_view(['POST'])
 def game_register_deny(request, game_pk):
@@ -411,31 +433,6 @@ def game_register_deny(request, game_pk):
     row.register_state = 2
     row.save()
     return redirect("games:admin_list")
-
-# @api_view(['POST'])
-# def game_dzip(request, game_pk):
-#     row = get_object_or_404(Game, pk=game_pk, register_state=0, is_visible=True)
-#     zip_path = row.gamefile.url
-#     zip_folder_path = "./media/zips/"
-#     zip_name = os.path.basename(zip_path)
-#
-#     # FileSystemStorage 인스턴스 생성
-#     # zip_folder_path에 대해 FILE_UPLOAD_PERMISSIONS = 0o644 권한 설정
-#     # 파일을 어디서 가져오는지를 정하는 것으로 보면 됨
-#     # 디폴트 값: '/media/' 에서 가져옴
-#     fs = FileSystemStorage(zip_folder_path)
-#
-#     # FileResponse 인스턴스 생성
-#     # FILE_UPLOAD_PERMISSIONS 권한을 가진 상태로 zip_folder_path 경로 내의 zip_name 파일에 'rb' 모드로 접근
-#     # content_type 으로 zip 파일임을 명시
-#     response = FileResponse(fs.open(zip_name, 'rb'), content_type='application/zip')
-#
-#     # 'Content-Disposition' value 값(HTTP Response 헤더값)을 설정
-#     # 파일 이름을 zip_name 으로 다운로드 폴더에 받겠다는 뜻
-#     response['Content-Disposition'] = f'attachment; filename="{zip_name}"'
-#
-#     # FileResponse 객체를 리턴
-#     return response
 
 
 @api_view(['POST'])
