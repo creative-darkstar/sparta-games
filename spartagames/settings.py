@@ -180,13 +180,13 @@ AWS_QUERYSTRING_AUTH = False
 STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 # boto3 settings
-STATICFILES_STORAGE = "spartagames.custom_storage.StaticStorage"
+STATICFILES_STORAGE = "spartagames.custom_storages.StaticStorage"
 
 # Media files
 
 MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 # boto3 settings
-DEFAULT_FILE_STORAGE = "spartagames.custom_storage.MediaStorage"
+DEFAULT_FILE_STORAGE = "spartagames.custom_storages.MediaStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
