@@ -27,6 +27,17 @@
         </div>
     </div>
     <script>
+    window.onload = async () => {
+        const user = await isLogIn();
+        if (!user){
+            window.location.href = '/'
+        }
+        if (!user.is_staff){
+            window.location.href = '/'
+        }
+    }
+    </script>
+    <script>
         function getQnaId(){
             const path=window.location.pathname;
             const parts =path.split('/');
@@ -70,11 +81,9 @@
             }
         }
 
-
-        window.onload = function() {
+        window.addEventListener('load', function() {
             loadQnADetails();// 페이지 로드 시 게임 상세 정보를 로드
-        }
-
+        });
 
         async function QnAUpdate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지

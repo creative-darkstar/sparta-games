@@ -31,6 +31,17 @@
         </tbody>
     </table>
 </div>
+    <script>
+    window.onload = async () => {
+        const user = await isLogIn();
+        if (!user){
+            window.location.href = '/'
+        }
+        if (!user.is_staff){
+            window.location.href = '/'
+        }
+    }
+    </script>
 <script>
     function deleteTag(tagId) {
         fetch(`{% url 'games:tags' %}`, {

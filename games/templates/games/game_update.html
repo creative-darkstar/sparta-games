@@ -45,6 +45,15 @@
             </div>
         </div>
     </div>
+    
+    <script>
+    window.onload = async () => {
+        const user = await isLogIn();
+        if (!user){
+            window.location.href = '/'
+        }
+    }
+    </script>
     <script>
         function getGameId(){
             const path=window.location.pathname;
@@ -71,6 +80,7 @@
             }
         }
         async function loadGameDetails(){
+            const user = await isLogIn();
             const game_pk = getGameId();
             const game_detail_url = '{% url 'games:game_detail' game_pk %}';
             const tag_url='{% url 'games:tags' %}'
@@ -80,6 +90,9 @@
                     method: 'GET',
                     is_token: false,
                 });
+                if (game_detail_response.maker !== user.user_pk){
+                    window.location.href = '/'
+                }
                 const title = game_detail_response.title;
                 const content = game_detail_response.content;
                 const youtube_url =game_detail_response.youtube_url;
@@ -164,10 +177,9 @@
             }
             window.location.href = '{% url 'games:game_test_page' game_pk %}';
         }
-        window.onload = function() {
+        window.addEventListener('load', function() {
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
-        }
-        
+        });        
         async function addScreenshotsToFormData(formData) {
             const screenshotsDiv = document.getElementById('selectedScreenshots');
             const images = screenshotsDiv.querySelectorAll('img');
