@@ -92,13 +92,13 @@
 
             let displayTitle = "전체게임"; // Default title
             if (tag_q) {
-                displayTitle = tag_q;
+                displayTitle = `태그 : ${tag_q}`;
             } else if (game_q) {
-                displayTitle = `${game_q}`;
+                displayTitle = `게임명 : ${game_q}`;
             } else if (maker_q) {
-                displayTitle = `${maker_q}`;
+                displayTitle = `작성자 : ${maker_q}`;
             } else if (gm_q) {
-                displayTitle = `${gm_q}`;
+                displayTitle = `게임명+작성자 : ${gm_q}`;
             }
             const  tagtitle= document.getElementById('tagtitle');
             tagtitle.textContent=displayTitle;
