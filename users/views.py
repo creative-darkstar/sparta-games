@@ -134,7 +134,7 @@ def change_password(request, user_pk):
 @api_view(["GET"])
 def my_games(request, user_pk):
     user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
-    my_games = user.games.filter(is_visible=True)
+    my_games = user.games.filter(is_visible=True).order_by('-created_at')
 
     if user != request.user:
         my_games = my_games.filter(register_state=1)
