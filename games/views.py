@@ -461,11 +461,9 @@ def ChatbotAPIView(request):
         ],
     )
     gpt_response=completion.choices[0].message.content
-    print("📌📌",gpt_response)
     about_tag=gpt_response.split('태그:')[1]
     about_tag=re.sub('[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\'…》\”\“\’·]', '', about_tag)
     about_tag=about_tag.strip()
-    print("📌📌",about_tag)
     untaglist=['없음','']
     if about_tag in untaglist:
         about_tag='없음'

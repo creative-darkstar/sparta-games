@@ -67,13 +67,25 @@ const userInput = document.querySelector('#user-input input');
 // 전송 버튼
 const sendButton = document.querySelector('#user-input button');
 
+window.onload = async () => {
+    const user = await isLogIn();
+    if (!user){
+        window.location.href = '/'
+    }
+}
+
+window.addEventListener("load", ()=>{
+    const welcome="어서오세요, 이곳은 태그를 추천해주는 챗봇입니다. 내용을 입력해주세요.";
+    addMessage('챗봇',welcome)
+});
+
 function addMessage(sender, message) {
     // 새로운 div 생성
     const messageElement = document.createElement('div');
     // 생성된 요소에 클래스 추가
     messageElement.className = 'message';
      // 채팅 메시지 목록에 새로운 메시지 추가
-    messageElement.textContent = `${sender}: ${message}`;
+    messageElement.innerHTML = `${sender}: ${message}`;
     chatMessages.prepend(messageElement);
 }
 
@@ -93,12 +105,15 @@ async function fetchAIResponse(input_data) {
         body: JSON.stringify({ input_data: input_data })
     });
     const data = await gpt_response.json();
-    console.log(data.tag);
-    a_url="{% url 'test_search_view' %}" + `?tag-q=${data.tag}`
-    meesage=`추천하는 태그는 ${data.tag}입니다.\n\
-    추천 태그로 이동하시려면 아래의 링크를 클릭해주세요.\n\
-    <a href=${a_url}>${data.tag}</a>`
-    return meesage;
+    if (data.tag==='없음'){
+        return "추천하는 태그가 없습니다."
+    } else{
+        a_url="{% url 'test_search_view' %}" + `?tag-q=${data.tag}`
+        meesage=`추천하는 태그는 ${data.tag}입니다.<br>\
+        추천 태그로 이동하시려면\
+        <a href=${a_url}>여기</a>를 클릭해주세요`
+        return meesage;
+    }
 }
 
 // 전송 버튼 클릭 이벤트 처리
