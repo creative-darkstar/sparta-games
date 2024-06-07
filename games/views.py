@@ -1,4 +1,5 @@
 import io
+import re
 import requests
 import os
 import zipfile
@@ -390,6 +391,7 @@ def game_register(request, game_pk):
             new_lines += line[:cursor] + f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/media/games/{game_folder}/' + line[cursor:]
         else:
             new_lines += line
+        new_lines += '\n'
 
     new_zip_data = io.BytesIO()
     with zipfile.ZipFile(new_zip_data, 'w') as new_zip_ref:
@@ -399,10 +401,43 @@ def game_register(request, game_pk):
         new_zip_ref.writestr('index.html', new_lines.encode('utf-8'))
 
         for file_name in new_zip_ref.namelist():
-            response = s3.upload_fileobj(
-                new_zip_ref.open(file_name),
+            pattern1 = r".+\.(data|symbols\.json)\.gz$"
+            pattern2 = r".+\.js\.gz$"
+            pattern3 = r".+\.wasm\.gz$"
+            file_extension = file_name.split('.')[-1].lower()
+
+            content_type = None
+            content_encoding = None
+
+            # 메타데이터 설정
+            metadata = {}
+            if re.match(pattern1, file_name):
+                content_type = 'application/octet-stream'
+                content_encoding = 'gzip'
+            elif re.match(pattern2, file_name):
+                content_type = 'application/javascript'
+                content_encoding = 'gzip'
+            elif re.match(pattern3, file_name):
+                content_type = 'application/wasm'
+                content_encoding = 'gzip'
+            else:
+                if file_extension == "js":
+                    content_type = 'application/javascript'
+                elif file_extension == "html":
+                    content_type = 'text/html'
+                elif file_extension == "ico":
+                    content_type = 'image/x-icon'
+                elif file_extension == "png":
+                    content_type = 'image/png'
+                elif file_extension == "css":
+                    content_type = 'text/css'
+
+            response = s3.put_object(
+                Body=new_zip_ref.open(file_name),
                 Bucket='sparta-games-static-bucket',
-                Key=f"media/games/{game_folder}/{file_name}"
+                Key=f"media/games/{game_folder}/{file_name}",
+                ContentType=(content_type if content_type else 'text/plain'),
+                ContentEncoding=(content_encoding if content_encoding else 'identity')
             )
 
     zip_ref.close()
