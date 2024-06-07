@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import permission_classes, authentication_classes
 
 from .models import (
     Game,
@@ -33,6 +34,7 @@ from .serializers import (
 
 from django.conf import settings
 from openai import OpenAI
+
 
 
 class GameListAPIView(APIView):
@@ -441,6 +443,7 @@ CLIENT=OpenAI(api_key=settings.OPEN_API_KEY)
 
 #chatbot API
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def ChatbotAPIView(request):
     input_data=request.data.get('input_data') #이름변경해야함
     taglist=list(Tag.objects.values_list('name',flat=True))
@@ -458,9 +461,14 @@ def ChatbotAPIView(request):
         ],
     )
     gpt_response=completion.choices[0].message.content
-    about_tag=gpt_response.split('태그: ')[1]
+    print("📌📌",gpt_response)
+    about_tag=gpt_response.split('태그:')[1]
     about_tag=re.sub('[-=+,#/\?:^.@*\"※~ㆍ!』‘|\(\)\[\]`\'…》\”\“\’·]', '', about_tag)
     about_tag=about_tag.strip()
+    print("📌📌",about_tag)
+    untaglist=['없음','']
+    if about_tag in untaglist:
+        about_tag='없음'
     return Response({"tag":about_tag},status=status.HTTP_200_OK)
     
 
