@@ -17,6 +17,8 @@ urlpatterns = [
     path("api/list/<int:game_pk>/deny/", views.game_register_deny, name="game_register_deny"),
     # 게임 검수 - zip 다운 api
     path('api/list/<int:game_pk>/dzip/', views.game_dzip, name='game_dzip'),
+    # chabotAPI
+    path('api/chatbot/', views.ChatbotAPIView, name='chatbot'),
 
     # 등록된 게임 확인용 페이지 뷰
     path("list/<int:game_pk>/", views.game_detail_view, name="game_test_page"),
@@ -26,4 +28,6 @@ urlpatterns = [
     # 게임 검수용 페이지 뷰
     path("admin/list/", views.admin_list, name="admin_list"),
     path("admin/tags/", views.admin_tag, name="admin_tags"),
+    #chatbot 페이지 뷰
+    path("chatbot/",views.chatbot_view,name="chatbot_view"),
 ]
