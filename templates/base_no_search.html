@@ -23,6 +23,7 @@
                 </a>
 
                 <ul class="nav ms-3 col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="{% url "games:chatbot_view" %}" class="nav-link px-2 link-body-emphasis">태그추천</a></li>
                     <li><a href="{% url "qnas:qna_main" %}" class="nav-link px-2 link-body-emphasis">QnA</a></li>
                 </ul>
             </div>
@@ -197,8 +198,20 @@
                 navbar_login_userinfo_userimage.src = '{% static 'image/user.png' %}'
             }
             navbar_logout_userinfo.style.display = 'none';
-            // permission / payload 확인 후 관리자인 경우 navbar_login_userinfo_adminpage display block
-            // 관리자가 아니라면 navbar_login_userinfo_adminpage display none
+            if(user.is_staff){
+                const check_btn=document.createElement('a');
+                check_btn.setAttribute('href',`{% url "games:admin_list" %}`);
+                check_btn.setAttribute('class','btn btn-secondary me-2');
+                check_btn.innerText="게임 관리";
+
+                const tag_btn=document.createElement('a');
+                tag_btn.setAttribute('href',`{% url "games:admin_tags" %}`);
+                tag_btn.setAttribute('class','btn btn-secondary');
+                tag_btn.innerText="태그 관리";
+
+                navbar_login_userinfo.appendChild(check_btn);
+                navbar_login_userinfo.appendChild(tag_btn);
+            }
         } else {
             navbar_login_userinfo.style.display = 'none';
             navbar_logout_userinfo.style.display = 'block';

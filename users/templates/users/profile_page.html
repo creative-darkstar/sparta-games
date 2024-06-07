@@ -7,7 +7,7 @@
             {% csrf_token %}
             <div class='d-flex justify-content-around'>
                 <div class='d-flex flex-column'>
-                    <img id="user_profile_img" src="" alt="...">
+                    <img id="user_profile_img" src="" alt="..." style="width:150px; height:auto; ">
                     <div id="image_upload_area_div" style="display: none">
                         <label for="id_thumbnail">
                             <span class="btn btn-secondary">이미지 업로드</span>
@@ -131,7 +131,6 @@
         function getPageUserId() {
             const path = window.location.pathname;
             const parts = path.split('/');
-            console.log("parts[3]: ", parts[2]);
             return parseInt(parts[2]);
         }
 
