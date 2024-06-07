@@ -449,6 +449,8 @@ async function like() {
       screenshot_button_img.setAttribute('class','d-block w-100')
       screenshot_button_img.setAttribute('alt','...')
 
+      screenshot_button_img.setAttribute('style','object-fit: contain; object-position: center; width: 100%; height: 100%;')
+
       screenshot_button.appendChild(screenshot_button_img)
       carouselButtonDiv.appendChild(screenshot_button)
 
@@ -458,12 +460,12 @@ async function like() {
       } else {
         screenshot_div.setAttribute('class','carousel-item')
       }
-      screenshot_div.setAttribute('style','position: absolute; width: 100%; height: 100%')
+      screenshot_div.setAttribute('style','position: absolute; width: 100%; height: 100%;')
 
       const screenshot_img = document.createElement('img')
-      screenshot_img.setAttribute('style','object-fit: contain; object-position: center center;')
+      screenshot_img.setAttribute('style','object-fit: contain; object-position: center center; max-width: 100%; max-height: 100%; position: absolute;')
       screenshot_img.setAttribute('src',item.src)
-      screenshot_img.setAttribute('class','d-block w-100')
+      screenshot_img.setAttribute('class','d-block w-100 h-100')
       screenshot_img.setAttribute('alt','...')
 
       screenshot_div.appendChild(screenshot_img)
