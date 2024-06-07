@@ -27,13 +27,7 @@
         </div>
     </div>
     <div class="container">
-        <div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'>
-            <div id='wrap-vertical' class="scroll-container"></div>
-            <br>
-            <div id="carouselExampleIndicators" class="carousel slide">
-                <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>
-            </div>
-        </div>
+        <div id='containerDiv' class='d-flex flex-column align-items-center justify-content-center'></div>
         <div id='contentDiv' class='mt-3 mb-3 px-3 py-3 border border-info rounded'>
             <p>게임 설명: </p>
         </div>
@@ -378,13 +372,25 @@ async function like() {
           }
       }
       
+      
+    const containerDiv = document.getElementById('containerDiv');
+    console.log("📌📌",youtube_url);
+    console.log("📌📌",screenshot);
+    if (youtube_url || screenshot.length > 0) {
+      containerDiv.innerHTML =`\
+      <div id='wrap-vertical' class="scroll-container"></div>\
+      <br>\
+      <div id="carouselExampleIndicators" class="carousel slide">\
+          <div id='carouselContent' class="carousel-inner" style="position: relative; width: 960px; padding-bottom: 56.25%;"></div>\
+      </div>`
+    } 
     // # 4 ================== video와 screenshot ====================
     // const containerDiv = document.createElement('div');
     // containerDiv.className = 'd-flex align-items-center justify-content-around'
     const carouselButtonDiv = document.getElementById('wrap-vertical');
     const carouselContentDiv = document.getElementById('carouselContent');
     let content_idx = 0
-
+    
     if (youtube_url) {
       const youtube_button = document.createElement('button')
       youtube_button.setAttribute('type','button')
@@ -443,6 +449,8 @@ async function like() {
       screenshot_button_img.setAttribute('class','d-block w-100')
       screenshot_button_img.setAttribute('alt','...')
 
+      screenshot_button_img.setAttribute('style','object-fit: contain; object-position: center; width: 100%; height: 100%;')
+
       screenshot_button.appendChild(screenshot_button_img)
       carouselButtonDiv.appendChild(screenshot_button)
 
@@ -452,12 +460,12 @@ async function like() {
       } else {
         screenshot_div.setAttribute('class','carousel-item')
       }
-      screenshot_div.setAttribute('style','position: absolute; width: 100%; height: 100%')
+      screenshot_div.setAttribute('style','position: absolute; width: 100%; height: 100%;')
 
       const screenshot_img = document.createElement('img')
-      screenshot_img.setAttribute('style','object-fit: contain; object-position: center center;')
+      screenshot_img.setAttribute('style','object-fit: contain; object-position: center center; max-width: 100%; max-height: 100%; position: absolute;')
       screenshot_img.setAttribute('src',item.src)
-      screenshot_img.setAttribute('class','d-block w-100')
+      screenshot_img.setAttribute('class','d-block w-100 h-100')
       screenshot_img.setAttribute('alt','...')
 
       screenshot_div.appendChild(screenshot_img)
