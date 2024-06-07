@@ -33,6 +33,7 @@ from .serializers import (
     TagSerailizer,
 )
 from spartagames import config
+from django.conf import settings
 
 
 class GameListAPIView(APIView):
@@ -366,61 +367,50 @@ def game_register(request, game_pk):
     # BytesIO를 사용하여 메모리에 파일 데이터를 읽음
     zip_data = io.BytesIO(zip_resp['Body'].read())
 
-    # 압축 해제
     zip_ref = zipfile.ZipFile(zip_data)
-    for file_name in zip_ref.namelist():
-        response = s3.upload_fileobj(
-            zip_ref.open(file_name),
-            Bucket='sparta-games-static-bucket',
-            Key=f"media/games/{game_folder}/{file_name}"
-        )
-    zip_ref.close()
-
-    """
-    # index.html 우선 압축 해제
-    zipfile.ZipFile(f"./{path}").extract("index.html", game_folder_path)
 
     # index.html 내용 수정
     # <link> 태그 href 값 수정 (line: 7, 8)
     # var buildUrl 변수 값 수정 (line: 59)
-    
+
     # new_lines: 덮어쓸 내용 저장
     # is_check_build: Build 키워드 찾은 후 True로 변경 (이후 라인에서 Build 찾는 것을 피하기 위함)
 
     new_lines = str()
     is_check_build = False
 
-    # 덮어쓸 내용 담기
-    with open(f"{game_folder_path}/index.html", 'r') as f:
-        for line in f.readlines():
-            if line.find('link') > -1:
-                cursor = line.find('TemplateData')
-                new_lines += line[:cursor] + \
-                    f'/media/games/{game_folder}/' + line[cursor:]
-            elif line.find('buildUrl') > -1 and not is_check_build:
-                is_check_build = True
-                cursor = line.find('Build')
-                new_lines += line[:cursor] + \
-                    f'/media/games/{game_folder}/' + line[cursor:]
-            else:
-                new_lines += line
+    index_text = zip_ref.read('index.html').decode('utf-8')
+    for line in index_text.splitlines():
+        if line.find('link') > -1:
+            cursor = line.find('TemplateData')
+            new_lines += line[:cursor] + f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/media/games/{game_folder}/' + line[cursor:]
+        elif line.find('buildUrl') > -1 and not is_check_build:
+            is_check_build = True
+            cursor = line.find('Build')
+            new_lines += line[:cursor] + f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/media/games/{game_folder}/' + line[cursor:]
+        else:
+            new_lines += line
 
-    # 덮어쓰기
-    with open(f'{game_folder_path}/index.html', 'w') as f:
-        f.write(new_lines)
+    new_zip_data = io.BytesIO()
+    with zipfile.ZipFile(new_zip_data, 'w') as new_zip_ref:
+        for item in zip_ref.infolist():
+            if item.filename != 'index.html':
+                new_zip_ref.writestr(item, zip_ref.read(item.filename))
+        new_zip_ref.writestr('index.html', new_lines.encode('utf-8'))
 
-    # index.html 외 다른 파일들 압축 해제
-    zipfile.ZipFile(f"./{path}").extractall(
-        path=game_folder_path,
-        members=[item for item in zipfile.ZipFile(
-            f"./{path}").namelist() if item != "index.html"]
-    )
+        for file_name in new_zip_ref.namelist():
+            response = s3.upload_fileobj(
+                new_zip_ref.open(file_name),
+                Bucket='sparta-games-static-bucket',
+                Key=f"media/games/{game_folder}/{file_name}"
+            )
+
+    zip_ref.close()
 
     # 게임 폴더 경로를 저장하고, 등록 상태 1로 변경(등록 성공)
-    row.gamepath = game_folder_path[1:]
+    row.gamepath = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/media/games/{game_folder}'
     row.register_state = 1
     row.save()
-    """
 
     # 알맞은 HTTP Response 리턴
     # return Response({"message": f"등록을 성공했습니다. (게시물 id: {game_pk})"}, status=status.HTTP_200_OK)

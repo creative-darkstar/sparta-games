@@ -21,6 +21,7 @@ matplotlib-inline==0.1.7
 parso==0.8.4
 pillow==10.3.0
 prompt-toolkit==3.0.43
+psycopg2==2.9.9
 pure-eval==0.2.2
 Pygments==2.18.0
 PyJWT==2.8.0

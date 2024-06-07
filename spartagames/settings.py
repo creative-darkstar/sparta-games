@@ -167,7 +167,7 @@ USE_TZ = True
 AWS_S3_ACCESS_KEY_ID = config.AWS_AUTH["aws_access_key_id"]
 AWS_S3_SECRET_ACCESS_KEY = config.AWS_AUTH["aws_secret_access_key"]
 
-AWS_STORAGE_BUCKET_NAME = "sparta-games-static-bucket"
+AWS_STORAGE_BUCKET_NAME = config.AWS_S3_BUCKET_NAME
 AWS_S3_REGION_NAME = "ap-northeast-2"
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 
