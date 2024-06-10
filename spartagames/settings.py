@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "storages",
+    "corsheaders",
 
     # Apps
     "accounts",
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -71,6 +73,12 @@ MIDDLEWARE = [
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Allow specific origins
+CORS_ALLOWED_ORIGINS = [
+    "https://sparta-games.net",
+    "https://www.sparta-games.net",
+]
 
 ROOT_URLCONF = 'spartagames.urls'
 
