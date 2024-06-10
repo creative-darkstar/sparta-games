@@ -29,10 +29,10 @@ OPEN_API_KEY = config.OPENAI_API_KEY
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'http://www.sparta-games.net/'
-    'https://www.sparta-games.net/'
-    'http://sparta-games.net/'
-    'https://sparta-games.net/'
+    'http://www.sparta-games.net/',
+    'https://www.sparta-games.net/',
+    'http://sparta-games.net/',
+    'https://sparta-games.net/',
     '13.209.74.174',
     'localhost',
     '127.0.0.1',
