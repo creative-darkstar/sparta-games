@@ -12,8 +12,8 @@
             <label for="password">PW</label>
             <input type="password" name="password" id="password">
             <p></p>
-            <button><a href={% url 'accounts:signup_page' %}>회원가입</a></button>
-            <button type="submit">로그인</button>
+            <a class="btn btn-secondary" href={% url 'accounts:signup_page' %}>회원가입</a>
+            <button class="btn btn-primary" type="submit">로그인</button>
         </form>
     </div>
     <script>

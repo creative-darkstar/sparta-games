@@ -29,10 +29,15 @@
         <div>
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div style="position:relative; right:15px;">
-                        <button type="button" onclick="updateOrder('new')">최신순</button>
-                        <button type="button" onclick="updateOrder('star')">평점순</button>
-                        <button type="button" onclick="updateOrder('view')">조회순</button>
+                    <div class="btn-group" role="group" aria-label="Sort radio toggle button group" style="position:relative; right:15px;">
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked onclick="updateOrder('new')">
+                        <label class="btn btn-outline-secondary btn-sm" for="btnradio1">최신순</label>
+                        
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" onclick="updateOrder('star')">
+                        <label class="btn btn-outline-secondary btn-sm" for="btnradio2">평점순</label>
+                        
+                        <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" onclick="updateOrder('view')">
+                        <label class="btn btn-outline-secondary btn-sm" for="btnradio3">조회순</label>
                     </div>
                     <div style="position:relative; right:157px;">
                         <h3 id=tagtitle style="position:relative; top:4px;"></h3>

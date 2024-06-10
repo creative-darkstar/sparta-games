@@ -63,7 +63,7 @@ class GameListAPIView(APIView):
         search = request.query_params.get('search')
         
         if tag_q:
-            rows = Tag.objects.get(name=tag_q).games.filter(is_visible=True, register_state=1)
+            rows = Game.objects.filter(tag__name__icontains=tag_q).filter(is_visible=True, register_state=1)
         elif game_q:
             rows = Game.objects.filter(
                 is_visible=True,
