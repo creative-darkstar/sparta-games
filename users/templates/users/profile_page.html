@@ -6,11 +6,11 @@
         <form method="PUT" enctype="multipart/form-data" id="profile_edit_form">
             {% csrf_token %}
             <div class='d-flex justify-content-around'>
-                <div class='d-flex flex-column'>
+                <div class='d-flex flex-column me-5'>
                     <img id="user_profile_img" src="" alt="..." style="width:150px; height:auto; ">
-                    <div id="image_upload_area_div" style="display: none">
+                    <div id="image_upload_area_div" class="d-flex justify-content-center" style="display: none">
                         <label for="id_thumbnail">
-                            <span class="btn btn-secondary">이미지 업로드</span>
+                            <span class="btn btn-secondary mt-2">이미지 업로드</span>
                         </label>
                         <input type="file" name="image" accept="image/*" id="id_thumbnail" alt="..."
                                style="display: none">
@@ -40,9 +40,9 @@
 
     <hr>
     <div>
-        <div class='d-flex justify-content-evenly'>
-            <button id="register_game_show_btn" style="display: none" onclick="switchRegisterLike(1)">내가 등록한 게임</button>
-            <button id="like_game_show_btn" style="display: none" onclick="switchRegisterLike(2)">내가 즐겨찾기한 게임</button>
+        <div class='d-flex justify-content-evenly mt-1 mb-3'>
+            <button id="register_game_show_btn" class="btn btn-outline-secondary btn-sm" style="display: none" onclick="switchRegisterLike(1)">내가 등록한 게임</button>
+            <button id="like_game_show_btn" class="btn btn-outline-secondary btn-sm" style="display: none" onclick="switchRegisterLike(2)">내가 즐겨찾기한 게임</button>
         </div>
         <div class="container">
             <div id="user_games" style="display: block">
