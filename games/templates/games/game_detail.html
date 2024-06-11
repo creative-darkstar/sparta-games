@@ -79,6 +79,19 @@
     </div>
   </div>
 </div>
+
+<script>
+  function resizeIframe(event) {
+      if (event.data.width && event.data.height) {
+          var iframe = document.getElementById('gameIframe');
+          iframe.style.width = event.data.width + 'px';
+          iframe.style.height = event.data.height + 'px';
+      }
+  }
+
+  window.addEventListener('message', resizeIframe);
+</script>
+
 <script>
   function getGameId(){
     const path=window.location.pathname;
@@ -218,7 +231,7 @@ async function like() {
           window.location.href = "{% url 'test_main_view' %}"
       }
   }
-  
+
   window.addEventListener("load", async function PageLoad() {
 
     // context로 views.py에서 game_pk를 받아서 사용한다.
@@ -257,12 +270,11 @@ async function like() {
     
     if (game_detail_response.register_state === 1) {
         const divElement = document.createElement('div');
-        divElement.style.position = 'relative';
-        divElement.style.width = '53%';
-        divElement.style.paddingBottom = '36%';
-        
+        divElement.style.cssText = 'overflow:hidden;';
+        divElement.className = 'h-100';
         const iframeElement = document.createElement('iframe');
-        iframeElement.style.cssText = 'position: absolute; width: 100%; height: 100%;'
+        iframeElement.setAttribute("id","gameIframe");
+        iframeElement.style.cssText = 'border:none; width:10%; height:100%;';
         iframeElement.src = `${gamepath}/index.html`;
         
         divElement.appendChild(iframeElement);
@@ -352,7 +364,7 @@ async function like() {
       const gameDeleteBtn = document.createElement('button');
       
       if (user) {
-          if (user.user_pk === game_detail_response.maker) {
+          if (user.user_pk === game_detail_response.maker || user.is_staff==true) {
               const editDeleteBtn = document.getElementById("editDeleteBtn");
               
               gameEditBtn.setAttribute('id', "gameEditBtn");
@@ -523,7 +535,11 @@ async function like() {
         profileDiv.appendChild(commentImgElement);
 
         const authorSpanElement = document.createElement('span');
-        authorSpanElement.textContent = `${comment.author_name}`;
+        let a_name=comment.author_name;
+        if (a_name.length > 8){
+          a_name = a_name.substring(0,8)+"...";
+        }
+        authorSpanElement.textContent = `${a_name}`;
         profileDiv.appendChild(authorSpanElement);
 
         const contentSpanElement = document.createElement('span');
@@ -541,7 +557,7 @@ async function like() {
         const commentDeleteBtn = document.createElement('i');
         if (comment.is_visible){
           if (user) {
-              if (user.user_pk === comment.author) {
+              if (user.user_pk === comment.author || user.is_staff==true) {
                   
                   commentEditBtn.setAttribute('id', "commentEditBtn");
                   commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
@@ -579,9 +595,6 @@ async function like() {
                 replyInput.setAttribute("class", "me-2")
 
                 const replySubmitButton = document.createElement('button');
-                if(user){
-
-                }
                 replySubmitButton.type = 'submit';
                 replySubmitButton.setAttribute("id","reply_id")
                 replySubmitButton.textContent = '댓글 달기';
@@ -648,7 +661,11 @@ async function like() {
                 replyprofileDiv.appendChild(replyImgElement);
 
                 const replyAuthorSpanElement = document.createElement('span');
-                replyAuthorSpanElement.textContent = `${reply.author_name}`;
+                let reply_a_name=reply.author_name;
+                if (reply_a_name.length > 8){
+                  reply_a_name = reply_a_name.substring(0,8)+"...";
+                }
+                replyAuthorSpanElement.textContent = `${reply_a_name}`;
                 replyprofileDiv.appendChild(replyAuthorSpanElement);
 
                 const replyContentSpanElement = document.createElement('span');
@@ -668,7 +685,7 @@ async function like() {
                 
                 if(reply.is_visible){
                   if (user) {
-                      if (user.user_pk === reply.author) {
+                      if (user.user_pk === reply.author || user.is_staff==true) {
                           
                           replyEditBtn.setAttribute('id', "replyEditBtn");
                           replyDeleteBtn.setAttribute('id', "replyDeleteBtn");

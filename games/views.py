@@ -27,6 +27,7 @@ from .models import (
     Tag,
     Star,
 )
+from accounts.models import BotCnt
 from .serializers import (
     GameListSerializer,
     GameDetailSerializer,
@@ -39,7 +40,7 @@ from django.conf import settings
 
 from django.conf import settings
 from openai import OpenAI
-
+from django.utils import timezone
 
 
 class GameListAPIView(APIView):
@@ -201,12 +202,12 @@ class GameDetailAPIView(APIView):
 
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
-        if game.maker == request.user:
+        if game.maker == request.user or request.user.is_staff==True:
             if request.FILES.get("gamefile"):
                 game.register_state=0
                 game.gamefile = request.FILES.get("gamefile")
             game.title = request.data.get("title", game.title)
-            game.thumbnail = request.FILES.get("thumbnail", game.thumbnail)
+            game.thumbnail = request.FILES.get("thumbnail", '')
             game.youtube_url = request.data.get("youtube_url", game.youtube_url)
             game.content = request.data.get("content", game.content)
             game.save()
@@ -234,7 +235,7 @@ class GameDetailAPIView(APIView):
 
     def delete(self, request, game_pk):
         game = self.get_object(game_pk)
-        if game.maker == request.user:
+        if game.maker == request.user or request.user.is_staff==True:
             game.is_visible = False
             game.save()
             return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
@@ -307,7 +308,7 @@ class CommentDetailAPIView(APIView):
 
     def put(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
-        if request.user == comment.author:
+        if request.user == comment.author or request.user.is_staff==True:
             serializer = CommentSerializer(
                 comment, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
@@ -319,7 +320,7 @@ class CommentDetailAPIView(APIView):
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
-        if request.user == comment.author:
+        if request.user == comment.author or request.user.is_staff==True:
             comment.is_visible = False
             comment.content="삭제된 댓글입니다."
             comment.save()
@@ -397,6 +398,30 @@ def game_register(request, game_pk):
         else:
             new_lines += line
         new_lines += '\n'
+
+    # 추가할 JavaScript 코드
+    additional_script = """
+    <script>
+      function sendSizeToParent() {
+        var canvas = document.querySelector("#unity-canvas");
+        var width = canvas.clientWidth;
+        var height = canvas.clientHeight;
+        window.parent.postMessage({ width: width, height: height }, '*');
+      }
+
+      window.addEventListener('resize', sendSizeToParent);
+      window.addEventListener('load', sendSizeToParent);
+    </script>
+    """
+    # CSS 스타일 추가 (body 태그와 unity-container에 overflow: hidden 추가)
+    new_lines = new_lines.replace('<body',
+                                  '<body style="margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;"')
+    new_lines = new_lines.replace('<div id="unity-container"',
+                                  '<div id="unity-container" style="width: 100%; height: 100%; overflow: hidden;"')
+
+    # </body> 태그 전에 추가할 스크립트 삽입
+    body_close_tag_index = new_lines.find('</body>')
+    new_lines = new_lines[:body_close_tag_index] + additional_script + new_lines[body_close_tag_index:]
 
     new_zip_data = io.BytesIO()
     with zipfile.ZipFile(new_zip_data, 'w') as new_zip_ref:
@@ -490,18 +515,30 @@ def game_dzip(request, game_pk):
     return response
 
 CLIENT=OpenAI(api_key=settings.OPEN_API_KEY)
+MAX_USES_PER_DAY = 10
 
 #chatbot API
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def ChatbotAPIView(request):
+    user = request.user
+    today = timezone.now().date()
+
+    usage, created = BotCnt.objects.get_or_create(user=user, date=today)
+
+    if usage.count >= MAX_USES_PER_DAY:
+        return Response({"error": "Daily usage limit reached"}, status=status.HTTP_400_BAD_REQUEST)
+
+    usage.count += 1
+    usage.save()
+
     input_data=request.data.get('input_data') #이름변경해야함
     taglist=list(Tag.objects.values_list('name',flat=True))
     instructions=f"""
     내가 제한한 태그 목록 : {taglist} 여기서만 이야기를 해줘, 이외에는 말하지마
     받은 내용을 요약해서 내가 제한한 목록에서 제일 관련 있는 항목 한 개를 골라줘
     결과 형식은 다른 말은 없이 꾸미지도 말고 딱! '태그:'라는 형식으로만 작성해줘
-    결과에 특수문자 붙이지마
+    결과에 특수문자, 이모티콘 붙이지마
     """
     completion=CLIENT.chat.completions.create(
         model="gpt-3.5-turbo",

@@ -1,5 +1,20 @@
 {% extends 'base.html' %}
 
+{% block css_block %}
+<style>
+    #selectedThumbnail img {
+    max-width: 200px; /* 이미지의 최대 너비를 지정합니다. */
+    max-height: 200px; /* 이미지의 최대 높이를 지정합니다. */
+    /* 다른 스타일을 추가할 수 있습니다. */
+}
+    #selectedScreenshots img {
+    max-width: 200px; /* 이미지의 최대 너비를 지정합니다. */
+    max-height: 200px; /* 이미지의 최대 높이를 지정합니다. */
+    /* 다른 스타일을 추가할 수 있습니다. */
+}
+</style>
+{% endblock css_block %}
+
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
@@ -19,7 +34,8 @@
                 </div>
                 <div>
                     <label for="id_thumbnail">썸네일: <span class="btn btn-secondary btn-sm mb-1 mt-1" >파일 선택</span></label>
-                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="..." style="display: none">
+                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="..." style="display: none" onchange="previewThumbnail()">
+                    <div id="selectedThumbnail"></div>
                 </div>
                 <div>
                     <label for="id_screenshots">스크린샷: <span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
@@ -35,7 +51,6 @@
                     <select id="itemSelect"></select>
                     <button type="button" onclick="addItem()" class="btn btn-secondary btn-sm">추가</button>
                     <button type ='button' onclick="tagRecommend()" class="btn btn-secondary btn-sm">태그 자동 추천</button>
-                    <div id="selectedItems"></div>
                     <div id="selectedItems"></div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -62,17 +77,16 @@
             const parts =path.split('/');
             return parseInt(parts[3]);
         }
+
         function previewScreenshots() {
             const screenshotsInput = document.getElementById('id_screenshots');
             const selectedScreenshots = document.getElementById('selectedScreenshots');
-            {#selectedScreenshots.innerHTML = '';#}
             
             for (const file of screenshotsInput.files) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.classList.add('screenshot-preview');
                     img.onclick = function() {
                         selectedScreenshots.removeChild(img);
                     };
@@ -81,6 +95,30 @@
                 reader.readAsDataURL(file);
             }
         }
+
+        function previewThumbnail() {
+            const thumbnailInput = document.getElementById('id_thumbnail');
+            const selectedThumbnail = document.getElementById('selectedThumbnail');
+            const existingThumbnail = selectedThumbnail.querySelector('img');
+
+            if (existingThumbnail) {
+                selectedThumbnail.removeChild(existingThumbnail)
+            }
+
+            for (const file of thumbnailInput.files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.onclick = function() {
+                        selectedThumbnail.removeChild(img);
+                    };
+                    selectedThumbnail.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }            
+        }
+
         async function loadGameDetails(){
             const user = await isLogIn();
             const game_pk = getGameId();
@@ -117,13 +155,23 @@
                     })
                 }
                 
+                const thumbnailDiv = document.getElementById('selectedThumbnail')
+                if (game_detail_response.thumbnail) {
+                    thumbnailDiv.innerHTML = ``;
+                    const img = document.createElement('img');
+                    img.src = game_detail_response.thumbnail;
+                    img.onclick = function() {
+                        thumbnailDiv.removeChild(img);
+                    };
+                    thumbnailDiv.appendChild(img);
+                }
+
                 const screenshotsDiv = document.getElementById("selectedScreenshots");
                 if (game_detail_response.screenshot) {
                     screenshotsDiv.innerHTML = ``;
                     game_detail_response.screenshot.forEach(screenshotUrl => {
                         const img = document.createElement('img');
                         img.src = screenshotUrl.src;
-                        img.classList.add('screenshot-preview');
                         img.onclick = function() {
                             screenshotsDiv.removeChild(img);
                         };
@@ -154,6 +202,7 @@
             const game_pk = getGameId();
             const form_tag = document.getElementById('game_update_form');
             const formData = new FormData(form_tag);
+            
             const selectedItems = document.querySelectorAll("#selectedItems .selected-item");
             let tagstring = '';
             selectedItems.forEach((item, index) => {
@@ -162,8 +211,8 @@
             tagstring = tagstring.substr(1)
             formData.append('tag', tagstring);
             
+            await addThumbnailToFormData(formData);
             await addScreenshotsToFormData(formData);
-            
             const url = '{% url 'games:game_detail' game_pk %}'
 
             try {
@@ -177,11 +226,28 @@
                 console.error('Error:', error);
                 return false;
             }
+
             window.location.href = '{% url 'games:game_test_page' game_pk %}';
         }
+        
         window.addEventListener('load', function() {
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
-        });        
+        });
+
+        async function addThumbnailToFormData(formData) {
+            const thumbnailDiv = document.getElementById('selectedThumbnail');
+            const image = thumbnailDiv.querySelector('img');
+
+            formData.delete('thumbnail')
+            if (image) {
+                const imageUrl = image.src;
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                formData.append('thumbnail', blob, 'thumbnail.png');
+            }
+            return formData;
+        }
+
         async function addScreenshotsToFormData(formData) {
             const screenshotsDiv = document.getElementById('selectedScreenshots');
             const images = screenshotsDiv.querySelectorAll('img');
