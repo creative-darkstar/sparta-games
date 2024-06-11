@@ -1,5 +1,15 @@
 {% extends 'base.html' %}
 
+{% block css_block %}
+<style>
+    .thumbnail-preview {
+    max-width: 200px; /* 이미지의 최대 너비를 지정합니다. */
+    max-height: 200px; /* 이미지의 최대 높이를 지정합니다. */
+    /* 다른 스타일을 추가할 수 있습니다. */
+}
+</style>
+{% endblock css_block %}
+
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
@@ -19,7 +29,8 @@
                 </div>
                 <div>
                     <label for="id_thumbnail">썸네일: <span class="btn btn-secondary btn-sm mb-1 mt-1" >파일 선택</span></label>
-                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="..." style="display: none">
+                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="..." style="display: none" onchange="previewThumbnail()">
+                    <div id="selectedThumbnail"></div>
                 </div>
                 <div>
                     <label for="id_screenshots">스크린샷: <span class="btn btn-secondary btn-sm mb-1" >파일 선택</span></label>
@@ -28,7 +39,9 @@
                 </div>
                 <div>
                     <label for="id_gamefile">게임 파일: <span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
-                    <input type="file" name="gamefile" required="" accept="application/zip" id="id_gamefile" style="display: none">
+                    <input type="file" name="gamefile" required="" accept="application/zip" id="id_gamefile" style="display: none"
+                    onchange="previewGame()">
+                    <div id="selectedGameFile"></div>
                 </div>
                 <div>
                     <label for="id_tag">태그: </label>
@@ -67,8 +80,7 @@
             });
             tagstring = tagstring.substr(1)
             formData.append('tag', tagstring);
-            await addScreenshotsToFormData(formData);
-
+            
             const url = '{% url 'games:game_list' %}'
 
             try {
@@ -162,10 +174,47 @@
             return false;
         }
         
+        function previewThumbnail() {
+            const thumbnailInput = document.getElementById('id_thumbnail');
+            const selectedThumbnail = document.getElementById('selectedThumbnail');
+            const existingThumbnail = selectedThumbnail.querySelector('img');
+
+            if (existingThumbnail) {
+                selectedThumbnail.removeChild(existingThumbnail)
+            }
+
+            if (thumbnailInput.files.length > 0) {
+                const file = thumbnailInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img')
+                    img.src = e.target.result;
+                    img.classList.add('thumbnail-preview');
+                    img.onclick = function() {
+                        removeThumbnail(img, file);
+                    };
+                    selectedThumbnail.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeThumbnail(imgElement, file) {
+            const selectedThumbnail = document.getElementById('selectedThumbnail');
+            selectedThumbnail.removeChild(imgElement);
+
+            const thumbnailInput = document.getElementById('id_thumbnail');
+            const filesArray = Array.from(thumbnailInput.files);
+            const updatedFilesArray = filesArray.filter(f => f !== file);
+
+            const dataTransfer = new DataTransfer();
+            updatedFilesArray.forEach(f => dataTransfer.items.add(f));
+            thumbnailInput.files = dataTransfer.files;
+        }
+        
         function previewScreenshots() {
             const screenshotsInput = document.getElementById('id_screenshots');
             const selectedScreenshots = document.getElementById('selectedScreenshots');
-            {#selectedScreenshots.innerHTML = '';#}
             
             for (const file of screenshotsInput.files) {
                 const reader = new FileReader();
@@ -210,6 +259,42 @@
             screenshotsInput.files = dataTransfer.files;
         }
         
+        function previewGame() {
+            const gameFileInput = document.getElementById('id_gamefile');
+            const selectedGameFile = document.getElementById('selectedGameFile');
+
+            selectedGameFile.innerHTML = '';
+
+            if (gameFileInput.files.length > 0) {
+                const file = gameFileInput.files[0];
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileName = file.name;
+                    const fileInfo = document.createElement('p');
+                    fileInfo.textContent = fileName;
+                    fileInfo.onclick = function() {
+                        removeGameFile(fileInfo, file);
+                    };
+                    selectedGameFile.appendChild(fileInfo);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeGameFile(pElement, file) {
+            const selectedGameFile = document.getElementById('selectedGameFile');
+            selectedGameFile.removeChild(pElement);
+
+            const gameFileInput = document.getElementById('id_gamefile');
+            const filesArray = Array.from(gameFileInput.files);
+            const updatedFilesArray = filesArray.filter(f => f !== file);
+
+            const dataTransfer = new DataTransfer();
+            updatedFilesArray.forEach(f => dataTransfer.items.add(f));
+            gameFileInput.files = dataTransfer.files;
+        }
+
+
         window.addEventListener('load', async function() {
             const tag_url='{% url 'games:tags' %}'
             const tag_response = await aSend({
