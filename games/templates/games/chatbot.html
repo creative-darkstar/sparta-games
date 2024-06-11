@@ -104,14 +104,18 @@ async function fetchAIResponse(input_data) {
         },
         body: JSON.stringify({ input_data: input_data })
     });
+    if (!gpt_response.ok){
+        return `일일 할당량이 다 되었습니다. 내일 이용해 주세요`;
+    }
+
     const data = await gpt_response.json();
     if (data.tag==='없음'){
-        return "추천하는 태그가 없습니다."
+        return "추천하는 태그가 없습니다.";
     } else{
         a_url="{% url 'test_search_view' %}" + `?tag-q=${data.tag}`
         meesage=`추천하는 태그는 ${data.tag}입니다.<br>\
         추천 태그로 이동하시려면\
-        <a href=${a_url}>여기</a>를 클릭해주세요`
+        <a href=${a_url}>여기</a>를 클릭해주세요`;
         return meesage;
     }
 }
