@@ -24,6 +24,7 @@ from .models import (
     Tag,
     Star,
 )
+from accounts.models import BotCnt
 from .serializers import (
     GameListSerializer,
     GameDetailSerializer,
@@ -34,7 +35,7 @@ from .serializers import (
 
 from django.conf import settings
 from openai import OpenAI
-
+from django.utils import timezone
 
 
 class GameListAPIView(APIView):
@@ -461,18 +462,30 @@ def game_dzip(request, game_pk):
     return response
 
 CLIENT=OpenAI(api_key=settings.OPEN_API_KEY)
+MAX_USES_PER_DAY = 10
 
 #chatbot API
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def ChatbotAPIView(request):
+    user = request.user
+    today = timezone.now().date()
+
+    usage, created = BotCnt.objects.get_or_create(user=user, date=today)
+
+    if usage.count >= MAX_USES_PER_DAY:
+        return Response({"error": "Daily usage limit reached"}, status=status.HTTP_400_BAD_REQUEST)
+
+    usage.count += 1
+    usage.save()
+
     input_data=request.data.get('input_data') #이름변경해야함
     taglist=list(Tag.objects.values_list('name',flat=True))
     instructions=f"""
     내가 제한한 태그 목록 : {taglist} 여기서만 이야기를 해줘, 이외에는 말하지마
     받은 내용을 요약해서 내가 제한한 목록에서 제일 관련 있는 항목 한 개를 골라줘
     결과 형식은 다른 말은 없이 꾸미지도 말고 딱! '태그:'라는 형식으로만 작성해줘
-    결과에 특수문자 붙이지마
+    결과에 특수문자, 이모티콘 붙이지마
     """
     completion=CLIENT.chat.completions.create(
         model="gpt-3.5-turbo",
