@@ -183,20 +183,18 @@
                 selectedThumbnail.removeChild(existingThumbnail)
             }
 
-            if (thumbnailInput.files.length > 0) {
-                const file = thumbnailInput.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.createElement('img')
-                    img.src = e.target.result;
-                    img.classList.add('thumbnail-preview');
-                    img.onclick = function() {
-                        removeThumbnail(img, file);
-                    };
-                    selectedThumbnail.appendChild(img);
+            const file = thumbnailInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.createElement('img')
+                img.src = e.target.result;
+                img.classList.add('thumbnail-preview');
+                img.onclick = function() {
+                    removeThumbnail(img, file);
                 };
-                reader.readAsDataURL(file);
-            }
+                selectedThumbnail.appendChild(img);
+            };
+            reader.readAsDataURL(file);
         }
 
         function removeThumbnail(imgElement, file) {
