@@ -540,7 +540,11 @@ async function like() {
         profileDiv.appendChild(commentImgElement);
 
         const authorSpanElement = document.createElement('span');
-        authorSpanElement.textContent = `${comment.author_name}`;
+        let a_name=comment.author_name;
+        if (a_name.length > 8){
+          a_name = a_name.substring(0,8)+"...";
+        }
+        authorSpanElement.textContent = `${a_name}`;
         profileDiv.appendChild(authorSpanElement);
 
         const contentSpanElement = document.createElement('span');
