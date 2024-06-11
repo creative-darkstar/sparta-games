@@ -386,7 +386,28 @@ def game_register(request, game_pk):
                     f'/media/games/{game_folder}/' + line[cursor:]
             else:
                 new_lines += line
+    # 추가할 JavaScript 코드
+    additional_script = """
+    <script>
+      function sendSizeToParent() {
+        var canvas = document.querySelector("#unity-canvas");
+        var width = canvas.clientWidth;
+        var height = canvas.clientHeight;
+        window.parent.postMessage({ width: width, height: height }, '*');
+      }
 
+      window.addEventListener('resize', sendSizeToParent);
+      window.addEventListener('load', sendSizeToParent);
+    </script>
+    """
+    # CSS 스타일 추가 (body 태그와 unity-container에 overflow: hidden 추가)
+    new_lines = new_lines.replace('<body', '<body style="margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;"')
+    new_lines = new_lines.replace('<div id="unity-container"', '<div id="unity-container" style="width: 100%; height: 100%; overflow: hidden;"')
+
+    # </body> 태그 전에 추가할 스크립트 삽입
+    body_close_tag_index = new_lines.find('</body>')
+    new_lines = new_lines[:body_close_tag_index] + additional_script + new_lines[body_close_tag_index:]
+    
     # 덮어쓰기
     with open(f'{game_folder_path}/index.html', 'w') as f:
         f.write(new_lines)
