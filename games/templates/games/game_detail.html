@@ -369,7 +369,7 @@ async function like() {
       const gameDeleteBtn = document.createElement('button');
       
       if (user) {
-          if (user.user_pk === game_detail_response.maker) {
+          if (user.user_pk === game_detail_response.maker || user.is_staff==true) {
               const editDeleteBtn = document.getElementById("editDeleteBtn");
               
               gameEditBtn.setAttribute('id', "gameEditBtn");
@@ -540,7 +540,11 @@ async function like() {
         profileDiv.appendChild(commentImgElement);
 
         const authorSpanElement = document.createElement('span');
-        authorSpanElement.textContent = `${comment.author_name}`;
+        let a_name=comment.author_name;
+        if (a_name.length > 8){
+          a_name = a_name.substring(0,8)+"...";
+        }
+        authorSpanElement.textContent = `${a_name}`;
         profileDiv.appendChild(authorSpanElement);
 
         const contentSpanElement = document.createElement('span');
@@ -558,7 +562,7 @@ async function like() {
         const commentDeleteBtn = document.createElement('i');
         if (comment.is_visible){
           if (user) {
-              if (user.user_pk === comment.author) {
+              if (user.user_pk === comment.author || user.is_staff==true) {
                   
                   commentEditBtn.setAttribute('id', "commentEditBtn");
                   commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
@@ -596,9 +600,6 @@ async function like() {
                 replyInput.setAttribute("class", "me-2")
 
                 const replySubmitButton = document.createElement('button');
-                if(user){
-
-                }
                 replySubmitButton.type = 'submit';
                 replySubmitButton.setAttribute("id","reply_id")
                 replySubmitButton.textContent = '댓글 달기';
@@ -685,7 +686,7 @@ async function like() {
                 
                 if(reply.is_visible){
                   if (user) {
-                      if (user.user_pk === reply.author) {
+                      if (user.user_pk === reply.author || user.is_staff==true) {
                           
                           replyEditBtn.setAttribute('id', "replyEditBtn");
                           replyDeleteBtn.setAttribute('id', "replyDeleteBtn");

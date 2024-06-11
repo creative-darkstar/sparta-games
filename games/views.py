@@ -196,7 +196,7 @@ class GameDetailAPIView(APIView):
 
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
-        if game.maker == request.user:
+        if game.maker == request.user or request.user.is_staff==True:
             if request.FILES.get("gamefile"):
                 game.register_state=0
                 game.gamefile = request.FILES.get("gamefile")
@@ -229,7 +229,7 @@ class GameDetailAPIView(APIView):
 
     def delete(self, request, game_pk):
         game = self.get_object(game_pk)
-        if game.maker == request.user:
+        if game.maker == request.user or request.user.is_staff==True:
             game.is_visible = False
             game.save()
             return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
@@ -302,7 +302,7 @@ class CommentDetailAPIView(APIView):
 
     def put(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
-        if request.user == comment.author:
+        if request.user == comment.author or request.user.is_staff==True:
             serializer = CommentSerializer(
                 comment, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
@@ -314,7 +314,7 @@ class CommentDetailAPIView(APIView):
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
-        if request.user == comment.author:
+        if request.user == comment.author or request.user.is_staff==True:
             comment.is_visible = False
             comment.content="삭제된 댓글입니다."
             comment.save()
