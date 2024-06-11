@@ -34,6 +34,7 @@
                     <label for="id_tag">태그: </label>
                     <select id="itemSelect"></select>
                     <button type="button" onclick="addItem()">추가</button>
+                    <button type ='button' onclick="tagRecommend()">태그 자동 추천</button>
                     <div id="selectedItems"></div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
@@ -103,6 +104,46 @@
                 } else{
                     alert("중복 태그는 사용할 수 없습니다.")
                 }
+            }
+        }
+
+        async function tagRecommend() {
+            const idTitle = document.getElementById('id_title');
+            const idContent = document.getElementById('id_content');
+            const idTitleValue = idTitle.value;
+            const idContentValue = idContent.value;
+            const aiInputData = '제목: ' + idTitleValue + ', ' + '게임 설명: '+ idContentValue
+            // 제목: idTitleValue, 게임 설명: idContentValue
+
+            const url = '{% url 'games:chatbot' %}'
+            const access = localStorage.getItem('access_token');
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${access}`,
+                },
+                body: JSON.stringify({ input_data: aiInputData })
+            })
+            
+            const data = await response.json();
+            if (!isDuplicate(data.tag)){
+                if (data.tag==='없음'){
+                    alert('추천하는 태그가 없습니다.')
+                } else {
+                    const select = document.getElementById("itemSelect");
+                    const itemsDiv = document.getElementById("selectedItems");
+                    const newItem = document.createElement("div");
+                    newItem.classList.add("selected-item");
+                    newItem.textContent = data.tag;
+                    newItem.onclick = function() {
+                        itemsDiv.removeChild(newItem);
+                    };
+                    itemsDiv.appendChild(newItem);
+                }
+            } else {
+                alert('중복 태그는 사용할 수 없습니다.')
             }
         }
 
