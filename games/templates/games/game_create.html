@@ -5,7 +5,7 @@
         <div>
             <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="GameCreate(event);">
                 {% csrf_token %}
-                <div>
+                <div class="mb-1">
                     <label for="id_title">제목: </label>
                     <input type="text" name="title" maxlength="50" required="" id="id_title">
                 </div>
@@ -18,30 +18,30 @@
                     <input type="text" name="youtube_url" maxlength="255" id="id_youtube_url">
                 </div>
                 <div>
-                    <label for="id_thumbnail">썸네일: </label>
-                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
+                    <label for="id_thumbnail">썸네일: <span class="btn btn-secondary btn-sm mb-1 mt-1" >파일 선택</span></label>
+                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="..." style="display: none">
                 </div>
                 <div>
-                    <label for="id_screenshots">스크린샷: <span class="btn btn-secondary">파일 선택</span></label>
+                    <label for="id_screenshots">스크린샷: <span class="btn btn-secondary btn-sm mb-1" >파일 선택</span></label>
                     <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." style="display: none" onchange="previewScreenshots()" multiple>
                     <div id="selectedScreenshots"></div>
                 </div>
                 <div>
-                    <label for="id_gamefile">게임 파일: </label>
-                    <input type="file" name="gamefile" required="" accept="application/zip" id="id_gamefile">
+                    <label for="id_gamefile">게임 파일: <span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
+                    <input type="file" name="gamefile" required="" accept="application/zip" id="id_gamefile" style="display: none">
                 </div>
                 <div>
                     <label for="id_tag">태그: </label>
                     <select id="itemSelect"></select>
-                    <button type="button" onclick="addItem()">추가</button>
-                    <button type ='button' onclick="tagRecommend()">태그 자동 추천</button>
+                    <button type="button" onclick="addItem()" class="btn btn-secondary btn-sm">추가</button>
+                    <button type ='button' onclick="tagRecommend()" class="btn btn-secondary btn-sm">태그 자동 추천</button>
                     <div id="selectedItems"></div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button  type="submit" class="btn btn-primary">완료</button>
                 </div>
             </form>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-1">
                 <a class="btn btn-secondary" href={% url 'test_main_view' %}>등록 취소</a>
             </div>
         </div>
