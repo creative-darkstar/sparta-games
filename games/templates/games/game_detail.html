@@ -272,11 +272,6 @@ async function like() {
         const divElement = document.createElement('div');
         divElement.style.cssText = 'overflow:hidden;';
         divElement.className = 'h-100';
-        {% comment %} divElement.style.position = 'relative';
-        divElement.style.width = '53%';
-        divElement.style.paddingBottom = '36%';
-        position: absolute; width: 100%; height: 100%;
-        {% endcomment %}
         const iframeElement = document.createElement('iframe');
         iframeElement.setAttribute("id","gameIframe");
         iframeElement.style.cssText = 'border:none; width:10%; height:100%;';
@@ -666,7 +661,11 @@ async function like() {
                 replyprofileDiv.appendChild(replyImgElement);
 
                 const replyAuthorSpanElement = document.createElement('span');
-                replyAuthorSpanElement.textContent = `${reply.author_name}`;
+                let reply_a_name=reply.author_name;
+                if (reply_a_name.length > 8){
+                  reply_a_name = reply_a_name.substring(0,8)+"...";
+                }
+                replyAuthorSpanElement.textContent = `${reply_a_name}`;
                 replyprofileDiv.appendChild(replyAuthorSpanElement);
 
                 const replyContentSpanElement = document.createElement('span');
