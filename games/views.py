@@ -201,7 +201,7 @@ class GameDetailAPIView(APIView):
                 game.register_state=0
                 game.gamefile = request.FILES.get("gamefile")
             game.title = request.data.get("title", game.title)
-            game.thumbnail = request.FILES.get("thumbnail", game.thumbnail)
+            game.thumbnail = request.FILES.get("thumbnail", '')
             game.youtube_url = request.data.get("youtube_url", game.youtube_url)
             game.content = request.data.get("content", game.content)
             game.save()
