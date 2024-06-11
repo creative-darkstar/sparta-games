@@ -5,7 +5,7 @@
         <div>
             <form method="POST" enctype="multipart/form-data" id="game_update_form" onsubmit="GameUpdate(event);">
                 {% csrf_token %}
-                <div>
+                <div class="mb-1">
                     <label for="id_title">제목: </label>
                     <input type="text" name="title" maxlength="50" required="" id="id_title">
                 </div>
@@ -18,29 +18,31 @@
                     <input type="text" name="youtube_url" maxlength="255" id="id_youtube_url">
                 </div>
                 <div>
-                    <label for="id_thumbnail">썸네일: </label>
-                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="...">
+                    <label for="id_thumbnail">썸네일: <span class="btn btn-secondary btn-sm mb-1 mt-1" >파일 선택</span></label>
+                    <input type="file" name="thumbnail" accept="image/*" id="id_thumbnail" alt="..." style="display: none">
                 </div>
                 <div>
-                    <label for="id_screenshots">스크린샷: <span class="btn btn-secondary">파일 선택</span></label>
+                    <label for="id_screenshots">스크린샷: <span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
                     <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." multiple onchange="previewScreenshots()" style="display: none">
                     <div id="selectedScreenshots"></div>
                 </div>
                 <div>
-                    <label for="id_gamefile">게임 파일: </label>
-                    <input type="file" name="gamefile" accept="application/zip" id="id_gamefile">
+                    <label for="id_gamefile">게임 파일: <span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
+                    <input type="file" name="gamefile" accept="application/zip" id="id_gamefile" style="display: none">
                 </div>
                 <div>
                     <label for="id_tag">태그: </label>
                     <select id="itemSelect"></select>
-                    <button type="button" onclick="addItem()">추가</button>
+                    <button type="button" onclick="addItem()" class="btn btn-secondary btn-sm">추가</button>
+                    <button type ='button' onclick="tagRecommend()" class="btn btn-secondary btn-sm">태그 자동 추천</button>
+                    <div id="selectedItems"></div>
                     <div id="selectedItems"></div>
                 </div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button  type="submit" class="btn btn-primary">수정 완료</button>
                 </div>
             </form>
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-1">
                 <a class="btn btn-secondary" href="javascript:history.back()">수정 취소</a>
             </div>
         </div>
@@ -213,6 +215,51 @@
                     alert("중복 태그는 사용할 수 없습니다.")
                 }
             }
+        }
+
+        async function tagRecommend() {
+            const idTitle = document.getElementById('id_title');
+            const idContent = document.getElementById('id_content');
+            const idTitleValue = idTitle.value;
+            const idContentValue = idContent.value;
+            const aiInputData = '제목: ' + idTitleValue + ', ' + '게임 설명: '+ idContentValue
+            // 제목: idTitleValue, 게임 설명: idContentValue
+            
+            if (idTitleValue && idContentValue) {
+                const url = '{% url 'games:chatbot' %}'
+                const access = localStorage.getItem('access_token');
+                /*const response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${access}`,
+                    },
+                    body: JSON.stringify({ input_data: aiInputData })
+                })*/
+                
+                const data = await response.json();
+                if (!isDuplicate(data.tag)){
+                    if (data.tag==='없음'){
+                        alert('추천하는 태그가 없습니다.')
+                    } else {
+                        const select = document.getElementById("itemSelect");
+                        const itemsDiv = document.getElementById("selectedItems");
+                        const newItem = document.createElement("div");
+                        newItem.classList.add("selected-item");
+                        newItem.textContent = data.tag;
+                        newItem.onclick = function() {
+                            itemsDiv.removeChild(newItem);
+                        };
+                        itemsDiv.appendChild(newItem);
+                    }
+                } else {
+                    alert('중복 태그는 사용할 수 없습니다.')
+                }
+            } else {
+                alert('제목과 게임 설명을 적어주세요.')
+            }
+            
         }
 
         function isDuplicate(text) {
