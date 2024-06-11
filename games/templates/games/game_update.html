@@ -228,7 +228,7 @@
             if (idTitleValue && idContentValue) {
                 const url = '{% url 'games:chatbot' %}'
                 const access = localStorage.getItem('access_token');
-                /*const response = await fetch(url, {
+                const response = await fetch(url, {
                     method: "POST",
                     headers: {
                         'X-CSRFToken': '{{ csrf_token }}',
@@ -236,7 +236,7 @@
                         'Authorization': `Bearer ${access}`,
                     },
                     body: JSON.stringify({ input_data: aiInputData })
-                })*/
+                })
                 
                 const data = await response.json();
                 if (!isDuplicate(data.tag)){
