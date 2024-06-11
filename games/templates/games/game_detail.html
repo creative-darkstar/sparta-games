@@ -369,7 +369,7 @@ async function like() {
       const gameDeleteBtn = document.createElement('button');
       
       if (user) {
-          if (user.user_pk === game_detail_response.maker) {
+          if (user.user_pk === game_detail_response.maker || user.is_staff==true) {
               const editDeleteBtn = document.getElementById("editDeleteBtn");
               
               gameEditBtn.setAttribute('id', "gameEditBtn");
@@ -562,7 +562,7 @@ async function like() {
         const commentDeleteBtn = document.createElement('i');
         if (comment.is_visible){
           if (user) {
-              if (user.user_pk === comment.author) {
+              if (user.user_pk === comment.author || user.is_staff==true) {
                   
                   commentEditBtn.setAttribute('id', "commentEditBtn");
                   commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
@@ -600,9 +600,6 @@ async function like() {
                 replyInput.setAttribute("class", "me-2")
 
                 const replySubmitButton = document.createElement('button');
-                if(user){
-
-                }
                 replySubmitButton.type = 'submit';
                 replySubmitButton.setAttribute("id","reply_id")
                 replySubmitButton.textContent = '댓글 달기';
@@ -689,7 +686,7 @@ async function like() {
                 
                 if(reply.is_visible){
                   if (user) {
-                      if (user.user_pk === reply.author) {
+                      if (user.user_pk === reply.author || user.is_staff==true) {
                           
                           replyEditBtn.setAttribute('id', "replyEditBtn");
                           replyDeleteBtn.setAttribute('id', "replyDeleteBtn");
