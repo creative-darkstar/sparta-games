@@ -59,7 +59,7 @@ class SignUpAPIView(APIView):
 
 def login_page(request):
     if request.method == 'POST':
-        return redirect('games:game_test_page', 4)
+        return redirect('games:game_detail_page', 4)
     return render(request, 'accounts/login.html')
 
 def signup_page(request):
