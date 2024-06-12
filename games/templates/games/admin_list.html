@@ -16,7 +16,7 @@
             {% for row in rows %}
             <tr class="align-middle">
                 <th scope="row">{{row.pk}}</th>
-                <td><a href="{% url 'games:game_test_page' row.id %}" class="btn btn-lin text-dark">{{row.title}} / {{row.maker.username}}</a></td>
+                <td><a href="{% url 'games:game_detail_page' row.id %}" class="btn btn-lin text-dark">{{row.title}} / {{row.maker.username}}</a></td>
                 <form action="{% url 'games:game_dzip' row.pk %}" method="POST">
                 {% csrf_token %}
                 <td><button type="submit"class="btn btn-primary">다운로드</button></td>
