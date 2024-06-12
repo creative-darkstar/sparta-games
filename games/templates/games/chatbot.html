@@ -1,143 +1,138 @@
-{% extends "base.html" %}
-
-{% block css_block %}
+{% extends "base.html" %} {% block css_block %}
 <style>
-    .message {
-        border-top: 1px solid #ccc;
-        padding: 10px;
-        margin-top: 5px;
-        background-color: #e6e6e6;
-    }
-    #chat-container {
-        width: 400px;
-        height: 600px;
-        display: flex;
-        flex-direction: column;
-        border: 1px solid #ccc;
-    }
-    #chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 10px;
-        display: flex;
-        flex-direction: column-reverse;
-    }
-    #user-input {
-        display: flex;
-        padding: 10px;
-    
-    }
-    #user-input input {
-        flex: 1;
-        padding: 10px;
-        outline: none;
-    }
-    #user-input button {
-        border: none;
-        background-color: #1e88e5;
-        color: white;
-        padding: 10px 15px;
-        cursor: pointer;
-    }
+  .message {
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 5px;
+    background-color: #e6e6e6;
+  }
+  #chat-container {
+    width: 400px;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+  }
+  #chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  #user-input {
+    display: flex;
+    padding: 10px;
+  }
+  #user-input input {
+    flex: 1;
+    padding: 10px;
+    outline: none;
+  }
+  #user-input button {
+    border: none;
+    background-color: #1e88e5;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
 </style>
-{% endblock css_block %}
-
-{% block content %}
+{% endblock css_block %} {% block content %}
 <body>
-    <div class="container">
-        <div class="d-flex justify-content-center">
-            <h1>Sparta Games 게임 태그 추천</h1>
-        </div>
-        <div class="d-flex justify-content-center mt-5 mb-5">
-            <div id="chat-container">
-                <div id="chat-messages"></div>
-                <div id="user-input">
-                    <input type="text" placeholder="메시지를 입력하세요..." />
-                    <button>전송</button>
-                </div>
-            </div>    
-        </div>
+  <div class="container">
+    <div class="d-flex justify-content-center">
+      <h1>Sparta Games 게임 태그 추천</h1>
     </div>
+    <div class="d-flex justify-content-center mt-5 mb-5">
+      <div id="chat-container">
+        <div id="chat-messages"></div>
+        <div id="user-input">
+          <input type="text" placeholder="메시지를 입력하세요..." />
+          <button>전송</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 <script>
-// 채팅 메시지를 표시할 DOM
-const chatMessages = document.querySelector('#chat-messages');
-// 사용자 입력 필드
-const userInput = document.querySelector('#user-input input');
-// 전송 버튼
-const sendButton = document.querySelector('#user-input button');
+  // 채팅 메시지를 표시할 DOM
+  const chatMessages = document.querySelector('#chat-messages');
+  // 사용자 입력 필드
+  const userInput = document.querySelector('#user-input input');
+  // 전송 버튼
+  const sendButton = document.querySelector('#user-input button');
 
-window.onload = async () => {
-    const user = await isLogIn();
-    if (!user){
-        window.location.href = '/'
-    }
-}
+  window.onload = async () => {
+      const user = await isLogIn();
+      if (!user){
+          window.location.href = '/'
+      }
+  }
 
-window.addEventListener("load", ()=>{
-    const welcome="어서오세요, 이곳은 태그를 추천해주는 챗봇입니다. 내용을 입력해주세요.";
-    addMessage('챗봇',welcome)
-});
+  window.addEventListener("load", ()=>{
+      const welcome="어서오세요, 이곳은 태그를 추천해주는 챗봇입니다. 내용을 입력해주세요.";
+      addMessage('챗봇',welcome)
+  });
 
-function addMessage(sender, message) {
-    // 새로운 div 생성
-    const messageElement = document.createElement('div');
-    // 생성된 요소에 클래스 추가
-    messageElement.className = 'message';
-     // 채팅 메시지 목록에 새로운 메시지 추가
-    messageElement.innerHTML = `${sender}: ${message}`;
-    chatMessages.prepend(messageElement);
-}
+  function addMessage(sender, message) {
+      // 새로운 div 생성
+      const messageElement = document.createElement('div');
+      // 생성된 요소에 클래스 추가
+      messageElement.className = 'message';
+       // 채팅 메시지 목록에 새로운 메시지 추가
+      messageElement.innerHTML = `${sender}: ${message}`;
+      chatMessages.prepend(messageElement);
+  }
 
-// ChatGPT API 요청
-async function fetchAIResponse(input_data) {
-    // API 요청에 사용할 옵션을 정의
-    gpt_url='{% url 'games:chatbot' %}';
-    const access = localStorage.getItem('access_token');
+  // ChatGPT API 요청
+  async function fetchAIResponse(input_data) {
+      // API 요청에 사용할 옵션을 정의
+      gpt_url='{% url 'games:chatbot' %}';
+      const access = localStorage.getItem('access_token');
 
-    const gpt_response = await fetch(gpt_url,{
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${access}`
-        },
-        body: JSON.stringify({ input_data: input_data })
-    });
-    if (!gpt_response.ok){
-        return `일일 할당량이 다 되었습니다. 내일 이용해 주세요`;
-    }
+      const gpt_response = await fetch(gpt_url,{
+          method: 'POST',
+          headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${access}`
+          },
+          body: JSON.stringify({ input_data: input_data })
+      });
+      if (!gpt_response.ok){
+          return `일일 할당량이 다 되었습니다. 내일 이용해 주세요`;
+      }
 
-    const data = await gpt_response.json();
-    if (data.tag==='없음'){
-        return "추천하는 태그가 없습니다.";
-    } else{
-        a_url="{% url 'test_search_view' %}" + `?tag-q=${data.tag}`
-        meesage=`추천하는 태그는 ${data.tag}입니다.<br>\
-        추천 태그로 이동하시려면\
-        <a href=${a_url}>여기</a>를 클릭해주세요`;
-        return meesage;
-    }
-}
+      const data = await gpt_response.json();
+      if (data.tag==='없음'){
+          return "추천하는 태그가 없습니다.";
+      } else{
+          a_url="{% url 'search_view' %}" + `?tag-q=${data.tag}`
+          meesage=`추천하는 태그는 ${data.tag}입니다.<br>\
+          추천 태그로 이동하시려면\
+          <a href=${a_url}>여기</a>를 클릭해주세요`;
+          return meesage;
+      }
+  }
 
-// 전송 버튼 클릭 이벤트 처리
-sendButton.addEventListener('click', async () => {
-    // 사용자가 입력한 메시지
-    const message = userInput.value.trim();
-    // 메시지가 비어있으면 리턴
-    if (message.length === 0) return;
-    // 사용자 메시지 화면에 추가
-    addMessage('나', message);
-    userInput.value = '';
-    //ChatGPT API 요청후 답변을 화면에 추가
-    const aiResponse = await fetchAIResponse(message);
-    addMessage('챗봇', aiResponse);
-});
-// 사용자 입력 필드에서 Enter 키 이벤트를 처리
-userInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        sendButton.click();
-    }
-});
+  // 전송 버튼 클릭 이벤트 처리
+  sendButton.addEventListener('click', async () => {
+      // 사용자가 입력한 메시지
+      const message = userInput.value.trim();
+      // 메시지가 비어있으면 리턴
+      if (message.length === 0) return;
+      // 사용자 메시지 화면에 추가
+      addMessage('나', message);
+      userInput.value = '';
+      //ChatGPT API 요청후 답변을 화면에 추가
+      const aiResponse = await fetchAIResponse(message);
+      addMessage('챗봇', aiResponse);
+  });
+  // 사용자 입력 필드에서 Enter 키 이벤트를 처리
+  userInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+          sendButton.click();
+      }
+  });
 </script>
 {% endblock %}

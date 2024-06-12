@@ -126,7 +126,7 @@
             localStorage.removeItem('access_token');
             localStorage.removeItem('refresh_token');
             localStorage.removeItem('username');
-            window.location.href = "{% url 'test_main_view' %}";
+            window.location.href = "{% url 'main_view' %}";
         } else {
             alert('로그인 정보가 없습니다. 로그인 페이지로 이동합니다.');
             window.location.href = "{% url 'accounts:login_page' %}";
