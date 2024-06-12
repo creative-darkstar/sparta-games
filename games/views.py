@@ -82,7 +82,7 @@ class GameListAPIView(APIView):
         else:
             rows = Game.objects.filter(is_visible=True, register_state=1)
 
-        rows = rows.annotate(star=Avg('stars__star'))
+        rows = rows.annotate(star=round(Avg('stars__star'), 1))
 
         # 추가 옵션 정렬
         if order == 'new':
