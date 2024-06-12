@@ -26,9 +26,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config.DJANGO_SECRET_KEY
 OPEN_API_KEY = config.OPENAI_API_KEY
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
+    'www.sparta-games.net',
+    'sparta-games.net',
     '13.209.74.174',
     'localhost',
     '127.0.0.1',
@@ -49,6 +51,8 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
+    "storages",
+    "corsheaders",
 
     # Apps
     "accounts",
@@ -58,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,6 +73,12 @@ MIDDLEWARE = [
 ]
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Allow specific origins
+CORS_ALLOWED_ORIGINS = [
+    "https://sparta-games.net",
+    "https://www.sparta-games.net",
+]
 
 ROOT_URLCONF = 'spartagames.urls'
 
@@ -93,10 +104,20 @@ WSGI_APPLICATION = 'spartagames.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'HOST': config.DATABASES["host"],
+        'PORT': config.DATABASES["port"],
+        'NAME': config.DATABASES["database"],
+        'USER': config.DATABASES["user"],
+        'PASSWORD': config.DATABASES["password"],
     }
 }
 
@@ -150,18 +171,32 @@ USE_I18N = True
 
 USE_TZ = True
 
+# django-storages settings
+# https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html#settings
+
+AWS_S3_ACCESS_KEY_ID = config.AWS_AUTH["aws_access_key_id"]
+AWS_S3_SECRET_ACCESS_KEY = config.AWS_AUTH["aws_secret_access_key"]
+
+AWS_STORAGE_BUCKET_NAME = config.AWS_S3_BUCKET_NAME
+AWS_S3_REGION_NAME = "ap-northeast-2"
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
+
+AWS_S3_FILE_OVERWRITE = False
+AWS_QUERYSTRING_AUTH = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+# boto3 settings
+STATICFILES_STORAGE = "spartagames.custom_storages.StaticStorage"
 
 # Media files
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+# boto3 settings
+DEFAULT_FILE_STORAGE = "spartagames.custom_storages.MediaStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

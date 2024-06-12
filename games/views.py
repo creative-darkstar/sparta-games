@@ -1,7 +1,10 @@
+import io
 import re
 import requests
 import os
 import zipfile
+
+import boto3
 
 from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse
@@ -32,6 +35,8 @@ from .serializers import (
     ScreenshotSerializer,
     TagSerailizer,
 )
+from spartagames import config
+from django.conf import settings
 
 from django.conf import settings
 from openai import OpenAI
@@ -353,43 +358,49 @@ def game_register(request, game_pk):
         Game, pk=game_pk, is_visible=True, register_state=0)
 
     # gamefile 필드에 저장한 경로값을 'path' 변수에 저장
-    path = row.gamefile.url
+    path = "media/" + row.gamefile.name
 
     # ~/<업로드시각>_<압축파일명>.zip 에서 '<업로드시각>_<압축파일명>' 추출
     game_folder = path.split('/')[-1].split('.')[0]
 
-    # 게임 폴더 경로(압축을 풀 경로): './media/games/<업로드시각>_<압축파일명>'
-    game_folder_path = f"./media/games/{game_folder}"
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=config.AWS_AUTH["aws_access_key_id"],
+        aws_secret_access_key=config.AWS_AUTH["aws_secret_access_key"],
+        region_name='ap-northeast-2'
+    )
 
-    # index.html 우선 압축 해제
-    zipfile.ZipFile(f"./{path}").extract("index.html", game_folder_path)
+    # S3에서 zip 파일을 읽어옴
+    zip_resp = s3.get_object(Bucket='sparta-games-static-bucket', Key=path)
 
-    """
-    index.html 내용 수정
-    <link> 태그 href 값 수정 (line: 7, 8)
-    var buildUrl 변수 값 수정 (line: 59)
-    
-    new_lines: 덮어쓸 내용 저장
-    is_check_build: Build 키워드 찾은 후 True로 변경 (이후 라인에서 Build 찾는 것을 피하기 위함)
-    """
+    # BytesIO를 사용하여 메모리에 파일 데이터를 읽음
+    zip_data = io.BytesIO(zip_resp['Body'].read())
+
+    zip_ref = zipfile.ZipFile(zip_data)
+
+    # index.html 내용 수정
+    # <link> 태그 href 값 수정 (line: 7, 8)
+    # var buildUrl 변수 값 수정 (line: 59)
+
+    # new_lines: 덮어쓸 내용 저장
+    # is_check_build: Build 키워드 찾은 후 True로 변경 (이후 라인에서 Build 찾는 것을 피하기 위함)
 
     new_lines = str()
     is_check_build = False
 
-    # 덮어쓸 내용 담기
-    with open(f"{game_folder_path}/index.html", 'r') as f:
-        for line in f.readlines():
-            if line.find('link') > -1:
-                cursor = line.find('TemplateData')
-                new_lines += line[:cursor] + \
-                    f'/media/games/{game_folder}/' + line[cursor:]
-            elif line.find('buildUrl') > -1 and not is_check_build:
-                is_check_build = True
-                cursor = line.find('Build')
-                new_lines += line[:cursor] + \
-                    f'/media/games/{game_folder}/' + line[cursor:]
-            else:
-                new_lines += line
+    index_text = zip_ref.read('index.html').decode('utf-8')
+    for line in index_text.splitlines():
+        if line.find('link') > -1:
+            cursor = line.find('TemplateData')
+            new_lines += line[:cursor] + f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/media/games/{game_folder}/' + line[cursor:]
+        elif line.find('buildUrl') > -1 and not is_check_build:
+            is_check_build = True
+            cursor = line.find('Build')
+            new_lines += line[:cursor] + f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/media/games/{game_folder}/' + line[cursor:]
+        else:
+            new_lines += line
+        new_lines += '\n'
+
     # 추가할 JavaScript 코드
     additional_script = """
     <script>
@@ -405,29 +416,66 @@ def game_register(request, game_pk):
     </script>
     """
     # CSS 스타일 추가 (body 태그와 unity-container에 overflow: hidden 추가)
-    new_lines = new_lines.replace(
-        '<body', '<body style="margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;"')
-    new_lines = new_lines.replace(
-        '<div id="unity-container"', '<div id="unity-container" style="width: 100%; height: 100%; overflow: hidden;"')
+    new_lines = new_lines.replace('<body',
+                                  '<body style="margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;"')
+    new_lines = new_lines.replace('<div id="unity-container"',
+                                  '<div id="unity-container" style="width: 100%; height: 100%; overflow: hidden;"')
 
     # </body> 태그 전에 추가할 스크립트 삽입
     body_close_tag_index = new_lines.find('</body>')
-    new_lines = new_lines[:body_close_tag_index] + \
-        additional_script + new_lines[body_close_tag_index:]
+    new_lines = new_lines[:body_close_tag_index] + additional_script + new_lines[body_close_tag_index:]
 
-    # 덮어쓰기
-    with open(f'{game_folder_path}/index.html', 'w') as f:
-        f.write(new_lines)
+    new_zip_data = io.BytesIO()
+    with zipfile.ZipFile(new_zip_data, 'w') as new_zip_ref:
+        for item in zip_ref.infolist():
+            if item.filename != 'index.html':
+                new_zip_ref.writestr(item, zip_ref.read(item.filename))
+        new_zip_ref.writestr('index.html', new_lines.encode('utf-8'))
 
-    # index.html 외 다른 파일들 압축 해제
-    zipfile.ZipFile(f"./{path}").extractall(
-        path=game_folder_path,
-        members=[item for item in zipfile.ZipFile(
-            f"./{path}").namelist() if item != "index.html"]
-    )
+        for file_name in new_zip_ref.namelist():
+            pattern1 = r".+\.(data|symbols\.json)\.gz$"
+            pattern2 = r".+\.js\.gz$"
+            pattern3 = r".+\.wasm\.gz$"
+            file_extension = file_name.split('.')[-1].lower()
+
+            content_type = None
+            content_encoding = None
+
+            # 메타데이터 설정
+            metadata = {}
+            if re.match(pattern1, file_name):
+                content_type = 'application/octet-stream'
+                content_encoding = 'gzip'
+            elif re.match(pattern2, file_name):
+                content_type = 'application/javascript'
+                content_encoding = 'gzip'
+            elif re.match(pattern3, file_name):
+                content_type = 'application/wasm'
+                content_encoding = 'gzip'
+            else:
+                if file_extension == "js":
+                    content_type = 'application/javascript'
+                elif file_extension == "html":
+                    content_type = 'text/html'
+                elif file_extension == "ico":
+                    content_type = 'image/x-icon'
+                elif file_extension == "png":
+                    content_type = 'image/png'
+                elif file_extension == "css":
+                    content_type = 'text/css'
+
+            response = s3.put_object(
+                Body=new_zip_ref.open(file_name),
+                Bucket='sparta-games-static-bucket',
+                Key=f"media/games/{game_folder}/{file_name}",
+                ContentType=(content_type if content_type else 'text/plain'),
+                ContentEncoding=(content_encoding if content_encoding else 'identity')
+            )
+
+    zip_ref.close()
 
     # 게임 폴더 경로를 저장하고, 등록 상태 1로 변경(등록 성공)
-    row.gamepath = game_folder_path[1:]
+    row.gamepath = f'https://{settings.AWS_S3_CUSTOM_DOMAIN}/media/games/{game_folder}'
     row.register_state = 1
     row.save()
 
@@ -447,11 +495,17 @@ def game_register_deny(request, game_pk):
 
 @api_view(['POST'])
 def game_dzip(request, game_pk):
-    row = get_object_or_404(
-        Game, pk=game_pk, register_state=0, is_visible=True)
-    zip_path = row.gamefile.url
-    zip_folder_path = "./media/zips/"
+    row = get_object_or_404(Game, pk=game_pk, register_state=0, is_visible=True)
+    zip_path = "media/" + row.gamefile.name
     zip_name = os.path.basename(zip_path)
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=config.AWS_AUTH["aws_access_key_id"],
+        aws_secret_access_key=config.AWS_AUTH["aws_secret_access_key"],
+        region_name='ap-northeast-2'
+    )
+    s3_response = s3_client.get_object(Bucket=config.AWS_S3_BUCKET_NAME, Key=zip_path)
+    file_stream = s3_response['Body'].read()
 
     # FileSystemStorage 인스턴스 생성
     # zip_folder_path에 대해 FILE_UPLOAD_PERMISSIONS = 0o644 권한 설정
