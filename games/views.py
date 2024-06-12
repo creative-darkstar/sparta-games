@@ -330,8 +330,6 @@ class CommentDetailAPIView(APIView):
         
 
 class TagAPIView(APIView):
-    # permission_classes = [IsAuthenticated]
-
     def get(self, request):
         tags=Tag.objects.all()
         serializer = TagSerailizer(tags, many=True)

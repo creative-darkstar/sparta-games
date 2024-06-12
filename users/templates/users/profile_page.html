@@ -285,7 +285,7 @@
                 gameThumbnailElement.setAttribute("alt", "...");
 
                 const gameTitleElement = document.createElement("a");
-                gameTitleElement.setAttribute("href", '{% url 'games:game_test_page' 1 %}'.replace('1', item.game_pk));
+                gameTitleElement.setAttribute("href", '{% url 'games:game_detail_page' 1 %}'.replace('1', item.game_pk));
                 const gameTitleTextElement = document.createElement("span");
                 gameTitleTextElement.innerText = item.title;
                 gameTitleElement.appendChild(gameTitleTextElement);
@@ -360,7 +360,7 @@
                     gameThumbnailElement.setAttribute("alt", "...");
                     
                     const gameTitleElement = document.createElement("a");
-                    gameTitleElement.setAttribute("href", '{% url 'games:game_test_page' 1 %}'.replace('1', item.game_pk));
+                    gameTitleElement.setAttribute("href", '{% url 'games:game_detail_page' 1 %}'.replace('1', item.game_pk));
                     const gameTitleTextElement = document.createElement("span");
                     gameTitleTextElement.innerText = item.title;
                     gameTitleElement.appendChild(gameTitleTextElement);

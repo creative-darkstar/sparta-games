@@ -170,9 +170,9 @@
                 card_content.appendChild(card_maker_a);
                 card_content.appendChild(card_content_star);
 
-                const game_test_page_url = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                const game_detail_page_url = '{% url 'games:game_detail_page' 1 %}'; // 여기서 1은 임시 값입니다.
                 const card_a = document.createElement('a');
-                card_a.setAttribute("href", game_test_page_url.replace('1', row.pk));
+                card_a.setAttribute("href", game_detail_page_url.replace('1', row.pk));
 
                 card_body_div.appendChild(card_title);
                 card_body_div.appendChild(card_content);
