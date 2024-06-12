@@ -531,13 +531,13 @@ def test_base_view(request):
 
 # 테스트용 메인 페이지 렌더링
 def main_view(request):
-    return render(request, "games/test_main.html")
+    return render(request, "games/main.html")
 
 
 # 테스트용 검색 페이지 렌더링
 def search_view(request):
     # 쿼리스트링을 그대로 가져다가 '게임 목록 api' 호출
-    return render(request, "games/test_search.html")
+    return render(request, "games/search.html")
 
 
 # 게임 검수용 페이지 뷰
