@@ -9,7 +9,7 @@
             <hr>
             <ul class="nav nav-pills flex-column mb-auto" id="tags_list">
                 <li class="nav-item fs-4">
-                <a href="{% url "test_search_view" %}" class="nav-link link-body-emphasis">
+                <a href="{% url "search_view" %}" class="nav-link link-body-emphasis">
                     전체보기
                 </a>
                 </li>
@@ -45,7 +45,7 @@
                 <div class="row row-cols-1 row-cols-md-4 g-4" id="game_list_all">
                 </div>
                 <button class="btn btn-secondary" id="more" >더보기</button>
-                <a href="{% url "test_search_view" %}"><button id="all_list" class="btn btn-secondary mt-4" style="display:none">전체보기</button></a>
+                <a href="{% url "search_view" %}"><button id="all_list" class="btn btn-secondary mt-4" style="display:none">전체보기</button></a>
                 <br><br>
             </div>
         </div>
@@ -70,7 +70,7 @@
                 const tag_a=document.createElement("a");
                 tag_a.className = "nav-link link-body-emphasis fs-4";
                 tag_a.innerText = t.name;
-                tag_a.href = "{% url 'test_search_view' %}" + `?tag-q=${t.name}`;
+                tag_a.href = "{% url 'search_view' %}" + `?tag-q=${t.name}`;
                 tags_anchor.appendChild(tag_li)
                 tag_li.appendChild(tag_a)
             });
@@ -160,9 +160,9 @@
                     card_content.appendChild(card_maker_a);
                     card_content.appendChild(card_content_star);
 
-                    const game_test_page_url = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                    const game_detail_page_url = '{% url 'games:game_detail_page' 1 %}'; // 여기서 1은 임시 값입니다.
                     const card_a = document.createElement('a');
-                    card_a.setAttribute("href", game_test_page_url.replace('1', row.pk));
+                    card_a.setAttribute("href", game_detail_page_url.replace('1', row.pk));
                     
                     card_body_div.appendChild(card_title);
                     card_body_div.appendChild(card_content);
@@ -229,9 +229,9 @@
                 card_content.appendChild(card_maker_a);
                 card_content.appendChild(card_content_star);
 
-                const game_test_page_url_all = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                const game_detail_page_url_all = '{% url 'games:game_detail_page' 1 %}'; // 여기서 1은 임시 값입니다.
                 const card_a_all = document.createElement('a');
-                card_a_all.setAttribute("href", game_test_page_url_all.replace('1', row.pk));
+                card_a_all.setAttribute("href", game_detail_page_url_all.replace('1', row.pk));
 
                 card_body_div.appendChild(card_title);
                 card_body_div.appendChild(card_content);

@@ -9,7 +9,7 @@
             <hr>
             <ul class="nav nav-pills flex-column mb-auto" id="tags_list">
                 <li class="nav-item fs-4">
-                <a href="{% url "test_search_view" %}" class="nav-link link-body-emphasis">
+                <a href="{% url "search_view" %}" class="nav-link link-body-emphasis">
                     전체보기
                 </a>
                 </li>
@@ -77,7 +77,7 @@
                 const tag_a=document.createElement("a");
                 tag_a.className = "nav-link link-body-emphasis fs-4";
                 tag_a.innerText = t.name;
-                tag_a.href = "{% url 'test_search_view' %}" + `?tag-q=${t.name}`;
+                tag_a.href = "{% url 'search_view' %}" + `?tag-q=${t.name}`;
                 tags_anchor.appendChild(tag_li)
                 tag_li.appendChild(tag_a)
             });
@@ -178,9 +178,9 @@
                     card_content.appendChild(card_cnt);
                 }
 
-                const game_test_page_url = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
+                const game_detail_page_url = '{% url 'games:game_detail_page' 1 %}'; // 여기서 1은 임시 값입니다.
                 const card_a = document.createElement('a');
-                card_a.setAttribute("href", game_test_page_url.replace('1', row.pk));
+                card_a.setAttribute("href", game_detail_page_url.replace('1', row.pk));
 
                 card_body_div.appendChild(card_title);
                 card_body_div.appendChild(card_content);

@@ -126,7 +126,7 @@
         console.error('Error:', error);
         return false;
     }
-    window.location.href = "{% url 'games:game_test_page' game_pk %}";
+    window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
 async function ReplyCreate(event, root_id) {
@@ -159,7 +159,7 @@ async function ReplyCreate(event, root_id) {
       console.error('Error:', error);
       return false;
   }
-  window.location.href = "{% url 'games:game_test_page' game_pk %}";
+  window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
 async function Star(event) {
@@ -182,7 +182,7 @@ async function Star(event) {
       console.error('Error:', error);
       return false;
   }
-  window.location.href = "{% url 'games:game_test_page' game_pk %}";
+  window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
 async function like() {
@@ -207,7 +207,7 @@ async function like() {
     gameLikeBtn.innerText = '즐겨찾기'
   }
 
-  // window.location.href = "{% url 'games:game_test_page' 1 %}".replace('1', game_pk);
+  // window.location.href = "{% url 'games:game_detail_page' 1 %}".replace('1', game_pk);
 }
 
   function gameEdit() {
@@ -230,7 +230,7 @@ async function like() {
       });
       
       if (resp.status >= 200 && resp.status < 300) {
-          window.location.href = "{% url 'test_main_view' %}"
+          window.location.href = "{% url 'main_view' %}"
       }
   }
 
