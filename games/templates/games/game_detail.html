@@ -228,7 +228,7 @@ async function like() {
       });
       
       if (resp.status >= 200 && resp.status < 300) {
-          window.location.href = "{% url 'test_main_view' %}"
+          window.location.href = "{% url 'main_view' %}"
       }
   }
 
