@@ -86,6 +86,7 @@
             const params = new URLSearchParams(decodeURIComponent(window.location.search));
             if (order) {
                 params.set('order', order);
+                console.log(order);
             }
             params.set('page', page);  // 페이지 번호 추가
             params.set('search', 'search');  // 서치구분 추가
@@ -169,6 +170,13 @@
                 const card_content = document.createElement('p');
                 card_content.appendChild(card_maker_a);
                 card_content.appendChild(card_content_star);
+
+                if(order=="view"){
+                    const card_cnt=document.createElement("p");
+                    card_cnt.setAttribute("class", "card-text");
+                    card_cnt.innerHTML = `조회수: ${row.view_cnt}`;
+                    card_content.appendChild(card_cnt);
+                }
 
                 const game_test_page_url = '{% url 'games:game_test_page' 1 %}'; // 여기서 1은 임시 값입니다.
                 const card_a = document.createElement('a');
