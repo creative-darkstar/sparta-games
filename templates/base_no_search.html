@@ -243,9 +243,9 @@
             });
 
             if (token_verify_resp.ok) {
-                const base64Payload = access.split('.')[1];
-                const base64 = base64Payload.replace(/-/g, '+').replace(/_/g, '/');
-                const decodedJWT = JSON.parse(
+                const base64_payload = access.split('.')[1];
+                const base64 = base64_payload.replace(/-/g, '+').replace(/_/g, '/');
+                const decoded_jwt = JSON.parse(
                     decodeURIComponent(
                         window
                             .atob(base64)
@@ -256,7 +256,7 @@
                             .join('')
                     )
                 );
-                const url = "{% url 'users:profile' 1 %}".replace('1', decodedJWT.user_id);
+                const url = "{% url 'users:profile' 1 %}".replace('1', decoded_jwt.user_id);
 
                 return await aSend({
                     url: url,

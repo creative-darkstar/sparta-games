@@ -24,8 +24,8 @@
         const qna_pk=getQnaId();
         if (user){
             if (user.is_staff){
-                const createBtnDiv = document.getElementById('qnaDetailBtn');
-                createBtnDiv.innerHTML = `<a id="updatebtn" class="btn btn-secondary">수정</a>
+                const create_btn_div = document.getElementById('qnaDetailBtn');
+                create_btn_div.innerHTML = `<a id="updatebtn" class="btn btn-secondary">수정</a>
                                           <button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>`;
 
                 const qna_update_btn = document.getElementById('updatebtn');
