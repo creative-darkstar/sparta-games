@@ -18,7 +18,7 @@
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
-            <form method="POST" enctype="multipart/form-data" id="game_update_form" onsubmit="GameUpdate(event);">
+            <form method="POST" enctype="multipart/form-data" id="game_update_form" onsubmit="gameUpdate(event);">
                 {% csrf_token %}
                 <div class="mb-1">
                     <label for="id_title">제목: </label>
@@ -79,41 +79,41 @@
         }
 
         function previewScreenshots() {
-            const screenshotsInput = document.getElementById('id_screenshots');
-            const selectedScreenshots = document.getElementById('selectedScreenshots');
+            const screenshots_input = document.getElementById('id_screenshots');
+            const selected_screenshots = document.getElementById('selectedScreenshots');
             
-            for (const file of screenshotsInput.files) {
+            for (const file of screenshots_input.files) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.onclick = function() {
-                        selectedScreenshots.removeChild(img);
+                        selected_screenshots.removeChild(img);
                     };
-                    selectedScreenshots.appendChild(img);
+                    selected_screenshots.appendChild(img);
                 };
                 reader.readAsDataURL(file);
             }
         }
 
         function previewThumbnail() {
-            const thumbnailInput = document.getElementById('id_thumbnail');
-            const selectedThumbnail = document.getElementById('selectedThumbnail');
-            const existingThumbnail = selectedThumbnail.querySelector('img');
+            const thumbnail_input = document.getElementById('id_thumbnail');
+            const selected_thumbnail = document.getElementById('selectedThumbnail');
+            const existingThumbnail = selected_thumbnail.querySelector('img');
 
             if (existingThumbnail) {
-                selectedThumbnail.removeChild(existingThumbnail)
+                selected_thumbnail.removeChild(existingThumbnail)
             }
 
-            for (const file of thumbnailInput.files) {
+            for (const file of thumbnail_input.files) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
                     img.onclick = function() {
-                        selectedThumbnail.removeChild(img);
+                        selected_thumbnail.removeChild(img);
                     };
-                    selectedThumbnail.appendChild(img);
+                    selected_thumbnail.appendChild(img);
                 };
                 reader.readAsDataURL(file);
             }            
@@ -141,41 +141,41 @@
                 document.getElementById('id_content').value = content;
                 document.getElementById('id_youtube_url').value = youtube_url;
 
-                const itemsDiv = document.getElementById("selectedItems");
+                const items_div = document.getElementById("selectedItems");
                 if (game_detail_response.tag){
-                    itemsDiv.innerHTML = ``;
+                    items_div.innerHTML = ``;
                     game_detail_response.tag.forEach(tag=>{
-                        const newItem = document.createElement("div");
-                        newItem.classList.add("selected-item");
-                        newItem.textContent = tag.name;
-                        newItem.onclick = function() {
-                            itemsDiv.removeChild(newItem);
+                        const new_item = document.createElement("div");
+                        new_item.classList.add("selected-item");
+                        new_item.textContent = tag.name;
+                        new_item.onclick = function() {
+                            items_div.removeChild(new_item);
                         };
-                        itemsDiv.appendChild(newItem);
+                        items_div.appendChild(new_item);
                     })
                 }
                 
-                const thumbnailDiv = document.getElementById('selectedThumbnail')
+                const thumbnail_div = document.getElementById('selectedThumbnail')
                 if (game_detail_response.thumbnail) {
-                    thumbnailDiv.innerHTML = ``;
+                    thumbnail_div.innerHTML = ``;
                     const img = document.createElement('img');
                     img.src = game_detail_response.thumbnail;
                     img.onclick = function() {
-                        thumbnailDiv.removeChild(img);
+                        thumbnail_div.removeChild(img);
                     };
-                    thumbnailDiv.appendChild(img);
+                    thumbnail_div.appendChild(img);
                 }
 
-                const screenshotsDiv = document.getElementById("selectedScreenshots");
+                const screenshots_div = document.getElementById("selectedScreenshots");
                 if (game_detail_response.screenshot) {
-                    screenshotsDiv.innerHTML = ``;
+                    screenshots_div.innerHTML = ``;
                     game_detail_response.screenshot.forEach(screenshotUrl => {
                         const img = document.createElement('img');
                         img.src = screenshotUrl.src;
                         img.onclick = function() {
-                            screenshotsDiv.removeChild(img);
+                            screenshots_div.removeChild(img);
                         };
-                        screenshotsDiv.appendChild(img);
+                        screenshots_div.appendChild(img);
                     });
                 }
                 
@@ -196,23 +196,23 @@
                 console.error('Failed to load game details:', error);
             }
         }
-        async function GameUpdate(event) {
+        async function gameUpdate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
             const game_pk = getGameId();
             const form_tag = document.getElementById('game_update_form');
-            const formData = new FormData(form_tag);
+            const form_data = new FormData(form_tag);
             
-            const selectedItems = document.querySelectorAll("#selectedItems .selected-item");
+            const selected_items = document.querySelectorAll("#selectedItems .selected-item");
             let tagstring = '';
-            selectedItems.forEach((item, index) => {
+            selected_items.forEach((item, index) => {
                 tagstring = tagstring + ',' + item.textContent
             });
             tagstring = tagstring.substr(1)
-            formData.append('tag', tagstring);
+            form_data.append('tag', tagstring);
             
-            await addThumbnailToFormData(formData);
-            await addScreenshotsToFormData(formData);
+            await addThumbnailToFormData(form_data);
+            await addScreenshotsToFormData(form_data);
             const url = '{% url 'games:game_detail' game_pk %}'
 
             try {
@@ -220,7 +220,7 @@
                     url: url,
                     method: 'PUT',
                     is_token: true,
-                    body: formData
+                    body: form_data
                 })
             } catch (error) {
                 console.error('Error:', error);
@@ -234,31 +234,31 @@
             loadGameDetails();// 페이지 로드 시 게임 상세 정보를 로드
         });
 
-        async function addThumbnailToFormData(formData) {
-            const thumbnailDiv = document.getElementById('selectedThumbnail');
-            const image = thumbnailDiv.querySelector('img');
+        async function addThumbnailToFormData(form_data) {
+            const thumbnail_div = document.getElementById('selectedThumbnail');
+            const image = thumbnail_div.querySelector('img');
 
-            formData.delete('thumbnail')
+            form_data.delete('thumbnail')
             if (image) {
-                const imageUrl = image.src;
-                const response = await fetch(imageUrl);
+                const image_url = image.src;
+                const response = await fetch(image_url);
                 const blob = await response.blob();
-                formData.append('thumbnail', blob, 'thumbnail.png');
+                form_data.append('thumbnail', blob, 'thumbnail.png');
             }
-            return formData;
+            return form_data;
         }
 
-        async function addScreenshotsToFormData(formData) {
-            const screenshotsDiv = document.getElementById('selectedScreenshots');
-            const images = screenshotsDiv.querySelectorAll('img');
-            formData.delete("screenshots")
+        async function addScreenshotsToFormData(form_data) {
+            const screenshots_div = document.getElementById('selectedScreenshots');
+            const images = screenshots_div.querySelectorAll('img');
+            form_data.delete("screenshots")
             for (const img of images) {
-                const imageUrl = img.src;
-                const response = await fetch(imageUrl);
+                const image_url = img.src;
+                const response = await fetch(image_url);
                 const blob = await response.blob();
-                formData.append('screenshots', blob, 'screenshot.png');
+                form_data.append('screenshots', blob, 'screenshot.png');
             }
-            return formData;
+            return form_data;
         }
     </script>
     <script>
@@ -268,15 +268,15 @@
             let selectedText = select.options[select.selectedIndex].text;
         
             if (selectedValue !== "") {
-                const itemsDiv = document.getElementById("selectedItems");
+                const items_div = document.getElementById("selectedItems");
                 if(!isDuplicate(selectedText)){
-                    const newItem = document.createElement("div");
-                    newItem.classList.add("selected-item");
-                    newItem.textContent = selectedText;
-                    newItem.onclick = function() {
-                        itemsDiv.removeChild(newItem);
+                    const new_item = document.createElement("div");
+                    new_item.classList.add("selected-item");
+                    new_item.textContent = selectedText;
+                    new_item.onclick = function() {
+                        items_div.removeChild(new_item);
                     };
-                    itemsDiv.appendChild(newItem);
+                    items_div.appendChild(new_item);
                 } else{
                     alert("중복 태그는 사용할 수 없습니다.")
                 }
@@ -284,14 +284,14 @@
         }
 
         async function tagRecommend() {
-            const idTitle = document.getElementById('id_title');
-            const idContent = document.getElementById('id_content');
-            const idTitleValue = idTitle.value;
-            const idContentValue = idContent.value;
-            const aiInputData = '제목: ' + idTitleValue + ', ' + '게임 설명: '+ idContentValue
-            // 제목: idTitleValue, 게임 설명: idContentValue
+            const id_title = document.getElementById('id_title');
+            const id_content = document.getElementById('id_content');
+            const id_title_value = id_title.value;
+            const id_content_value = id_content.value;
+            const ai_input_data = '제목: ' + id_title_value + ', ' + '게임 설명: '+ id_content_value
+            // 제목: id_title_value, 게임 설명: id_content_value
             
-            if (idTitleValue && idContentValue) {
+            if (id_title_value && id_content_value) {
                 const url = '{% url 'games:chatbot' %}'
                 const access = localStorage.getItem('access_token');
                 const response = await fetch(url, {
@@ -301,7 +301,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${access}`,
                     },
-                    body: JSON.stringify({ input_data: aiInputData })
+                    body: JSON.stringify({ input_data: ai_input_data })
                 })
                 
                 const data = await response.json();
@@ -310,14 +310,14 @@
                         alert('추천하는 태그가 없습니다.')
                     } else {
                         const select = document.getElementById("itemSelect");
-                        const itemsDiv = document.getElementById("selectedItems");
-                        const newItem = document.createElement("div");
-                        newItem.classList.add("selected-item");
-                        newItem.textContent = data.tag;
-                        newItem.onclick = function() {
-                            itemsDiv.removeChild(newItem);
+                        const items_div = document.getElementById("selectedItems");
+                        const new_item = document.createElement("div");
+                        new_item.classList.add("selected-item");
+                        new_item.textContent = data.tag;
+                        new_item.onclick = function() {
+                            items_div.removeChild(new_item);
                         };
-                        itemsDiv.appendChild(newItem);
+                        items_div.appendChild(new_item);
                     }
                 } else {
                     alert('중복 태그는 사용할 수 없습니다.')

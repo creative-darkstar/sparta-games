@@ -29,12 +29,12 @@
     </table>
 </div>
 <script>
-    window.addEventListener("load", async function PageLoad() {
+    window.addEventListener("load", async function pageLoad() {
         const user = await isLogIn();
         if (user){
             if (user.is_staff){
-                const createBtnDiv = document.getElementById('createBtnDiv');
-                createBtnDiv.innerHTML = `<a class="btn btn-secondary" href={% url 'qnas:qna_create' %} aria-expanded="false">생성</a>`;
+                const create_btn_div = document.getElementById('createBtnDiv');
+                create_btn_div.innerHTML = `<a class="btn btn-secondary" href={% url 'qnas:qna_create' %} aria-expanded="false">생성</a>`;
             }
         }
         const params = new URLSearchParams(decodeURIComponent(window.location.search));
@@ -93,9 +93,9 @@
             qna_list_tbody.appendChild(qna_tr);
         });
 
-        const selectedCategory = params.get('category');
-        if (selectedCategory) {
-            qna_option_list.value = selectedCategory;
+        const selected_category = params.get('category');
+        if (selected_category) {
+            qna_option_list.value = selected_category;
         }
     });
 

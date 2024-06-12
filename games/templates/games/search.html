@@ -193,58 +193,58 @@
             // 페이지네이션 업데이트
             const pagination_div = document.getElementById('pagination');
             pagination_div.innerHTML = '';
-            const currentPage = page;
-            const pageSize = {{ request.GET.page_size|default:20 }};
-            const totalPages = Math.ceil(test_r.count / pageSize); // 총 페이지 수 계산
+            const current_page = page;
+            const page_size = {{ request.GET.page_size|default:20 }};
+            const total_pages = Math.ceil(test_r.count / page_size); // 총 페이지 수 계산
             
             // Previous 버튼 생성
-            const prevLi = document.createElement('li');
-            prevLi.setAttribute('class', 'page-item');
-            const prevA = document.createElement('a');
-            prevA.setAttribute('class', 'page-link' + (currentPage === 1 ? ' disabled' : ''));
-            prevA.setAttribute('href', '#');
-            prevA.setAttribute('aria-label', 'Previous');
-            prevA.innerHTML = '<span aria-hidden="true">&laquo;</span>';
-            if (currentPage !== 1) {
-                prevA.onclick = (e) => {
+            const prev_li = document.createElement('li');
+            prev_li.setAttribute('class', 'page-item');
+            const prev_a = document.createElement('a');
+            prev_a.setAttribute('class', 'page-link' + (current_page === 1 ? ' disabled' : ''));
+            prev_a.setAttribute('href', '#');
+            prev_a.setAttribute('aria-label', 'Previous');
+            prev_a.innerHTML = '<span aria-hidden="true">&laquo;</span>';
+            if (current_page !== 1) {
+                prev_a.onclick = (e) => {
                     e.preventDefault();
-                    updateOrder(order, currentPage - 1);
+                    updateOrder(order, current_page - 1);
                 };
             }
-            prevLi.appendChild(prevA);
-            pagination_div.appendChild(prevLi);
+            prev_li.appendChild(prev_a);
+            pagination_div.appendChild(prev_li);
             
-            for (let i = 1; i <= totalPages; i++) {
-                const pageLi = document.createElement('li');
-                pageLi.setAttribute('class', 'page-item' + (i === currentPage ? ' active' : ''));
-                const pageA = document.createElement('a');
-                pageA.setAttribute('class', 'page-link');
-                pageA.setAttribute('href', '#');
-                pageA.innerText = i;
-                pageA.onclick = (e) => {
+            for (let i = 1; i <= total_pages; i++) {
+                const page_li = document.createElement('li');
+                page_li.setAttribute('class', 'page-item' + (i === current_page ? ' active' : ''));
+                const page_a = document.createElement('a');
+                page_a.setAttribute('class', 'page-link');
+                page_a.setAttribute('href', '#');
+                page_a.innerText = i;
+                page_a.onclick = (e) => {
                     e.preventDefault();
                     updateOrder(order, i);
                 };
-                pageLi.appendChild(pageA);
-                pagination_div.appendChild(pageLi);
+                page_li.appendChild(page_a);
+                pagination_div.appendChild(page_li);
             }
             
             // Next 버튼 생성
-            const nextLi = document.createElement('li');
-            nextLi.setAttribute('class', 'page-item');
-            const nextA = document.createElement('a');
-            nextA.setAttribute('class', 'page-link' + (currentPage === totalPages ? ' disabled' : ''));
-            nextA.setAttribute('href', '#');
-            nextA.setAttribute('aria-label', 'Next');
-            nextA.innerHTML = '<span aria-hidden="true">&raquo;</span>';
-            if (currentPage !== totalPages) {
-                nextA.onclick = (e) => {
+            const next_li = document.createElement('li');
+            next_li.setAttribute('class', 'page-item');
+            const next_a = document.createElement('a');
+            next_a.setAttribute('class', 'page-link' + (current_page === total_pages ? ' disabled' : ''));
+            next_a.setAttribute('href', '#');
+            next_a.setAttribute('aria-label', 'Next');
+            next_a.innerHTML = '<span aria-hidden="true">&raquo;</span>';
+            if (current_page !== total_pages) {
+                next_a.onclick = (e) => {
                     e.preventDefault();
-                    updateOrder(order, currentPage + 1);
+                    updateOrder(order, current_page + 1);
                 };
             }
-            nextLi.appendChild(nextA);
-            pagination_div.appendChild(nextLi);
+            next_li.appendChild(next_a);
+            pagination_div.appendChild(next_li);
         }
     </script>
 {% endblock %}

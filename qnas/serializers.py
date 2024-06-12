@@ -7,6 +7,7 @@ class QnAPostListSerializer(serializers.ModelSerializer):
         model = QnA
         fields = "__all__"
 
+
 class CategorySerializer(serializers.Serializer):
     code = serializers.CharField()
     name = serializers.CharField()
