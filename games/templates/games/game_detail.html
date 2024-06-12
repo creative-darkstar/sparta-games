@@ -17,7 +17,9 @@
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
                 </div>
                 <div id='infoDiv2' class='d-flex flex-column'>
-                    <span id='makerNameSpan'></span>
+                    <a id='makerProfile' style='text-decoration: none; color:inherit;'>
+                      <span id='makerNameSpan'></span>
+                    </a>
                     <button id='gameLikeBtn' onclick='like();'>즐겨찾기</button>
                 </div>
                 <div id='infoDiv3' class='d-flex flex-column'>
@@ -259,6 +261,11 @@ async function like() {
     const screenshot = game_detail_response.screenshot;
     const content = game_detail_response.content;
     const youtube_url = game_detail_response.youtube_url;
+    const maker = game_detail_response.maker;
+    // # 1 ==============title과 iframe=====================
+    // const titleContainer = document.createElement('div');
+    // titleContainer.className = 'd-flex flex-column align-items-center';
+    const titleContainer = document.getElementById('titleContainer');
 
     // # 1 ==============title과 iframe=====================
     const title_container = document.getElementById('titleContainer');
@@ -306,9 +313,11 @@ async function like() {
     else{
       star_score_span.textContent = `평점: ${star_score}`;
     }
-
-    const maker_name_span = document.getElementById('makerNameSpan');
-    maker_name_span.textContent = `제작자: ${maker_name}`;
+    const maker_profile = document.getElementById('makerProfile');
+    const maker_profile_url = '{% url 'users:profile_page' 1 %}'.replace('1', maker);
+    maker_profile.setAttribute('href', maker_profile_url);
+    const makerNameSpan = document.getElementById('makerNameSpan');
+    makerNameSpan.textContent = `제작자: ${maker_name}`;
 
     const created_at_span = document.getElementById('createdAtSpan');
     created_at_span.textContent = `업로드 일시: ${formatTime(created_at)}`;

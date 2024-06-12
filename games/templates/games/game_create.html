@@ -6,7 +6,19 @@
     max-width: 200px; /* 이미지의 최대 너비를 지정합니다. */
     max-height: 200px; /* 이미지의 최대 높이를 지정합니다. */
     /* 다른 스타일을 추가할 수 있습니다. */
-}
+    }
+    .hover-container div {
+        position: absolute;
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        padding: 10px;
+        display: none;
+        z-index: 10;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .hover-container:hover div{
+        display: block;
+    }
 </style>
 {% endblock css_block %}
 
@@ -15,13 +27,15 @@
         <div>
             <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="gameCreate(event);">
                 {% csrf_token %}
-                <div class="mb-1">
-                    <label for="id_title">제목: </label>
+                <div class="mb-1 hover-container">
+                    <label for="id_title"><b>*제목:</b></label>
                     <input type="text" name="title" maxlength="50" required="" id="id_title">
+                    <div>필수 기입 항목입니다.</div>
                 </div>
-                <div>
-                    <label for="id_content">게임 설명: </label>
+                <div class="hover-container">
+                    <label for="id_content"><b>*게임 설명: </b></label>
                     <textarea name="content" cols="40" rows="10" required="" id="id_content"></textarea>
+                    <div>필수 기입 항목입니다.</div>
                 </div>
                 <div>
                     <label for="id_youtube_url">유튜브 링크: </label>
@@ -37,11 +51,12 @@
                     <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." style="display: none" onchange="previewScreenshots()" multiple>
                     <div id="selectedScreenshots"></div>
                 </div>
-                <div>
-                    <label for="id_gamefile">게임 파일: <span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
+                <div class="hover-container">
+                    <label for="id_gamefile"><b>*게임 파일: </b><span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
                     <input type="file" name="gamefile" required="" accept="application/zip" id="id_gamefile" style="display: none"
                     onchange="previewGame()">
                     <div id="selectedGameFile"></div>
+                    <div>필수 기입 항목입니다.</div>
                 </div>
                 <div>
                     <label for="id_tag">태그: </label>
@@ -50,7 +65,8 @@
                     <button type ='button' onclick="tagRecommend()" class="btn btn-secondary btn-sm">태그 자동 추천</button>
                     <div id="selectedItems"></div>
                 </div>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-2">
+                    <p><b>*는 필수 입력 항목입니다.</b></p>
                     <button  type="submit" class="btn btn-primary">완료</button>
                 </div>
             </form>
