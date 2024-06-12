@@ -6,6 +6,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import FileResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Avg, Q
+from django.db.models.functions import Round
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -82,7 +83,7 @@ class GameListAPIView(APIView):
         else:
             rows = Game.objects.filter(is_visible=True, register_state=1)
 
-        rows = rows.annotate(star=round(Avg('stars__star'), 1))
+        rows = rows.annotate(star=Round(Avg('stars__star'), 1))
 
         # 추가 옵션 정렬
         if order == 'new':
@@ -268,8 +269,8 @@ class GameStarAPIView(APIView):
 
     def post(self, request, game_pk):
         star_list = [1,2,3,4,5]
-        star = request.data['star']
-        if request.data['star'] not in star_list:
+        star = int(request.data['star'])
+        if star not in star_list:
             star = 5
         game = get_object_or_404(Game, pk=game_pk)
         if game.stars.filter(user=request.user).exists():
