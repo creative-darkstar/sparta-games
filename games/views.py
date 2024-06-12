@@ -272,6 +272,9 @@ class GameStarAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, game_pk):
+        star_list = [1,2,3,4,5]
+        if request.data['star'] not in star_list:
+            request.data['star'] = 5
         game = get_object_or_404(Game, pk=game_pk)
         if game.stars.filter(user=request.user).exists():
             # 수정
