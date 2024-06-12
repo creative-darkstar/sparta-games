@@ -3,7 +3,7 @@
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
-            <form method="POST" enctype="multipart/form-data" id="qna_create_form" onsubmit="QnACreate(event);">
+            <form method="POST" enctype="multipart/form-data" id="qna_create_form" onsubmit="qnACreate(event);">
                 {% csrf_token %}
                 <div>
                     <label for="id_category">카테고리: </label>
@@ -38,13 +38,13 @@
     }
     </script>
     <script>
-        async function QnACreate(event) {
+        async function qnACreate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
             const form_tag = document.getElementById('qna_create_form');
-            const formData = new FormData(form_tag);
+            const form_data = new FormData(form_tag);
             const selectedItems = document.querySelector("#itemSelect");
-            formData.set('category', selectedItems.value);
+            form_data.set('category', selectedItems.value);
             const url = '{% url 'qnas:qna_list' %}';
 
             try {
@@ -52,7 +52,7 @@
                     url: url,
                     method: 'POST',
                     is_token: true,
-                    body: formData
+                    body: form_data
                 });
                 const qna_pk= response.id;
                 window.location.href = '{% url 'qnas:qna_detail_page' 1 %}'.replace('1', qna_pk);

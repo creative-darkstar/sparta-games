@@ -6,22 +6,36 @@
     max-width: 200px; /* 이미지의 최대 너비를 지정합니다. */
     max-height: 200px; /* 이미지의 최대 높이를 지정합니다. */
     /* 다른 스타일을 추가할 수 있습니다. */
-}
+    }
+    .hover-container div {
+        position: absolute;
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        padding: 10px;
+        display: none;
+        z-index: 10;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .hover-container:hover div{
+        display: block;
+    }
 </style>
 {% endblock css_block %}
 
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
-            <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="GameCreate(event);">
+            <form method="POST" enctype="multipart/form-data" id="game_create_form" onsubmit="gameCreate(event);">
                 {% csrf_token %}
-                <div class="mb-1">
-                    <label for="id_title">제목: </label>
+                <div class="mb-1 hover-container">
+                    <label for="id_title"><b>*제목:</b></label>
                     <input type="text" name="title" maxlength="50" required="" id="id_title">
+                    <div>필수 기입 항목입니다.</div>
                 </div>
-                <div>
-                    <label for="id_content">게임 설명: </label>
+                <div class="hover-container">
+                    <label for="id_content"><b>*게임 설명: </b></label>
                     <textarea name="content" cols="40" rows="10" required="" id="id_content"></textarea>
+                    <div>필수 기입 항목입니다.</div>
                 </div>
                 <div>
                     <label for="id_youtube_url">유튜브 링크: </label>
@@ -37,11 +51,12 @@
                     <input type="file" name="screenshots" accept="image/*" id="id_screenshots" alt="..." style="display: none" onchange="previewScreenshots()" multiple>
                     <div id="selectedScreenshots"></div>
                 </div>
-                <div>
-                    <label for="id_gamefile">게임 파일: <span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
+                <div class="hover-container">
+                    <label for="id_gamefile"><b>*게임 파일: </b><span class="btn btn-secondary btn-sm mb-1">파일 선택</span></label>
                     <input type="file" name="gamefile" required="" accept="application/zip" id="id_gamefile" style="display: none"
                     onchange="previewGame()">
                     <div id="selectedGameFile"></div>
+                    <div>필수 기입 항목입니다.</div>
                 </div>
                 <div>
                     <label for="id_tag">태그: </label>
@@ -50,7 +65,8 @@
                     <button type ='button' onclick="tagRecommend()" class="btn btn-secondary btn-sm">태그 자동 추천</button>
                     <div id="selectedItems"></div>
                 </div>
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <div class="d-grid gap-2 d-md-flex justify-content-md-between mt-2">
+                    <p><b>*는 필수 입력 항목입니다.</b></p>
                     <button  type="submit" class="btn btn-primary">완료</button>
                 </div>
             </form>
@@ -68,18 +84,18 @@
     }
     </script>
     <script>
-        async function GameCreate(event) {
+        async function gameCreate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             
             const form_tag = document.getElementById('game_create_form');
-            const formData = new FormData(form_tag);
-            const selectedItems = document.querySelectorAll("#selectedItems .selected-item");
+            const form_data = new FormData(form_tag);
+            const selected_items = document.querySelectorAll("#selectedItems .selected-item");
             let tagstring = '';
-            selectedItems.forEach((item, index) => {
+            selected_items.forEach((item, index) => {
                 tagstring = tagstring + ',' + item.textContent
             });
             tagstring = tagstring.substr(1)
-            formData.append('tag', tagstring);
+            form_data.append('tag', tagstring);
             
             const url = '{% url 'games:game_list' %}'
 
@@ -88,7 +104,7 @@
                     url: url,
                     method: 'POST',
                     is_token: true,
-                    body: formData
+                    body: form_data
                 })
             } catch (error) {
                 console.error('Error:', error);
@@ -100,19 +116,19 @@
     <script>
         function addItem() {
             const select = document.getElementById("itemSelect");
-            let selectedValue = select.value;
-            let selectedText = select.options[select.selectedIndex].text;
+            let selected_value = select.value;
+            let selected_text = select.options[select.selectedIndex].text;
         
-            if (selectedValue !== "") {
-                const itemsDiv = document.getElementById("selectedItems");
-                if(!isDuplicate(selectedText)){
-                    const newItem = document.createElement("div");
-                    newItem.classList.add("selected-item");
-                    newItem.textContent = selectedText;
-                    newItem.onclick = function() {
-                        itemsDiv.removeChild(newItem);
+            if (selected_value !== "") {
+                const items_div = document.getElementById("selectedItems");
+                if(!isDuplicate(selected_text)){
+                    const new_item = document.createElement("div");
+                    new_item.classList.add("selected-item");
+                    new_item.textContent = selected_text;
+                    new_item.onclick = function() {
+                        items_div.removeChild(new_item);
                     };
-                    itemsDiv.appendChild(newItem);
+                    items_div.appendChild(new_item);
                 } else{
                     alert("중복 태그는 사용할 수 없습니다.")
                 }
@@ -120,14 +136,14 @@
         }
 
         async function tagRecommend() {
-            const idTitle = document.getElementById('id_title');
-            const idContent = document.getElementById('id_content');
-            const idTitleValue = idTitle.value;
-            const idContentValue = idContent.value;
-            const aiInputData = '제목: ' + idTitleValue + ', ' + '게임 설명: '+ idContentValue
-            // 제목: idTitleValue, 게임 설명: idContentValue
+            const id_title = document.getElementById('id_title');
+            const id_content = document.getElementById('id_content');
+            const id_title_value = id_title.value;
+            const id_content_value = id_content.value;
+            const ai_input_data = '제목: ' + id_title_value + ', ' + '게임 설명: '+ id_content_value
+            // 제목: id_title_value, 게임 설명: id_content_value
             
-            if (idTitleValue && idContentValue) {
+            if (id_title_value && id_content_value) {
                 const url = '{% url 'games:chatbot' %}'
                 const access = localStorage.getItem('access_token');
                 const response = await fetch(url, {
@@ -137,7 +153,7 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${access}`,
                     },
-                    body: JSON.stringify({ input_data: aiInputData })
+                    body: JSON.stringify({ input_data: ai_input_data })
                 })
                 
                 const data = await response.json();
@@ -146,14 +162,14 @@
                         alert('추천하는 태그가 없습니다.')
                     } else {
                         const select = document.getElementById("itemSelect");
-                        const itemsDiv = document.getElementById("selectedItems");
-                        const newItem = document.createElement("div");
-                        newItem.classList.add("selected-item");
-                        newItem.textContent = data.tag;
-                        newItem.onclick = function() {
-                            itemsDiv.removeChild(newItem);
+                        const items_div = document.getElementById("selectedItems");
+                        const new_item = document.createElement("div");
+                        new_item.classList.add("selected-item");
+                        new_item.textContent = data.tag;
+                        new_item.onclick = function() {
+                            items_div.removeChild(new_item);
                         };
-                        itemsDiv.appendChild(newItem);
+                        items_div.appendChild(new_item);
                     }
                 } else {
                     alert('중복 태그는 사용할 수 없습니다.')
@@ -175,15 +191,15 @@
         }
         
         function previewThumbnail() {
-            const thumbnailInput = document.getElementById('id_thumbnail');
-            const selectedThumbnail = document.getElementById('selectedThumbnail');
-            const existingThumbnail = selectedThumbnail.querySelector('img');
+            const thumbnail_input = document.getElementById('id_thumbnail');
+            const selected_thumbnail = document.getElementById('selectedThumbnail');
+            const existing_thumbnail = selected_thumbnail.querySelector('img');
 
-            if (existingThumbnail) {
-                selectedThumbnail.removeChild(existingThumbnail)
+            if (existing_thumbnail) {
+                selected_thumbnail.removeChild(existing_thumbnail)
             }
 
-            const file = thumbnailInput.files[0];
+            const file = thumbnail_input.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = document.createElement('img')
@@ -192,29 +208,29 @@
                 img.onclick = function() {
                     removeThumbnail(img, file);
                 };
-                selectedThumbnail.appendChild(img);
+                selected_thumbnail.appendChild(img);
             };
             reader.readAsDataURL(file);
         }
 
         function removeThumbnail(imgElement, file) {
-            const selectedThumbnail = document.getElementById('selectedThumbnail');
-            selectedThumbnail.removeChild(imgElement);
+            const selected_thumbnail = document.getElementById('selectedThumbnail');
+            selected_thumbnail.removeChild(imgElement);
 
-            const thumbnailInput = document.getElementById('id_thumbnail');
-            const filesArray = Array.from(thumbnailInput.files);
-            const updatedFilesArray = filesArray.filter(f => f !== file);
+            const thumbnail_input = document.getElementById('id_thumbnail');
+            const files_array = Array.from(thumbnail_input.files);
+            const updated_files_array = files_array.filter(f => f !== file);
 
-            const dataTransfer = new DataTransfer();
-            updatedFilesArray.forEach(f => dataTransfer.items.add(f));
-            thumbnailInput.files = dataTransfer.files;
+            const data_transfer = new DataTransfer();
+            updated_files_array.forEach(f => data_transfer.items.add(f));
+            thumbnail_input.files = data_transfer.files;
         }
         
         function previewScreenshots() {
-            const screenshotsInput = document.getElementById('id_screenshots');
-            const selectedScreenshots = document.getElementById('selectedScreenshots');
+            const screenshots_input = document.getElementById('id_screenshots');
+            const selected_screenshots = document.getElementById('selectedScreenshots');
             
-            for (const file of screenshotsInput.files) {
+            for (const file of screenshots_input.files) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     const img = document.createElement('img');
@@ -223,73 +239,73 @@
                     img.onclick = function() {
                         removeScreenshot(img, file);
                     };
-                    selectedScreenshots.appendChild(img);
+                    selected_screenshots.appendChild(img);
                 };
                 reader.readAsDataURL(file);
             }
         }
         
-        async function addScreenshotsToFormData(formData) {
-            const screenshotsDiv = document.getElementById('selectedScreenshots');
-            const images = screenshotsDiv.querySelectorAll('img');
-            formData.delete("screenshots")
+        async function addScreenshotsToFormData(form_data) {
+            const screenshots_div = document.getElementById('selectedScreenshots');
+            const images = screenshots_div.querySelectorAll('img');
+            form_data.delete("screenshots")
             for (const img of images) {
-                const imageUrl = img.src;
-                const response = await fetch(imageUrl);
+                const image_url = img.src;
+                const response = await fetch(image_url);
                 const blob = await response.blob();
-                formData.append('screenshots', blob, 'screenshot.png');
+                form_data.append('screenshots', blob, 'screenshot.png');
             }
-            return formData;
+            return form_data;
         }
         
         function removeScreenshot(imgElement, file) {
-            const selectedScreenshots = document.getElementById('selectedScreenshots');
-            selectedScreenshots.removeChild(imgElement);
+            const selected_screenshots = document.getElementById('selectedScreenshots');
+            selected_screenshots.removeChild(imgElement);
         
             // Update screenshots input files
-            const screenshotsInput = document.getElementById('id_screenshots');
-            const filesArray = Array.from(screenshotsInput.files);
-            const updatedFilesArray = filesArray.filter(f => f !== file);
+            const screenshots_input = document.getElementById('id_screenshots');
+            const files_array = Array.from(screenshots_input.files);
+            const updated_files_array = files_array.filter(f => f !== file);
         
             // Create new FileList object
-            const dataTransfer = new DataTransfer();
-            updatedFilesArray.forEach(f => dataTransfer.items.add(f));
-            screenshotsInput.files = dataTransfer.files;
+            const data_transfer = new DataTransfer();
+            updated_files_array.forEach(f => data_transfer.items.add(f));
+            screenshots_input.files = data_transfer.files;
         }
         
         function previewGame() {
-            const gameFileInput = document.getElementById('id_gamefile');
-            const selectedGameFile = document.getElementById('selectedGameFile');
+            const game_file_input = document.getElementById('id_gamefile');
+            const selected_game_file = document.getElementById('selectedGameFile');
 
-            selectedGameFile.innerHTML = '';
+            selected_game_file.innerHTML = '';
 
-            if (gameFileInput.files.length > 0) {
-                const file = gameFileInput.files[0];
+            if (game_file_input.files.length > 0) {
+                const file = game_file_input.files[0];
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const fileName = file.name;
-                    const fileInfo = document.createElement('p');
-                    fileInfo.textContent = fileName;
-                    fileInfo.onclick = function() {
-                        removeGameFile(fileInfo, file);
+                    const file_name = file.name;
+                    const file_info = document.createElement('p');
+                    file_info.textContent = file_name;
+                    file_info.onclick = function() {
+                        removeGameFile(file_info, file);
                     };
-                    selectedGameFile.appendChild(fileInfo);
+                    selected_game_file.appendChild(file_info);
                 };
                 reader.readAsDataURL(file);
             }
         }
 
         function removeGameFile(pElement, file) {
-            const selectedGameFile = document.getElementById('selectedGameFile');
-            selectedGameFile.removeChild(pElement);
+            const selected_game_file = document.getElementById('selectedGameFile');
+            selected_game_file.removeChild(pElement);
 
-            const gameFileInput = document.getElementById('id_gamefile');
-            const filesArray = Array.from(gameFileInput.files);
-            const updatedFilesArray = filesArray.filter(f => f !== file);
+            const game_file_input = document.getElementById('id_gamefile');
+            const files_array = Array.from(game_file_input.files);
+            const updated_files_array = files_array.filter(f => f !== file);
 
-            const dataTransfer = new DataTransfer();
-            updatedFilesArray.forEach(f => dataTransfer.items.add(f));
-            gameFileInput.files = dataTransfer.files;
+            const data_transfer = new DataTransfer();
+            updated_files_array.forEach(f => data_transfer.items.add(f));
+            game_file_input.files = data_transfer.files;
         }
 
 

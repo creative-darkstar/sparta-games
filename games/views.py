@@ -1,6 +1,5 @@
 import io
 import re
-import requests
 import os
 import zipfile
 
@@ -17,7 +16,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated  # 로그인 인증토큰
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.decorators import permission_classes, authentication_classes
+from rest_framework.decorators import permission_classes
 
 from .models import (
     Game,
@@ -68,6 +67,7 @@ class GameListAPIView(APIView):
         order = request.query_params.get('order')
         search = request.query_params.get('search')
 
+        # 검색옵션 별 목록화
         if tag_q:
             rows = Game.objects.filter(tag__name__icontains=tag_q).filter(
                 is_visible=True, register_state=1)
@@ -89,6 +89,7 @@ class GameListAPIView(APIView):
 
         rows = rows.annotate(star=Avg('stars__star'))
 
+        # 추가 옵션 정렬
         if order == 'new':
             rows = rows.order_by('-created_at')
         elif order == 'view':
@@ -98,6 +99,7 @@ class GameListAPIView(APIView):
         else:
             rows = rows.order_by('-created_at')
 
+        # search_pagination
         if search:
             paginator = PageNumberPagination()
             result = paginator.paginate_queryset(rows, request)
@@ -137,7 +139,6 @@ class GameListAPIView(APIView):
             )
             screenshots.append(screenshot.src.url)
 
-        # 확인용 response
         return Response(
             {
                 "game": {
@@ -181,7 +182,7 @@ class GameDetailAPIView(APIView):
         else:
             star_score = round(sum(star_list)/len(star_list), 1)
         serializer = GameDetailSerializer(game)
-        # data에 serializer.data를 깊은 복사함
+        # data에 serializer.data를 assignment
         # serializer.data의 리턴값인 ReturnDict는 불변객체이다
         data = serializer.data
 
@@ -203,8 +204,10 @@ class GameDetailAPIView(APIView):
 
     def put(self, request, game_pk):
         game = self.get_object(game_pk)
+        
+        # 작성한 유저이거나 관리자일 경우 동작함
         if game.maker == request.user or request.user.is_staff == True:
-            if request.FILES.get("gamefile"):
+            if request.FILES.get("gamefile"): # 게임파일을 교체할 경우 검수페이지로 이동
                 game.register_state = 0
                 game.gamefile = request.FILES.get("gamefile")
             game.title = request.data.get("title", game.title)
@@ -215,16 +218,18 @@ class GameDetailAPIView(APIView):
             game.save()
 
             tag_data = request.data.get('tag')
-            if tag_data is not None:
+            if tag_data is not None: # 태그가 바뀔 경우 기존 태그를 초기화, 신규 태그로 교체
                 game.tag.clear()
                 tags = [Tag.objects.get_or_create(name=item.strip())[
                     0] for item in tag_data.split(',') if item.strip()]
                 game.tag.set(tags)
 
+            # 기존 데이터 삭제
             pre_screenshots_data = Screenshot.objects.filter(game=game)
             pre_screenshots_data.delete()
 
-            if request.data.get('screenshots'):
+            # 받아온 스크린샷으로 교체
+            if request.data.get('screenshots'): 
                 for item in request.FILES.getlist("screenshots"):
                     game.screenshots.create(src=item)
 
@@ -238,6 +243,8 @@ class GameDetailAPIView(APIView):
 
     def delete(self, request, game_pk):
         game = self.get_object(game_pk)
+
+        # 작성한 유저이거나 관리자일 경우 동작함
         if game.maker == request.user or request.user.is_staff == True:
             game.is_visible = False
             game.save()
@@ -251,10 +258,12 @@ class GameLikeAPIView(APIView):
 
     def post(self, request, game_pk):
         game = get_object_or_404(Game, pk=game_pk)
-        if game.like.filter(pk=request.user.pk).exists():
+        if game.like.filter(pk=request.user.pk).exists(): 
+            # 수정
             game.like.remove(request.user)
             return Response({'message': "즐겨찾기 취소"}, status=status.HTTP_200_OK)
         else:
+            # 생성
             game.like.add(request.user)
             return Response({'message': "즐겨찾기"}, status=status.HTTP_200_OK)
 
@@ -294,15 +303,19 @@ class CommentAPIView(APIView):
 
     def post(self, request, game_pk):
         game = get_object_or_404(Game, pk=game_pk)  # game 객체를 올바르게 설정
+        
+        # root 기본 설정
         root_id = request.data.get('root')
         root = None
+
+        # root_id가 있으면 대댓글의 root를 설정
         if root_id:
             root = get_object_or_404(Comment, pk=root_id)
 
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(author=request.user, game=game,
-                            root=root)  # 데이터베이스에 저장
+                            root=root)  # 데이터베이스에 저장(root가 none이면 댓글, 값이 있으면 대댓글)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -312,6 +325,8 @@ class CommentDetailAPIView(APIView):
 
     def put(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
+
+        # 작성한 유저이거나 관리자일 경우 동작함
         if request.user == comment.author or request.user.is_staff == True:
             serializer = CommentSerializer(
                 comment, data=request.data, partial=True)
@@ -324,6 +339,8 @@ class CommentDetailAPIView(APIView):
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(Comment, pk=comment_id)
+
+        # 작성한 유저이거나 관리자일 경우 동작함
         if request.user == comment.author or request.user.is_staff == True:
             comment.is_visible = False
             comment.content = "삭제된 댓글입니다."
@@ -528,7 +545,7 @@ def game_dzip(request, game_pk):
 
 
 CLIENT = OpenAI(api_key=settings.OPEN_API_KEY)
-MAX_USES_PER_DAY = 10
+MAX_USES_PER_DAY = 10 # 하루 당 질문 10개로 제한기준
 
 # chatbot API
 
@@ -547,8 +564,10 @@ def ChatbotAPIView(request):
     usage.count += 1
     usage.save()
 
-    input_data = request.data.get('input_data')  # 이름변경해야함
+    input_data = request.data.get('input_data')
     taglist = list(Tag.objects.values_list('name', flat=True))
+    
+    # GPT API와 통신을 통해 답장을 받아온다.(아래 형식을 따라야함)(추가 옵션은 문서를 참고)
     instructions = f"""
     내가 제한한 태그 목록 : {taglist} 여기서만 이야기를 해줘, 이외에는 말하지마
     받은 내용을 요약해서 내가 제한한 목록에서 제일 관련 있는 항목 한 개를 골라줘
@@ -562,6 +581,8 @@ def ChatbotAPIView(request):
             {"role": "user", "content": f"받은 내용: {input_data}"},
         ],
     )
+
+    # 응답받은 데이터 처리
     gpt_response = completion.choices[0].message.content
     about_tag = gpt_response.split('태그:')[1]
     about_tag = re.sub(
@@ -571,6 +592,9 @@ def ChatbotAPIView(request):
     if about_tag in untaglist:
         about_tag = '없음'
     return Response({"tag": about_tag}, status=status.HTTP_200_OK)
+
+
+# ---------- Web ---------- #
 
 
 # 게임 등록 Api 테스트용 페이지 렌더링

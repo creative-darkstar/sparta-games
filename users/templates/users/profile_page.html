@@ -154,12 +154,12 @@
 
             const profile_edit_form_tag = document.getElementById("profile_edit_form");
             const profile_edit_password_form_tag = document.getElementById("profile_edit_password_form");
-            const formData = new FormData(profile_edit_form_tag);
-            const passwordFormData = new FormData(profile_edit_password_form_tag);
-            formData.append("password", passwordFormData.get("password"));
+            const form_data = new FormData(profile_edit_form_tag);
+            const password_form_data = new FormData(profile_edit_password_form_tag);
+            form_data.append("password", password_form_data.get("password"));
 
-            if (!formData.get("image").name) {
-                formData.delete("image");
+            if (!form_data.get("image").name) {
+                form_data.delete("image");
             }
 
             const url = "{% url 'users:profile' 1 %}".replace('1', page_user_id);
@@ -168,7 +168,7 @@
                 url: url,
                 method: 'PUT',
                 is_token: true,
-                body: formData
+                body: form_data
             })
 
             window.location.href = "{% url 'users:profile_page' 1 %}".replace('1', page_user_id);
@@ -181,7 +181,7 @@
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
 
             const password_edit_form_tag = document.getElementById("password_edit_form");
-            const formData = new FormData(password_edit_form_tag);
+            const form_data = new FormData(password_edit_form_tag);
 
             const url = "{% url 'users:change_password' 1 %}".replace('1', page_user_id);
 
@@ -189,13 +189,13 @@
                 url: url,
                 method: 'PUT',
                 is_token: true,
-                body: formData
+                body: form_data
             })
 
             window.location.href = "{% url 'users:profile_page' 1 %}".replace('1', page_user_id);
         }
 
-        window.addEventListener("load", async function PageLoad() {
+        window.addEventListener("load", async function pageLoad() {
             // context로 views.py에서 game_pk를 받아서 사용한다.
             const page_user_id = getPageUserId();
 
@@ -271,46 +271,46 @@
             })
 
             for (let item of page_user_games.item_list) {
-                const trElement = document.createElement('tr');
-                trElement.setAttribute("class", "align-middle");
+                const tr_element = document.createElement('tr');
+                tr_element.setAttribute("class", "align-middle");
 
-                const gameThumbnailElement = document.createElement("img");
-                gameThumbnailElement.setAttribute("width", "100");
-                gameThumbnailElement.setAttribute("height", "100");
+                const game_thumbnail_element = document.createElement("img");
+                game_thumbnail_element.setAttribute("width", "100");
+                game_thumbnail_element.setAttribute("height", "100");
                 if (!item.thumbnail) {
-                    gameThumbnailElement.setAttribute("src", "{% static 'image/image_cap.svg' %}");
+                    game_thumbnail_element.setAttribute("src", "{% static 'image/image_cap.svg' %}");
                 } else {
-                    gameThumbnailElement.setAttribute("src", item.thumbnail);
+                    game_thumbnail_element.setAttribute("src", item.thumbnail);
                 }
-                gameThumbnailElement.setAttribute("alt", "...");
+                game_thumbnail_element.setAttribute("alt", "...");
 
-                const gameTitleElement = document.createElement("a");
-                gameTitleElement.setAttribute("href", '{% url 'games:game_detail_page' 1 %}'.replace('1', item.game_pk));
-                const gameTitleTextElement = document.createElement("span");
-                gameTitleTextElement.innerText = item.title;
-                gameTitleElement.appendChild(gameTitleTextElement);
+                const game_title_element = document.createElement("a");
+                game_title_element.setAttribute("href", '{% url 'games:game_detail_page' 1 %}'.replace('1', item.game_pk));
+                const game_title_text_element = document.createElement("span");
+                game_title_text_element.innerText = item.title;
+                game_title_element.appendChild(game_title_text_element);
 
-                const gameUploadDtElement = document.createElement("span");
-                gameUploadDtElement.innerText = `${formatTime(item.created_at)}`;
+                const game_upload_dt_element = document.createElement("span");
+                game_upload_dt_element.innerText = `${formatTime(item.created_at)}`;
 
-                const gameTagsElement = document.createElement("span");
-                gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;
+                const game_tags_element = document.createElement("span");
+                game_tags_element.innerText = `태그: ${item.tag_list.join(", ")}`;
                 
-                let tdElement = document.createElement('td');
-                tdElement.appendChild(gameThumbnailElement);
-                trElement.appendChild(tdElement);
+                let td_element = document.createElement('td');
+                td_element.appendChild(game_thumbnail_element);
+                tr_element.appendChild(td_element);
                 
-                tdElement = document.createElement('td');
-                tdElement.appendChild(gameTitleElement);
-                trElement.appendChild(tdElement);
+                td_element = document.createElement('td');
+                td_element.appendChild(game_title_element);
+                tr_element.appendChild(td_element);
                 
-                tdElement = document.createElement('td');
-                tdElement.appendChild(gameUploadDtElement);
-                trElement.appendChild(tdElement);
+                td_element = document.createElement('td');
+                td_element.appendChild(game_upload_dt_element);
+                tr_element.appendChild(td_element);
                 
-                tdElement = document.createElement('td');
-                tdElement.appendChild(gameTagsElement);
-                trElement.appendChild(tdElement);
+                td_element = document.createElement('td');
+                td_element.appendChild(game_tags_element);
+                tr_element.appendChild(td_element);
 
                 // 내가 등록한 게임을 확인할 경우 등록 상태 확인
                 if (is_my_page) {
@@ -326,12 +326,12 @@
                         gameRegisterStateElement.setAttribute("style", "color:red;");
                     }
                     
-                    tdElement = document.createElement('td');
-                    tdElement.appendChild(gameRegisterStateElement);
-                    trElement.appendChild(tdElement);
+                    td_element = document.createElement('td');
+                    td_element.appendChild(gameRegisterStateElement);
+                    tr_element.appendChild(td_element);
                 }
                 
-                user_games_table_body.appendChild(trElement);
+                user_games_table_body.appendChild(tr_element);
             }
 
             // 내가 즐겨찾기한 게임
@@ -346,58 +346,58 @@
                 })
 
                 for (let item of page_user_like_games.item_list) {
-                    const trElement = document.createElement('tr');
-                    trElement.setAttribute("class", "align-middle");
+                    const tr_element = document.createElement('tr');
+                    tr_element.setAttribute("class", "align-middle");
 
-                    const gameThumbnailElement = document.createElement("img");
-                    gameThumbnailElement.setAttribute("width", "100");
-                    gameThumbnailElement.setAttribute("height", "100");
+                    const game_thumbnail_element = document.createElement("img");
+                    game_thumbnail_element.setAttribute("width", "100");
+                    game_thumbnail_element.setAttribute("height", "100");
                     if (!item.thumbnail) {
-                        gameThumbnailElement.setAttribute("src", "{% static 'image/image_cap.svg' %}");
+                        game_thumbnail_element.setAttribute("src", "{% static 'image/image_cap.svg' %}");
                     } else {
-                        gameThumbnailElement.setAttribute("src", item.thumbnail);
+                        game_thumbnail_element.setAttribute("src", item.thumbnail);
                     }
-                    gameThumbnailElement.setAttribute("alt", "...");
+                    game_thumbnail_element.setAttribute("alt", "...");
                     
-                    const gameTitleElement = document.createElement("a");
-                    gameTitleElement.setAttribute("href", '{% url 'games:game_detail_page' 1 %}'.replace('1', item.game_pk));
-                    const gameTitleTextElement = document.createElement("span");
-                    gameTitleTextElement.innerText = item.title;
-                    gameTitleElement.appendChild(gameTitleTextElement);
+                    const game_title_element = document.createElement("a");
+                    game_title_element.setAttribute("href", '{% url 'games:game_detail_page' 1 %}'.replace('1', item.game_pk));
+                    const game_title_text_element = document.createElement("span");
+                    game_title_text_element.innerText = item.title;
+                    game_title_element.appendChild(game_title_text_element);
                     
-                    const gameUploaderElement = document.createElement("a");
-                    gameUploaderElement.setAttribute("href", '{% url 'users:profile_page' 1 %}'.replace('1', item.maker_info.pk));
-                    const gameUploaderTextElement = document.createElement("span");
-                    gameUploaderTextElement.innerText = item.maker_info.name;
-                    gameUploaderElement.appendChild(gameUploaderTextElement);
+                    const game_uploader_element = document.createElement("a");
+                    game_uploader_element.setAttribute("href", '{% url 'users:profile_page' 1 %}'.replace('1', item.maker_info.pk));
+                    const game_uploader_text_element = document.createElement("span");
+                    game_uploader_text_element.innerText = item.maker_info.name;
+                    game_uploader_element.appendChild(game_uploader_text_element);
                     
-                    const gameUploadDtElement = document.createElement("span");
-                    gameUploadDtElement.innerText = `${formatTime(item.created_at)}`;
+                    const game_upload_dt_element = document.createElement("span");
+                    game_upload_dt_element.innerText = `${formatTime(item.created_at)}`;
 
-                    const gameTagsElement = document.createElement("span");
-                    gameTagsElement.innerText = `태그: ${item.tag_list.join(", ")}`;
+                    const game_tags_element = document.createElement("span");
+                    game_tags_element.innerText = `태그: ${item.tag_list.join(", ")}`;
 
-                    let tdElement = document.createElement('td');
-                    tdElement.appendChild(gameThumbnailElement);
-                    trElement.appendChild(tdElement);
+                    let td_element = document.createElement('td');
+                    td_element.appendChild(game_thumbnail_element);
+                    tr_element.appendChild(td_element);
                     
-                    tdElement = document.createElement('td');
-                    tdElement.appendChild(gameTitleElement);
-                    trElement.appendChild(tdElement);
+                    td_element = document.createElement('td');
+                    td_element.appendChild(game_title_element);
+                    tr_element.appendChild(td_element);
                     
-                    tdElement = document.createElement('td');
-                    tdElement.appendChild(gameUploaderElement);
-                    trElement.appendChild(tdElement);
+                    td_element = document.createElement('td');
+                    td_element.appendChild(game_uploader_element);
+                    tr_element.appendChild(td_element);
                     
-                    tdElement = document.createElement('td');
-                    tdElement.appendChild(gameUploadDtElement);
-                    trElement.appendChild(tdElement);
+                    td_element = document.createElement('td');
+                    td_element.appendChild(game_upload_dt_element);
+                    tr_element.appendChild(td_element);
                     
-                    tdElement = document.createElement('td');
-                    tdElement.appendChild(gameTagsElement);
-                    trElement.appendChild(tdElement);
+                    td_element = document.createElement('td');
+                    td_element.appendChild(game_tags_element);
+                    tr_element.appendChild(td_element);
 
-                    user_like_games_table_body.appendChild(trElement);
+                    user_like_games_table_body.appendChild(tr_element);
                 }
             }
         });

@@ -3,7 +3,7 @@
 {% block content %}
     <div class="d-grid gap-2 d-md-flex justify-content-center">
         <div>
-            <form method="POST" enctype="multipart/form-data" id="qna_update_form" onsubmit="QnAUpdate(event);">
+            <form method="POST" enctype="multipart/form-data" id="qna_update_form" onsubmit="qnAUpdate(event);">
                 {% csrf_token %}
                 <div>
                     <label for="id_category">카테고리: </label>
@@ -75,7 +75,6 @@
                 document.getElementById('id_title').value = title;
                 document.getElementById('id_content').value = content;
                 document.getElementById("itemSelect").value = category;
-                {% comment %} document.querySelector(`#itemSelect option[value='${category}']`).selected=true; {% endcomment %}
             } catch (error) { 
                 console.error('Failed to load game details:', error);
             }
@@ -85,13 +84,13 @@
             loadQnADetails();// 페이지 로드 시 게임 상세 정보를 로드
         });
 
-        async function QnAUpdate(event) {
+        async function qnAUpdate(event) {
             event.preventDefault();  // 폼의 기본 제출 동작을 방지
             const qna_pk = getQnaId();
             const form_tag = document.getElementById('qna_update_form');
-            const formData = new FormData(form_tag);
-            const selectedItems = document.querySelector("#itemSelect");
-            formData.set('category', selectedItems.value);
+            const form_data = new FormData(form_tag);
+            const selected_items = document.querySelector("#itemSelect");
+            form_data.set('category', selected_items.value);
             const url = '{% url 'qnas:qna_detail' 1 %}'.replace("1",qna_pk);
 
             try {
@@ -99,7 +98,7 @@
                     url: url,
                     method: 'PUT',
                     is_token: true,
-                    body: formData
+                    body: form_data
                 });
                 const qna_pk= response.id;
                 window.location.href = '{% url 'qnas:qna_detail_page' 1 %}'.replace('1', qna_pk);

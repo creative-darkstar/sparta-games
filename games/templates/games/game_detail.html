@@ -17,7 +17,9 @@
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">★★★★★</button>
                 </div>
                 <div id='infoDiv2' class='d-flex flex-column'>
-                    <span id='makerNameSpan'></span>
+                    <a id='makerProfile' style='text-decoration: none; color:inherit;'>
+                      <span id='makerNameSpan'></span>
+                    </a>
                     <button id='gameLikeBtn' onclick='like();'>즐겨찾기</button>
                 </div>
                 <div id='infoDiv3' class='d-flex flex-column'>
@@ -36,7 +38,7 @@
     <hr>
     <div class="container">
         <div>
-            <form id='formElement' method='POST' onsubmit="CommentCreate(event);">
+            <form id='formElement' method='POST' onsubmit="commentCreate(event);">
                 {% csrf_token %}
                 <label for="comment">댓글</label>
                 <input type="text" id='comment' name='content'>
@@ -73,7 +75,7 @@
       </div>
       <div id='login_modal_footer' style='display:none; justify-content:end;' class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">나가기</button>
-        <button type="submit" class="btn btn-primary" onclick='Star(event);'>확인</button>
+        <button type="submit" class="btn btn-primary" onclick='star(event);'>확인</button>
       </div>
       <div id='logout_modal_footer' style='display:none;' class="modal-footer">
         <a class="btn btn-primary" href='{% url 'accounts:login_page' %}'>로그인페이지로 이동</a>
@@ -101,7 +103,7 @@
     return parseInt(parts[3]);
   }
 
-  async function CommentCreate(event) {
+  async function commentCreate(event) {
     event.preventDefault();  // 폼의 기본 제출 동작을 방지
     const user = await isLogIn();
     if(!user){
@@ -110,7 +112,7 @@
     }
 
     const form_tag = document.getElementById('formElement');
-    const formData = new FormData(form_tag);
+    const form_data = new FormData(form_tag);
 
     const url = '{% url 'games:comments' game_pk %}'
 
@@ -119,7 +121,7 @@
             url: url,
             method: 'POST',
             is_token: true,
-            body: formData
+            body: form_data
         })
         
     } catch (error) {
@@ -129,7 +131,7 @@
     window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
-async function ReplyCreate(event, root_id) {
+async function replyCreate(event, root_id) {
   event.preventDefault();  // 폼의 기본 제출 동작을 방지
   const user = await isLogIn();
   if(!user){
@@ -137,10 +139,10 @@ async function ReplyCreate(event, root_id) {
     return
   }
 
-  const replyForm=event.target;
-  const formData = new FormData(replyForm);
-  formData.append('root', root_id);
-  const content = formData.get('content');
+  const reply_form=event.target;
+  const form_data = new FormData(reply_form);
+  form_data.append('root', root_id);
+  const content = form_data.get('content');
   if (!content) {
       alert("댓글 내용을 입력하세요.");
       return;
@@ -152,7 +154,7 @@ async function ReplyCreate(event, root_id) {
           url: url,
           method: 'POST',
           is_token: true,
-          body: formData
+          body: form_data
       })
       
   } catch (error) {
@@ -162,11 +164,11 @@ async function ReplyCreate(event, root_id) {
   window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
-async function Star(event) {
+async function star(event) {
   event.preventDefault();  // 폼의 기본 제출 동작을 방지
 
   const form_tag = document.getElementById('myform');
-  const formData = new FormData(form_tag);
+  const form_data = new FormData(form_tag);
 
   const url = '{% url 'games:game_star' game_pk %}'
 
@@ -175,7 +177,7 @@ async function Star(event) {
           url: url,
           method: 'POST',
           is_token: true,
-          body: formData
+          body: form_data
       })
       
   } catch (error) {
@@ -186,7 +188,7 @@ async function Star(event) {
 }
 
 async function like() {
-  const gameLikeBtn = document.getElementById('gameLikeBtn')
+  const game_like_btn = document.getElementById('gameLikeBtn')
   const game_pk = getGameId();
   const url = '{% url 'games:game_like' 1 %}'.replace('1', game_pk)
   const access = localStorage.getItem('access_token')
@@ -202,12 +204,10 @@ async function like() {
 
   const data = await response.json()
   if (data.message === '즐겨찾기') {
-    gameLikeBtn.innerText = '즐겨찾기 취소'
+    game_like_btn.innerText = '즐겨찾기 취소'
   } else {
-    gameLikeBtn.innerText = '즐겨찾기'
+    game_like_btn.innerText = '즐겨찾기'
   }
-
-  // window.location.href = "{% url 'games:game_detail_page' 1 %}".replace('1', game_pk);
 }
 
   function gameEdit() {
@@ -234,20 +234,20 @@ async function like() {
       }
   }
 
-  window.addEventListener("load", async function PageLoad() {
+  window.addEventListener("load", async function pageLoad() {
 
     // context로 views.py에서 game_pk를 받아서 사용한다.
-    const game_detail_URL = '{% url 'games:game_detail' game_pk %}';
-    const comment_URL = '{% url 'games:comments' game_pk %}';
+    const game_detail_url = '{% url 'games:game_detail' game_pk %}';
+    const comment_url = '{% url 'games:comments' game_pk %}';
 
     const game_detail_response = await aSend({
-      url: game_detail_URL,
+      url: game_detail_url,
       method: 'GET',
       is_token: false,
     });
     
     const comment_response = await aSend({
-      url: comment_URL,
+      url: comment_url,
       method: 'GET',
       is_token: false,
     });
@@ -261,60 +261,66 @@ async function like() {
     const screenshot = game_detail_response.screenshot;
     const content = game_detail_response.content;
     const youtube_url = game_detail_response.youtube_url;
+    const maker = game_detail_response.maker;
     // # 1 ==============title과 iframe=====================
     // const titleContainer = document.createElement('div');
     // titleContainer.className = 'd-flex flex-column align-items-center';
     const titleContainer = document.getElementById('titleContainer');
 
-    const titleElement = document.createElement('h1');
-    titleElement.textContent = title;
-    titleContainer.appendChild(titleElement);
+    // # 1 ==============title과 iframe=====================
+    const title_container = document.getElementById('titleContainer');
+
+    const title_element = document.createElement('h1');
+    title_element.textContent = title;
+    title_container.appendChild(title_element);
     
     if (game_detail_response.register_state === 1) {
-        const divElement = document.createElement('div');
-        divElement.style.cssText = 'overflow:hidden;';
-        divElement.className = 'h-100';
-        const iframeElement = document.createElement('iframe');
-        iframeElement.setAttribute("id","gameIframe");
-        iframeElement.style.cssText = 'border:none; width:10%; height:100%;';
-        iframeElement.src = `${gamepath}/index.html`;
+        const div_element = document.createElement('div');
+        div_element.style.cssText = 'overflow:hidden;';
+        div_element.className = 'h-100';
+        const iframe_element = document.createElement('iframe');
+        iframe_element.setAttribute("id","gameIframe");
+        iframe_element.style.cssText = 'border:none; width:10%; height:100%;';
+        iframe_element.src = `${gamepath}/index.html`;
         
-        divElement.appendChild(iframeElement);
-        titleContainer.appendChild(divElement);
+        div_element.appendChild(iframe_element);
+        title_container.appendChild(div_element);
     } else {
-        const divElement = document.createElement('div');
-        divElement.style.position = 'relative';
-        divElement.style.width = '78%';
-        divElement.style.paddingTop = '19%';
-        divElement.style.paddingBottom = '19%';
-        divElement.style.backgroundColor = "gray";
-        divElement.style.textAlign = "center";
-        divElement.style.alignSelf = "center";
+        const div_element = document.createElement('div');
+        div_element.style.position = 'relative';
+        div_element.style.width = '78%';
+        div_element.style.paddingTop = '19%';
+        div_element.style.paddingBottom = '19%';
+        div_element.style.backgroundColor = "gray";
+        div_element.style.textAlign = "center";
+        div_element.style.alignSelf = "center";
         
-        const spanElement = document.createElement("span");
-        spanElement.innerText = "서비스 준비 중입니다."
-        spanElement.style.fontSize = "50px";
+        const span_element = document.createElement("span");
+        span_element.innerText = "서비스 준비 중입니다."
+        span_element.style.fontSize = "50px";
         
-        divElement.appendChild(spanElement);
-        titleContainer.appendChild(divElement);
+        div_element.appendChild(span_element);
+        title_container.appendChild(div_element);
     }
 
     // # 2 ================게임 상세 span==================
-    const infoDiv = document.getElementById('infoDiv');
+    const info_div = document.getElementById('infoDiv');
 
-    const starScoreSpan = document.getElementById('starScoreSpan');
+    const star_score_span = document.getElementById('starScoreSpan');
     if (star_score == null) {
-      starScoreSpan.textContent = `평점: 평점없음`;
+      star_score_span.textContent = `평점: 평점없음`;
     }
     else{
-      starScoreSpan.textContent = `평점: ${star_score}`;
+      star_score_span.textContent = `평점: ${star_score}`;
     }
-
+    const maker_profile = document.getElementById('makerProfile');
+    const maker_profile_url = '{% url 'users:profile_page' 1 %}'.replace('1', maker);
+    maker_profile.setAttribute('href', maker_profile_url);
     const makerNameSpan = document.getElementById('makerNameSpan');
     makerNameSpan.textContent = `제작자: ${maker_name}`;
 
-    const createdAtSpan = document.getElementById('createdAtSpan');
-    createdAtSpan.textContent = `업로드 일시: ${formatTime(created_at)}`;
+    const created_at_span = document.getElementById('createdAtSpan');
+    created_at_span.textContent = `업로드 일시: ${formatTime(created_at)}`;
 
     // # 2-1 ============== 게임 상세 span - star ================
     const login_modal_body = document.getElementById('login_modal_body');
@@ -331,65 +337,65 @@ async function like() {
       logout_modal_footer.style = 'display: flex; justify-content-end;';
     }
     // # 2-2 ================= 게임 상세 span - like ==============
-    const gameLikeBtn = document.getElementById('gameLikeBtn');
+    const game_like_btn = document.getElementById('gameLikeBtn');
     if (user) {
         for (let item of game_detail_response.like) {
             if (item === user.user_pk) {
-                gameLikeBtn.innerText = '즐겨찾기 취소'
+              game_like_btn.innerText = '즐겨찾기 취소'
             } 
         }
     } else {
         // 로그아웃 상태일 경우 즐겨찾기 버튼 클릭 시 로그인 해주세요 모달창 띄우도록 설정
-        setModal("gameLikeBtn");
+        setModal("game_like_btn");
     }
 
     // # 2-3 ============== 게임 상세 span - tag ===================
-    const infoDiv3 = document.getElementById('infoDiv3')
+    const info_div3 = document.getElementById('infoDiv3')
 
-    const tagSpan = document.createElement('span');
-    tagSpan.textContent = '태그: ';
+    const tag_span = document.createElement('span');
+    tag_span.textContent = '태그: ';
 
     tag.forEach((item, index) => {
-      const tagItemSpan = document.createElement('span');
+      const tag_item_span = document.createElement('span');
       if (index > 0) {
-        tagItemSpan.textContent = `, ${item.name}`;
+        tag_item_span.textContent = `, ${item.name}`;
       } else {
-        tagItemSpan.textContent = item.name;
+        tag_item_span.textContent = item.name;
       }
-      tagSpan.appendChild(tagItemSpan);
+      tag_span.appendChild(tag_item_span);
     })
 
-    infoDiv3.appendChild(tagSpan)
+    info_div3.appendChild(tag_span)
       
       // # 3 ============== 게임 상세 - 수정 / 삭제 버튼 ===================
-      const gameEditBtn = document.createElement('button');
-      const gameDeleteBtn = document.createElement('button');
+      const game_edit_btn = document.createElement('button');
+      const game_delete_btn = document.createElement('button');
       
       if (user) {
           if (user.user_pk === game_detail_response.maker || user.is_staff==true) {
               const editDeleteBtn = document.getElementById("editDeleteBtn");
               
-              gameEditBtn.setAttribute('id', "gameEditBtn");
-              gameDeleteBtn.setAttribute('id', "gameDeleteBtn");
+              game_edit_btn.setAttribute('id', "gameEditBtn");
+              game_delete_btn.setAttribute('id', "gameDeleteBtn");
               
-              gameEditBtn.setAttribute('class', "mt-3 mb-3 me-2 btn btn btn-info");
-              gameDeleteBtn.setAttribute('class', "mt-3 mb-3 me-2 btn btn-danger");
+              game_edit_btn.setAttribute('class', "mt-3 mb-3 me-2 btn btn btn-info");
+              game_delete_btn.setAttribute('class', "mt-3 mb-3 me-2 btn btn-danger");
               
-              gameEditBtn.setAttribute('onclick', "gameEdit();");
-              gameDeleteBtn.setAttribute('onclick', "gameDelete();");
+              game_edit_btn.setAttribute('onclick', "gameEdit();");
+              game_delete_btn.setAttribute('onclick', "gameDelete();");
               
-              gameEditBtn.innerText = "수정"
-              gameDeleteBtn.innerText = "삭제"
+              game_edit_btn.innerText = "수정"
+              game_delete_btn.innerText = "삭제"
               
-              editDeleteBtn.appendChild(gameEditBtn);
-              editDeleteBtn.appendChild(gameDeleteBtn);
+              editDeleteBtn.appendChild(game_edit_btn);
+              editDeleteBtn.appendChild(game_delete_btn);
           }
       }
       
       
-    const containerDiv = document.getElementById('containerDiv');
+    const container_div = document.getElementById('containerDiv');
     if (youtube_url || screenshot.length > 0) {
-      containerDiv.innerHTML =`\
+      container_div.innerHTML =`\
       <div id='wrap-vertical' class="scroll-container"></div>\
       <br>\
       <div id="carouselExampleIndicators" class="carousel slide">\
@@ -397,10 +403,8 @@ async function like() {
       </div>`
     } 
     // # 4 ================== video와 screenshot ====================
-    // const containerDiv = document.createElement('div');
-    // containerDiv.className = 'd-flex align-items-center justify-content-around'
-    const carouselButtonDiv = document.getElementById('wrap-vertical');
-    const carouselContentDiv = document.getElementById('carouselContent');
+    const carousel_button_div = document.getElementById('wrap-vertical');
+    const carousel_content_div = document.getElementById('carouselContent');
     let content_idx = 0
     
     if (youtube_url) {
@@ -421,7 +425,7 @@ async function like() {
       youtube_thumbnail.setAttribute('alt','...')
 
       youtube_button.appendChild(youtube_thumbnail)
-      carouselButtonDiv.appendChild(youtube_button)
+      carousel_button_div.appendChild(youtube_button)
 
       const youtube_div = document.createElement('div')
       youtube_div.setAttribute('class','carousel-item active')
@@ -438,7 +442,7 @@ async function like() {
       youtube_iframe.setAttribute('allowfullscreen','true')
 
       youtube_div.appendChild(youtube_iframe)
-      carouselContentDiv.appendChild(youtube_div)
+      carousel_content_div.appendChild(youtube_div)
       content_idx += 1
     }
 
@@ -462,7 +466,7 @@ async function like() {
       screenshot_button_img.setAttribute('style','object-fit: contain; object-position: center; width: 100%; height: 100%;')
 
       screenshot_button.appendChild(screenshot_button_img)
-      carouselButtonDiv.appendChild(screenshot_button)
+      carousel_button_div.appendChild(screenshot_button)
 
       const screenshot_div = document.createElement('div')
       if (content_idx == 0) {
@@ -479,283 +483,284 @@ async function like() {
       screenshot_img.setAttribute('alt','...')
 
       screenshot_div.appendChild(screenshot_img)
-      carouselContentDiv.appendChild(screenshot_div)
+      carousel_content_div.appendChild(screenshot_div)
       content_idx += 1
     }
     // ===================== 텍스트 영역 (게임 설명) =====================
-    const contentDiv = document.getElementById("contentDiv");
-    const contentText = document.createElement("span");
-    contentText.innerText = content;
-    contentDiv.appendChild(contentText);
+    const content_div = document.getElementById("contentDiv");
+    const content_text = document.createElement("span");
+    content_text.innerText = content;
+    content_div.appendChild(content_text);
 
     // # 6 =====================게시글에 달린 댓글========================
-    const commentContainerDiv = document.getElementById('commentContainerDiv');
+    const comment_container_div = document.getElementById('commentContainerDiv');
     comment_response.forEach(comment => {
-        const containDiv = document.createElement('div');
+        const contain_div = document.createElement('div');
 
-        const commentDiv = document.createElement('div');
-        commentDiv.setAttribute('data-comment-id',comment.id)
-        commentDiv.setAttribute("class", "d-flex justify-content-between");
-        containDiv.appendChild(commentDiv)
+        const comment_div = document.createElement('div');
+        comment_div.setAttribute('data-comment-id',comment.id)
+        comment_div.setAttribute("class", "d-flex justify-content-between");
+        contain_div.appendChild(comment_div)
 
         const profilewidth = 10;
         const replyarrowwidth = 2.5;
 
-        const userDiv = document.createElement('div');
-        userDiv.setAttribute("class", "d-flex align-items-center");
-        userDiv.setAttribute("style", `width:${profilewidth}%`);
+        const user_div = document.createElement('div');
+        user_div.setAttribute("class", "d-flex align-items-center");
+        user_div.setAttribute("style", `width:${profilewidth}%`);
 
-        const profileDiv = document.createElement('a');
+        const profile_div = document.createElement('a');
         let url_author="{% url 'users:profile_page' 1 %}".replace('1',comment.author);
-        profileDiv.setAttribute("href", url_author);
-        profileDiv.setAttribute("style","text-decoration:none;");
-        profileDiv.setAttribute("class","text-dark");
+        profile_div.setAttribute("href", url_author);
+        profile_div.setAttribute("style","text-decoration:none;");
+        profile_div.setAttribute("class","text-dark");
 
-        const subjectDiv = document.createElement('div');
-        subjectDiv.setAttribute("class", "btn d-flex align-items-center justify-content-between");
-        subjectDiv.setAttribute("style", `width:${100-profilewidth}%`);
+        const subject_div = document.createElement('div');
+        subject_div.setAttribute("class", "btn d-flex align-items-center justify-content-between");
+        subject_div.setAttribute("style", `width:${100-profilewidth}%`);
 
-        const contentDiv = document.createElement('div');
-        const dateDiv = document.createElement('div');
+        const content_div = document.createElement('div');
+        const date_div = document.createElement('div');
 
-        commentDiv.appendChild(userDiv);
-        commentDiv.appendChild(subjectDiv);
-        userDiv.appendChild(profileDiv);
-        subjectDiv.appendChild(contentDiv);
-        subjectDiv.appendChild(dateDiv);
+        comment_div.appendChild(user_div);
+        comment_div.appendChild(subject_div);
+        user_div.appendChild(profile_div);
+        subject_div.appendChild(content_div);
+        subject_div.appendChild(date_div);
 
-        const commentImgElement = document.createElement('img');
+        const comment_img_element = document.createElement('img');
         if (comment.src) {
-            commentImgElement.src = comment.src;
+          comment_img_element.src = comment.src;
         }
         else {
-            commentImgElement.src = '{% static 'image/user.png' %}';
+          comment_img_element.src = '{% static 'image/user.png' %}';
         }
-        commentImgElement.style.width = '30px';
-        commentImgElement.alt = '';
-        commentImgElement.setAttribute("class", "me-1");
-        profileDiv.appendChild(commentImgElement);
+        comment_img_element.style.width = '30px';
+        comment_img_element.alt = '';
+        comment_img_element.setAttribute("class", "me-1");
+        profile_div.appendChild(comment_img_element);
 
-        const authorSpanElement = document.createElement('span');
+        const author_span_element = document.createElement('span');
         let a_name=comment.author_name;
         if (a_name.length > 8){
           a_name = a_name.substring(0,8)+"...";
         }
-        authorSpanElement.textContent = `${a_name}`;
-        profileDiv.appendChild(authorSpanElement);
+        author_span_element.textContent = `${a_name}`;
+        profile_div.appendChild(author_span_element);
 
-        const contentSpanElement = document.createElement('span');
-        contentSpanElement.textContent = `${comment.content}`;
-        contentSpanElement.setAttribute('class', 'editable-comment-content');
-        contentDiv.appendChild(contentSpanElement);
+        const content_span_element = document.createElement('span');
+        content_span_element.textContent = `${comment.content}`;
+        content_span_element.setAttribute('class', 'editable-comment-content');
+        content_div.appendChild(content_span_element);
 
-        const commendCreatedAtSpan = document.createElement('span');
-        commendCreatedAtSpan.textContent = `${formatTime(comment.created_at)}`;
-        dateDiv.appendChild(commendCreatedAtSpan);
+        const commend_created_at_span = document.createElement('span');
+        commend_created_at_span.textContent = `${formatTime(comment.created_at)}`;
+        date_div.appendChild(commend_created_at_span);
 
-        const comment_EditDelete_div= document.createElement('div');
-        commentDiv.appendChild(comment_EditDelete_div);
-        const commentEditBtn = document.createElement('i');
-        const commentDeleteBtn = document.createElement('i');
+        const comment_edit_delete_div= document.createElement('div');
+        comment_div.appendChild(comment_edit_delete_div);
+        const comment_edit_btn = document.createElement('i');
+        const comment_delete_btn = document.createElement('i');
         if (comment.is_visible){
           if (user) {
               if (user.user_pk === comment.author || user.is_staff==true) {
                   
-                  commentEditBtn.setAttribute('id', "commentEditBtn");
-                  commentDeleteBtn.setAttribute('id', "commentDeleteBtn");
+                  comment_edit_btn.setAttribute('id', "commentEditBtn");
+                  comment_delete_btn.setAttribute('id', "commentDeleteBtn");
                   
-                  commentEditBtn.setAttribute('onclick', `commentEdit('${comment.id}','${comment.content}');`);
-                  commentDeleteBtn.setAttribute('onclick', `commentDelete('${comment.id}');`);
+                  comment_edit_btn.setAttribute('onclick', `commentEdit('${comment.id}','${comment.content}');`);
+                  comment_delete_btn.setAttribute('onclick', `commentDelete('${comment.id}');`);
                   
-                  commentEditBtn.setAttribute('class', "bi bi-pencil-square btn");
-                  commentDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                  comment_edit_btn.setAttribute('class', "bi bi-pencil-square btn");
+                  comment_delete_btn.setAttribute('class', "bi bi-x-square btn");
                   
-                  commentEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
-                  commentDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                  comment_edit_btn.setAttribute('style', "padding:0; outline:none; border:none;");
+                  comment_delete_btn.setAttribute('style', "padding:0; outline:none; border:none;");
                   
-                  comment_EditDelete_div.appendChild(commentEditBtn);
-                  comment_EditDelete_div.appendChild(commentDeleteBtn);
+                  comment_edit_delete_div.appendChild(comment_edit_btn);
+                  comment_edit_delete_div.appendChild(comment_delete_btn);
               }
           }
         }
 
-        subjectDiv.onclick=function(){
+        subject_div.onclick=function(){
           if(comment.is_visible){
-            let existReplyForm=containDiv.querySelector('.replyForm');
-            if(existReplyForm) {
-                existReplyForm.remove();
+            let exist_reply_form=contain_div.querySelector('.replyForm');
+            if(exist_reply_form) {
+              exist_reply_form.remove();
             }
             else {
-                const replyForm=document.createElement('form');
-                replyForm.className = 'replyForm mt-3';
-                replyForm.onsubmit=function(e){ReplyCreate(e,comment.id);};
+                const reply_form=document.createElement('form');
+                reply_form.className = 'replyForm mt-3';
+                reply_form.onsubmit=function(e){replyCreate(e,comment.id);};
 
-                const replyInput=document.createElement('input');
-                replyInput.type = 'text';
-                replyInput.name = 'content';
-                replyInput.placeholder = '답글을 입력하세요';
-                replyInput.setAttribute("class", "me-2")
+                const reply_input=document.createElement('input');
+                reply_input.type = 'text';
+                reply_input.name = 'content';
+                reply_input.placeholder = '답글을 입력하세요';
+                reply_input.setAttribute("class", "me-2")
 
-                const replySubmitButton = document.createElement('button');
-                replySubmitButton.type = 'submit';
-                replySubmitButton.setAttribute("id","reply_id")
-                replySubmitButton.textContent = '댓글 달기';
+                const reply_submit_button = document.createElement('button');
+                reply_submit_button.type = 'submit';
+                reply_submit_button.setAttribute("id","reply_id")
+                reply_submit_button.textContent = '댓글 달기';
 
-                replyForm.appendChild(replyInput);
-                replyForm.appendChild(replySubmitButton);
+                reply_form.appendChild(reply_input);
+                reply_form.appendChild(reply_submit_button);
 
-                containDiv.appendChild(replyForm);
+                contain_div.appendChild(reply_form);
             }
           }
         };
 
         if (comment.replies && comment.replies.length > 0) {
-            const replyContainer = document.createElement('div');
-            replyContainer.classList.add('replies');
+            const reply_container = document.createElement('div');
+            reply_container.classList.add('replies');
             comment.replies.forEach(reply => {
-                const replyDiv = document.createElement('div');
-                replyDiv.setAttribute('data-comment-id',reply.id)
-                replyDiv.setAttribute("class", "comment d-flex justify-content-between mt-3");
+                const reply_div = document.createElement('div');
+                reply_div.setAttribute('data-comment-id',reply.id)
+                reply_div.setAttribute("class", "comment d-flex justify-content-between mt-3");
 
-                const replyarrowDiv = document.createElement('div');
-                replyarrowDiv.setAttribute("class", "d-flex align-items-center");
-                replyarrowDiv.setAttribute("style", `width:${replyarrowwidth}%`);
+                const reply_arrow_div = document.createElement('div');
+                reply_arrow_div.setAttribute("class", "d-flex align-items-center");
+                reply_arrow_div.setAttribute("style", `width:${replyarrowwidth}%`);
 
-                const replyuserDiv = document.createElement('div');
-                replyuserDiv.setAttribute("class", "d-flex align-items-center");
-                replyuserDiv.setAttribute("style", `width:${profilewidth}%`);
+                const reply_user_div = document.createElement('div');
+                reply_user_div.setAttribute("class", "d-flex align-items-center");
+                reply_user_div.setAttribute("style", `width:${profilewidth}%`);
 
-                const replysubjectDiv = document.createElement('div');
-                replysubjectDiv.setAttribute("class", "d-flex align-items-center justify-content-between");
-                replysubjectDiv.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
+                const reply_subject_div = document.createElement('div');
+                reply_subject_div.setAttribute("class", "d-flex align-items-center justify-content-between");
+                reply_subject_div.setAttribute("style", `width:${100-profilewidth-replyarrowwidth}%`);
 
-                const replyprofileDiv = document.createElement('a');
+                const reply_profile_div = document.createElement('a');
                 let url_reply_author="{% url 'users:profile_page' 1 %}".replace('1',reply.author);
-                replyprofileDiv.setAttribute("href", url_reply_author);
-                replyprofileDiv.setAttribute("style","text-decoration:none;");
-                replyprofileDiv.setAttribute("class","text-dark");
+                reply_profile_div.setAttribute("href", url_reply_author);
+                reply_profile_div.setAttribute("style","text-decoration:none;");
+                reply_profile_div.setAttribute("class","text-dark");
 
-                const replycontentDiv = document.createElement('div');
+                const reply_content_div = document.createElement('div');
                 const replydateDiv = document.createElement('div');
 
-                replyDiv.appendChild(replyarrowDiv);
-                replyDiv.appendChild(replyuserDiv);
-                replyDiv.appendChild(replysubjectDiv);
-                replyuserDiv.appendChild(replyprofileDiv);
-                replysubjectDiv.appendChild(replycontentDiv);
-                replysubjectDiv.appendChild(replydateDiv);
+                reply_div.appendChild(reply_arrow_div);
+                reply_div.appendChild(reply_user_div);
+                reply_div.appendChild(reply_subject_div);
+                reply_user_div.appendChild(reply_profile_div);
+                reply_subject_div.appendChild(reply_content_div);
+                reply_subject_div.appendChild(replydateDiv);
 
-                const indentSymbol = document.createElement('span');
-                indentSymbol.textContent = '↳'; // 원하는 기호로 변경 가능
-                indentSymbol.style.marginLeft = '10px';
-                indentSymbol.style.marginRight = '10px';
-                replyarrowDiv.appendChild(indentSymbol);
+                const indent_symbol = document.createElement('span');
+                indent_symbol.textContent = '↳'; // 원하는 기호로 변경 가능
+                indent_symbol.style.marginLeft = '10px';
+                indent_symbol.style.marginRight = '10px';
+                reply_arrow_div.appendChild(indent_symbol);
 
-                const replyImgElement = document.createElement('img');
+                const reply_img_element = document.createElement('img');
                 if (reply.src) {
-                    replyImgElement.src = reply.src;
+                  reply_img_element.src = reply.src;
                 } else {
-                    replyImgElement.src = '{% static 'image/user.png' %}';
+                  reply_img_element.src = '{% static 'image/user.png' %}';
                 }
-                replyImgElement.style.width = '30px';
-                replyImgElement.alt = '';
-                replyImgElement.setAttribute("class", "me-1");
-                replyprofileDiv.appendChild(replyImgElement);
+                reply_img_element.style.width = '30px';
+                reply_img_element.alt = '';
+                reply_img_element.setAttribute("class", "me-1");
+                reply_profile_div.appendChild(reply_img_element);
 
-                const replyAuthorSpanElement = document.createElement('span');
+                const reply_author_span_element = document.createElement('span');
                 let reply_a_name=reply.author_name;
                 if (reply_a_name.length > 8){
                   reply_a_name = reply_a_name.substring(0,8)+"...";
                 }
-                replyAuthorSpanElement.textContent = `${reply_a_name}`;
-                replyprofileDiv.appendChild(replyAuthorSpanElement);
+                reply_author_span_element.textContent = `${reply_a_name}`;
+                reply_profile_div.appendChild(reply_author_span_element);
 
-                const replyContentSpanElement = document.createElement('span');
-                replyContentSpanElement.textContent = `${reply.content}`;
-                replyContentSpanElement.setAttribute('class', 'editable-comment-content');
-                replycontentDiv.appendChild(replyContentSpanElement);
+                const reply_content_span_element = document.createElement('span');
+                reply_content_span_element.textContent = `${reply.content}`;
+                reply_content_span_element.setAttribute('class', 'editable-comment-content');
+                reply_content_div.appendChild(reply_content_span_element);
 
-                const replyCreatedAtSpan = document.createElement('span');
-                replyCreatedAtSpan.textContent = `${formatTime(reply.created_at)}`;
-                replyCreatedAtSpan.style.marginRight = '13px';
-                replydateDiv.appendChild(replyCreatedAtSpan);
+                const reply_created_at_span = document.createElement('span');
+                reply_created_at_span.textContent = `${formatTime(reply.created_at)}`;
+                reply_created_at_span.style.marginRight = '13px';
+                replydateDiv.appendChild(reply_created_at_span);
                 
-                const reply_EditDelete_div= document.createElement('div');
-                replyDiv.appendChild(reply_EditDelete_div)
-                const replyEditBtn = document.createElement('i');
-                const replyDeleteBtn = document.createElement('i');
+                const reply_edit_delete_div= document.createElement('div');
+                reply_div.appendChild(reply_edit_delete_div)
+                const reply_edit_btn = document.createElement('i');
+                const reply_delete_btn = document.createElement('i');
                 
                 if(reply.is_visible){
                   if (user) {
                       if (user.user_pk === reply.author || user.is_staff==true) {
                           
-                          replyEditBtn.setAttribute('id', "replyEditBtn");
-                          replyDeleteBtn.setAttribute('id', "replyDeleteBtn");
+                          reply_edit_btn.setAttribute('id', "replyEditBtn");
+                          reply_delete_btn.setAttribute('id', "replyDeleteBtn");
                           
-                          replyEditBtn.setAttribute('onclick', `commentEdit('${reply.id}');`);
-                          replyDeleteBtn.setAttribute('onclick', `commentDelete('${reply.id}');`);
+                          reply_edit_btn.setAttribute('onclick', `commentEdit('${reply.id}');`);
+                          reply_delete_btn.setAttribute('onclick', `commentDelete('${reply.id}');`);
                           
-                          replyEditBtn.setAttribute('class', "bi bi-pencil-square btn");
-                          replyDeleteBtn.setAttribute('class', "bi bi-x-square btn");
+                          reply_edit_btn.setAttribute('class', "bi bi-pencil-square btn");
+                          reply_delete_btn.setAttribute('class', "bi bi-x-square btn");
                   
-                          replyEditBtn.setAttribute('style', "padding:0; outline:none; border:none;");
-                          replyDeleteBtn.setAttribute('style', "padding:0; outline:none; border:none;");
+                          reply_edit_btn.setAttribute('style', "padding:0; outline:none; border:none;");
+                          reply_delete_btn.setAttribute('style', "padding:0; outline:none; border:none;");
                           
-                          reply_EditDelete_div.appendChild(replyEditBtn);
-                          reply_EditDelete_div.appendChild(replyDeleteBtn);
+                          reply_edit_delete_div.appendChild(reply_edit_btn);
+                          reply_edit_delete_div.appendChild(reply_delete_btn);
                       }
                   }
                 }
 
-                replyContainer.appendChild(replyDiv);
+                reply_container.appendChild(reply_div);
             });
-            containDiv.appendChild(replyContainer);
+            contain_div.appendChild(reply_container);
         }
-        commentContainerDiv.appendChild(containDiv);
-        const commentLineBreak = document.createElement('hr');
-        commentContainerDiv.appendChild(commentLineBreak);
+        comment_container_div.appendChild(contain_div);
+        const comment_line_break = document.createElement('hr');
+        comment_container_div.appendChild(comment_line_break);
     });
-});
-    async function commentDelete(commentId){
-      const comment_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
-      const access=localStorage.getItem('access_token');
+  });
 
-      try {
-          const response = await fetch(comment_URL, {
-              method: 'DELETE',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${access}`,
-                  'X-CSRFToken': '{{ csrf_token }}'
-              },
-          });
+  async function commentDelete(commentId){
+    const comment_url = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
+    const access=localStorage.getItem('access_token');
 
-          if (response.ok) {
-            window.location.reload();
-          } else {
-              console.error('Failed to delete comment');
-          }
-      } catch (error) {
-          console.error('Error:', error);
-      }
+    try {
+        const response = await fetch(comment_url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access}`,
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+        });
+
+        if (response.ok) {
+          window.location.reload();
+        } else {
+            console.error('Failed to delete comment');
+        }
+    } catch (error) {
+        console.error('Error:', error);
     }
+  }
 
     async function commentEdit(commentId){
-      const replyContentSpans = document.querySelector(`div[data-comment-id="${commentId}"] .editable-comment-content`);
-      const newContent = prompt("수정할 댓글 내용:",replyContentSpans.textContent);
-      if(newContent!==null&& newContent!==replyContentSpans.textContent){
-        const reply_URL = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
+      const reply_content_spans = document.querySelector(`div[data-comment-id="${commentId}"] .editable-comment-content`);
+      const new_content = prompt("수정할 댓글 내용:",reply_content_spans.textContent);
+      if(new_content!==null&& new_content!==reply_content_spans.textContent){
+        const reply_url = '{% url 'games:comment_detail' 1 %}'.replace('1',commentId);
         const access=localStorage.getItem('access_token');
 
         try {
-          const response = await fetch(reply_URL, {
+          const response = await fetch(reply_url, {
               method: 'PUT',
               headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${access}`,
                   'X-CSRFToken': '{{ csrf_token }}'
               },
-              body: JSON.stringify({ content: newContent })
+              body: JSON.stringify({ content: new_content })
           });
 
           if (response.ok) {
