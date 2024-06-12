@@ -62,7 +62,6 @@
     <script>
     window.onload = async () => {
         const user = await isLogIn();
-        console.log(user);
         if (!user){
             window.location.href = "{% url 'accounts:login_page' %}";
         }
