@@ -9,7 +9,7 @@
             <hr>
             <ul class="nav nav-pills flex-column mb-auto" id="tags_list">
                 <li class="nav-item fs-4">
-                <a href="{% url "test_search_view" %}" class="nav-link link-body-emphasis">
+                <a href="{% url "search_view" %}" class="nav-link link-body-emphasis">
                     전체보기
                 </a>
                 </li>
@@ -45,7 +45,7 @@
                 <div class="row row-cols-1 row-cols-md-4 g-4" id="game_list_all">
                 </div>
                 <button class="btn btn-secondary" id="more" >더보기</button>
-                <a href="{% url "test_search_view" %}"><button id="all_list" class="btn btn-secondary mt-4" style="display:none">전체보기</button></a>
+                <a href="{% url "search_view" %}"><button id="all_list" class="btn btn-secondary mt-4" style="display:none">전체보기</button></a>
                 <br><br>
             </div>
         </div>
@@ -70,7 +70,7 @@
                 const tag_a=document.createElement("a");
                 tag_a.className = "nav-link link-body-emphasis fs-4";
                 tag_a.innerText = t.name;
-                tag_a.href = "{% url 'test_search_view' %}" + `?tag-q=${t.name}`;
+                tag_a.href = "{% url 'search_view' %}" + `?tag-q=${t.name}`;
                 tags_anchor.appendChild(tag_li)
                 tag_li.appendChild(tag_a)
             });
