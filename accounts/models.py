@@ -11,6 +11,7 @@ class User(AbstractUser):
         null=True,
     )
 
+
 class BotCnt(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField(default=timezone.now)

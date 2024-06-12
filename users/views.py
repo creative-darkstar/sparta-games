@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
+# ---------- API---------- #
 class ProfileAPIView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
@@ -136,6 +137,7 @@ def my_games(request, user_pk):
     user = get_object_or_404(get_user_model(), pk=user_pk, is_active=True)
     my_games = user.games.filter(is_visible=True).order_by('-created_at')
 
+    # 대상 일치 여부 확인
     if user != request.user:
         my_games = my_games.filter(register_state=1)
 
@@ -182,5 +184,6 @@ def like_games(request, user_pk):
     },status=status.HTTP_200_OK)
 
 
+# ---------- Web---------- #
 def profile_page(request, user_pk):
     return render(request, 'users/profile_page.html')

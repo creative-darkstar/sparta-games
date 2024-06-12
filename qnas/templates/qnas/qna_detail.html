@@ -21,6 +21,7 @@
 
     window.addEventListener("load", async function PageLoad() {
         const user = await isLogIn();
+        const qna_pk=getQnaId();
         if (user){
             if (user.is_staff){
                 const createBtnDiv = document.getElementById('qnaDetailBtn');
@@ -28,14 +29,14 @@
                                           <button type="button" class="btn btn-danger" onclick="deleteQnA()">삭제</button>`;
 
                 const qna_update_btn = document.getElementById('updatebtn');
-                qna_update_btn.setAttribute('href',`{% url 'qnas:qna_update' qna_pk %}`);
+                const url_update = '{% url 'qnas:qna_update' 1 %}'.replace('1', qna_pk);
+                qna_update_btn.setAttribute('href', url_update);
             }
         }
 
-        const qna_pk=getQnaId();
-        const url_qna = '{% url 'qnas:qna_detail' qna_pk %}';
+        const url_detail = '{% url 'qnas:qna_detail' 1 %}'.replace('1', qna_pk);
         const qna_data = await aSend({
-            url: url_qna,
+            url: url_detail,
             method: 'GET',
             is_token: false
         });
@@ -64,9 +65,9 @@
 
     async function deleteQnA(){
         const qna_pk=getQnaId();
-        const url_qna = '{% url 'qnas:qna_detail' qna_pk %}';
+        const url_detail = '{% url 'qnas:qna_detail' 1 %}'.replace('1', qna_pk);
         await aSend({
-            url: url_qna,
+            url: url_detail,
             method: 'DELETE',
             is_token: true
         });

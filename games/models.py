@@ -6,7 +6,7 @@ from django.utils import timezone
 
 
 class Tag(models.Model):
-    name=models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=20, unique=True)
 
 
 class Game(models.Model):
@@ -35,7 +35,7 @@ class Game(models.Model):
     gamefile = models.FileField(
         upload_to=upload_to_func
     )
-    gamepath = models.CharField(blank=True,null=True,max_length=511)
+    gamepath = models.CharField(blank=True, null=True, max_length=511)
     register_state = models.IntegerField(default=0)
     tag = models.ManyToManyField(
         Tag, related_name="games",
@@ -47,20 +47,22 @@ class Game(models.Model):
 
 
 class Comment(models.Model):
-    content=models.TextField()
-    is_visible=models.BooleanField(default=True)
+    content = models.TextField()
+    is_visible = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     game = models.ForeignKey(
         Game, on_delete=models.CASCADE, related_name="comments"
     )
-    root=models.ForeignKey("self",null=True ,on_delete=models.CASCADE, related_name="reply")
-    author=models.ForeignKey(
+    root = models.ForeignKey(
+        "self", null=True, on_delete=models.CASCADE, related_name="reply")
+    author = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
     )
 
+
 class Screenshot(models.Model):
-    src=models.ImageField(
+    src = models.ImageField(
         upload_to="images/screenshot/",
         blank=True,
         null=True,
@@ -71,8 +73,8 @@ class Screenshot(models.Model):
 
 
 class Star(models.Model):
-    star=models.IntegerField(null=True)
-    user=models.ForeignKey(
+    star = models.IntegerField(null=True)
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="stars"
     )
     game = models.ForeignKey(
