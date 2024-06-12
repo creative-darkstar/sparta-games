@@ -86,7 +86,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method='PUT' id="profile_edit_password_form">
+                    <form action="" method='PUT' id="profile_edit_password_form" onsubmit="return false">
                         {% csrf_token %}
                         <label for="password">비밀번호</label>
                         <input type="password" id='password' name='password'>
@@ -108,7 +108,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method='PUT' id="password_edit_form">
+                    <form action="" method='PUT' id="password_edit_form" onsubmit="return false">
                         <label for="past_password">기존 비밀번호</label>
                         <input type="password" name="password" id="past_password">
                         <br>
