@@ -13,80 +13,92 @@
     <title>Sparta Games</title>
     {% block css_block %}
     {% endblock css_block %}
+    <style>
+        body, html{
+            height:100%;
+        }
+        .wrapper{
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+    </style>
 </head>
 <body>
-<header class="p-3 mb-3 border-bottom">
-    <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-between">
-            <div class="d-flex">
-                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
-                    <img src="{% static 'image/gaming.png' %}" alt="" width='32'>
-                </a>
-
-                <ul class="nav ms-3 col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                    <li><a href="{% url "games:chatbot_view" %}" class="nav-link px-2 link-body-emphasis">태그추천</a></li>
-                    <li><a href="{% url "qnas:qna_main" %}" class="nav-link px-2 link-body-emphasis">QnA</a></li>
-                </ul>
-            </div>
-            <div class="d-flex">
-                <a id='game_publish_btn' class="me-2" href={% url 'games:game_create_page' %} aria-expanded="false">
-                    <img src="{% static 'image/game-publishing.png' %}" alt="" width="32">
-                </a>
-                <div id="navbar_login_userinfo" style="display: none; align-content: center">
-                    <a id='navbar_userimage_anchor' class="pt-1 me-1" href="#" aria-expanded="false" style="text-decoration: none;">
-                        <img src="" alt="mdo" width="32" height="32" class="rounded-circle" id='userimage'>
-                    </a>
-                    <span id="navbar_login_userinfo_username"></span>
-                    <a id="navbar_login_userinfo_adminpage" style="display: none" href={% url "games:admin_list" %}></a>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="logout()">로그아웃</button>
+    <div class="wrapper">
+        <header class="p-3 mb-3 border-bottom">
+            <div class="container">
+                <div class="d-flex flex-wrap align-items-center justify-content-between">
+                    <div class="d-flex">
+                        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none">
+                            <img src="{% static 'image/gaming.png' %}" alt="" width='32'>
+                        </a>
+        
+                        <ul class="nav ms-3 col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                            <li><a href="{% url "games:chatbot_view" %}" class="nav-link px-2 link-body-emphasis">태그추천</a></li>
+                            <li><a href="{% url "qnas:qna_main" %}" class="nav-link px-2 link-body-emphasis">QnA</a></li>
+                        </ul>
+                    </div>
+                    <div class="d-flex">
+                        <a id='game_publish_btn' class="me-2" href={% url 'games:game_create_page' %} aria-expanded="false">
+                            <img src="{% static 'image/game-publishing.png' %}" alt="" width="32">
+                        </a>
+                        <div id="navbar_login_userinfo" style="display: none; align-content: center">
+                            <a id='navbar_userimage_anchor' class="pt-1 me-1" href="#" aria-expanded="false" style="text-decoration: none;">
+                                <img src="" alt="mdo" width="32" height="32" class="rounded-circle" id='userimage'>
+                            </a>
+                            <span id="navbar_login_userinfo_username"></span>
+                            <a id="navbar_login_userinfo_adminpage" style="display: none" href={% url "games:admin_list" %}></a>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="logout()">로그아웃</button>
+                        </div>
+                        <div id="navbar_logout_userinfo" style="display: none; align-content: center">
+                            <a class="btn btn-primary btn-sm" href={% url 'accounts:login_page' %}>로그인</a>
+                            <a class="btn btn-info btn-sm" href={% url 'accounts:signup_page' %}>회원가입</a>
+                        </div>
+                    </div>
                 </div>
-                <div id="navbar_logout_userinfo" style="display: none; align-content: center">
-                    <a class="btn btn-primary btn-sm" href={% url 'accounts:login_page' %}>로그인</a>
-                    <a class="btn btn-info btn-sm" href={% url 'accounts:signup_page' %}>회원가입</a>
+            </div>
+        </header>
+        {% block content %}
+        {% endblock %}
+        <!-- Modal -->
+        <div class="modal fade" id="baseModal" tabindex="-1" aria-labelledby="baseModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="baseModalLabel">로그인이 필요한 기능입니다.</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <span>로그인 해주세요</span>
+              </div>
+              <div class="modal-footer">
+                <a class="btn btn-primary" href='{% url 'accounts:login_page' %}'>로그인페이지로 이동</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="d-flex flex-wrap mt-auto justify-content-between align-items-center py-3 my-4 border-top">
+            <div class="container">
+                <div class="d-flex justify-content-between">
+                    <div class="col-md-4 d-flex align-items-center" style='width:30%;'>
+                      <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 me-2 link-body-emphasis text-decoration-none">
+                        <img src="{% static 'image/gaming.png' %}" alt="" width='32'>
+                      </a>
+                      <span class="mb-3 mb-md-0 text-body-secondary">2024 Sparta Games</span>
+                    </div>
+                    <div style='width:30%; text-align: center; align-content: center;'>
+                        <span>Contact Us: (Email)</span>
+                    </div>
+                    <div style='width:30%;'>
+                        <ul class="nav justify-content-end list-unstyled d-flex">
+                          <li class="ms-3"><a class="text-body-secondary" href="#"><i class="bi bi-discord" style="font-size: 30px;"></i></a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
+        </footer>
     </div>
-</header>
-{% block content %}
-{% endblock %}
-<!-- Modal -->
-<div class="modal fade" id="baseModal" tabindex="-1" aria-labelledby="baseModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="baseModalLabel">로그인이 필요한 기능입니다.</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-          <span>로그인 해주세요</span>
-      </div>
-      <div class="modal-footer">
-        <a class="btn btn-primary" href='{% url 'accounts:login_page' %}'>로그인페이지로 이동</a>
-      </div>
-    </div>
-  </div>
-</div>
-<footer class="d-flex flex-wrap mt-auto justify-content-between align-items-center py-3 my-4 border-top">
-    <div class="container">
-        <div class="d-flex justify-content-between">
-            <div class="col-md-4 d-flex align-items-center" style='width:30%;'>
-              <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 me-2 link-body-emphasis text-decoration-none">
-                <img src="{% static 'image/gaming.png' %}" alt="" width='32'>
-              </a>
-              <span class="mb-3 mb-md-0 text-body-secondary">2024 Sparta Games</span>
-            </div>
-            <div style='width:30%; text-align: center; align-content: center;'>
-                <span>Contact Us: (Email)</span>
-            </div>
-            <div style='width:30%;'>
-                <ul class="nav justify-content-end list-unstyled d-flex">
-                  <li class="ms-3"><a class="text-body-secondary" href="#"><i class="bi bi-discord" style="font-size: 30px;"></i></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</footer>
 <script>
     async function tokenRefresh() {
         const refresh = localStorage.getItem('refresh_token');
