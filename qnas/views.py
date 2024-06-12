@@ -46,6 +46,8 @@ class QnAPostListAPIView(APIView):
     """
 
     def post(self, request):
+        if request.user.is_staff == False:
+            return Response({"error": "권한이 없습니다"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = QnAPostListSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(is_visible=True)
@@ -82,6 +84,8 @@ class QnADetailAPIView(APIView):
     """
 
     def put(self, request, qna_pk):
+        if request.user.is_staff == False:
+            return Response({"error": "권한이 없습니다"}, status=status.HTTP_400_BAD_REQUEST)
         qna = self.get_object(qna_pk)
         serializer = QnAPostListSerializer(
             qna, data=request.data, partial=True)
@@ -94,6 +98,8 @@ class QnADetailAPIView(APIView):
     """
 
     def delete(self, request, qna_pk):
+        if request.user.is_staff == False:
+            return Response({"error": "권한이 없습니다"}, status=status.HTTP_400_BAD_REQUEST)
         qna = self.get_object(qna_pk)
         qna.is_visible = False
         qna.save()
