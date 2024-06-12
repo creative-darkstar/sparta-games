@@ -26,6 +26,19 @@
             transition: margin-left 0.3s;
             width: 100%;
         }
+        .side-popup {
+            position: absolute;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #game_publish_btn:hover .side-popup {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +73,9 @@
 
                 <a id='game_publish_btn' class="pt-1 me-2" href={% url 'games:game_create_test_page' %} aria-expanded="false">
                     <img src="{% static 'image/game-publishing.png' %}" alt="" width="32">
+                    <div class='side-popup'>
+                        게임 등록
+                    </div>
                 </a>
                 <div id="navbar_login_userinfo" style="display: none; align-content: center">
                     <a id='navbar_userimage_anchor' class="pt-1 me-1" href="#" aria-expanded="false" style="text-decoration: none;">
