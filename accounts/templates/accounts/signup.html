@@ -45,12 +45,11 @@
                 },
                 body: JSON.stringify({ username, password, password_check, email }),
             });
-    
             const data = await response.json();
             if (response.ok) {
                 window.location.href = "{% url 'accounts:login_page' %}";
             } else {
-                alert('SignUp failed');
+                alert(data.error_message);
             }
         }
     </script>
