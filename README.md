@@ -1,8 +1,32 @@
-# sparta-games
+# sparta-games.net
 팀 스파르타 AI 6기 최종 팀 프로젝트
 
-## 프로젝트 명: Sparta Games
-Sparta NEWS에서 최신 정보를 확인하세요
+[![9dc3cd5080c12aba](https://github.com/creative-darkstar/sparta-games/assets/75594057/87795535-3de9-4122-ad51-4538f8872925)](https://sparta-games.net/)
+
+## 페이지 이용 안내
+Unity 2D를 사용하여 게임을 제작하고 이를 업로드 및 관리할 수 있는 사이트
+
+- 누구나 게임을 플레이할 수 있습니다.
+- 게임은 태그별, 조회수순, 평점순, 최신순으로 찾을 수 있습니다.
+- 게임을 업로드할 땐, 로그인이 필요합니다.
+- 게임태그를 추천하는 AI기능이 있습니다.
+- 회원탈퇴는 문의를 남겨주세요.
+  
+<br>
+
+## FrontPage
+![image](https://github.com/creative-darkstar/sparta-games/assets/75594057/a6a60106-ac86-477a-bddc-a89931c2c150)
+
+<br>
+
+## GamePage
+![image](https://github.com/creative-darkstar/sparta-games/assets/75594057/801ed672-743d-4977-a791-3c55d84517ba)
+
+<br>
+
+### Reference
+[![14803619](https://github.com/creative-darkstar/sparta-games/assets/75594057/de03041a-ae9e-43d8-9633-82582544ede0)](https://itch.io/)
+
 (reference 1: [itch.io](https://itch.io/))  
 (reference 2: [io games](https://iogames.space/))
 
