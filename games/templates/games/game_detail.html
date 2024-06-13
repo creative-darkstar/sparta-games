@@ -263,6 +263,7 @@
 
 function addReplyToDOM(reply, user, root_id) {
   const comment_div = document.querySelector(`div[data-comment-id="${root_id}"]`);
+  const parent_div=comment_div.parentNode;
   const reply_container = comment_div.querySelector('.replies') || document.createElement('div');
   reply_container.classList.add('replies');
 
@@ -363,9 +364,10 @@ function addReplyToDOM(reply, user, root_id) {
   reply_container.appendChild(reply_div);
 
   if (!comment_div.querySelector('.replies')) {
-    comment_div.appendChild(reply_container);
+    parent_div.appendChild(reply_container);
   }
-  
+  comment_div.childNodes[1].click()
+  comment_div.childNodes[1].click()
 }
 
 async function replyCreate(event, root_id) {
