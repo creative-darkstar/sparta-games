@@ -103,6 +103,131 @@
     return parseInt(parts[3]);
   }
 
+  function addCommentToDOM(comment, user) {
+    const comment_container_div = document.getElementById('commentContainerDiv');
+    const contain_div = document.createElement('div');
+
+    const comment_div = document.createElement('div');
+    comment_div.setAttribute('data-comment-id', comment.id)
+    comment_div.setAttribute("class", "d-flex justify-content-between");
+    contain_div.appendChild(comment_div)
+
+    const profilewidth = 10;
+
+    const user_div = document.createElement('div');
+    user_div.setAttribute("class", "d-flex align-items-center");
+    user_div.setAttribute("style", `width:${profilewidth}%`);
+
+    const profile_div = document.createElement('a');
+    let url_author = "{% url 'users:profile_page' 1 %}".replace('1', comment.author);
+    profile_div.setAttribute("href", url_author);
+    profile_div.setAttribute("style", "text-decoration:none;");
+    profile_div.setAttribute("class", "text-dark");
+
+    const subject_div = document.createElement('div');
+    subject_div.setAttribute("class", "btn d-flex align-items-center justify-content-between");
+    subject_div.setAttribute("style", `width:${100-profilewidth}%`);
+
+    const content_div = document.createElement('div');
+    const date_div = document.createElement('div');
+
+    comment_div.appendChild(user_div);
+    comment_div.appendChild(subject_div);
+    user_div.appendChild(profile_div);
+    subject_div.appendChild(content_div);
+    subject_div.appendChild(date_div);
+
+    const comment_img_element = document.createElement('img');
+    if (comment.src) {
+      comment_img_element.src = comment.src;
+    }
+    else {
+      comment_img_element.src = '{% static 'image/user.png' %}';
+    }
+    comment_img_element.style.width = '30px';
+    comment_img_element.alt = '';
+    comment_img_element.setAttribute("class", "me-1");
+    profile_div.appendChild(comment_img_element);
+
+    const author_span_element = document.createElement('span');
+    let a_name = comment.author_name;
+    console.log(a_name);
+    if (a_name.length > 8){
+      a_name = a_name.substring(0,8)+"...";
+    }
+    author_span_element.textContent = `${a_name}`;
+    profile_div.appendChild(author_span_element);
+
+    const content_span_element = document.createElement('span');
+    content_span_element.textContent = `${comment.content}`;
+    content_span_element.setAttribute('class', 'editable-comment-content');
+    content_div.appendChild(content_span_element);
+
+    const commend_created_at_span = document.createElement('span');
+    commend_created_at_span.textContent = `${formatTime(comment.created_at)}`;
+    date_div.appendChild(commend_created_at_span);
+
+    const comment_edit_delete_div = document.createElement('div');
+    comment_div.appendChild(comment_edit_delete_div);
+    const comment_edit_btn = document.createElement('i');
+    const comment_delete_btn = document.createElement('i');
+    if (comment.is_visible){
+      if (user) {
+          if (user.user_pk === comment.author || user.is_staff == true) {
+
+              comment_edit_btn.setAttribute('id', "commentEditBtn");
+              comment_delete_btn.setAttribute('id', "commentDeleteBtn");
+
+              comment_edit_btn.setAttribute('onclick', `commentEdit('${comment.id}','${comment.content}');`);
+              comment_delete_btn.setAttribute('onclick', `commentDelete('${comment.id}');`);
+
+              comment_edit_btn.setAttribute('class', "bi bi-pencil-square btn");
+              comment_delete_btn.setAttribute('class', "bi bi-x-square btn");
+
+              comment_edit_btn.setAttribute('style', "padding:0; outline:none; border:none;");
+              comment_delete_btn.setAttribute('style', "padding:0; outline:none; border:none;");
+
+              comment_edit_delete_div.appendChild(comment_edit_btn);
+              comment_edit_delete_div.appendChild(comment_delete_btn);
+          }
+      }
+    }
+
+    subject_div.onclick = function(){
+      if(comment.is_visible){
+        let exist_reply_form = contain_div.querySelector('.replyForm');
+        if(exist_reply_form) {
+          exist_reply_form.remove();
+        }
+        else {
+            const reply_form = document.createElement('form');
+            reply_form.className = 'replyForm mt-3';
+            reply_form.onsubmit = function(e){replyCreate(e,comment.id);};
+
+            const reply_input = document.createElement('input');
+            reply_input.type = 'text';
+            reply_input.name = 'content';
+            reply_input.placeholder = '답글을 입력하세요';
+            reply_input.setAttribute("class", "me-2")
+
+            const reply_submit_button = document.createElement('button');
+            reply_submit_button.type = 'submit';
+            reply_submit_button.setAttribute("id", "reply_id")
+            reply_submit_button.textContent = '댓글 달기';
+
+            reply_form.appendChild(reply_input);
+            reply_form.appendChild(reply_submit_button);
+
+            contain_div.appendChild(reply_form);
+        }
+      }
+    };
+
+    comment_container_div.appendChild(contain_div);
+    const comment_line_break = document.createElement('hr');
+    comment_container_div.appendChild(comment_line_break);
+}
+
   async function commentCreate(event) {
     event.preventDefault();  // 폼의 기본 제출 동작을 방지
     const user = await isLogIn();
@@ -117,18 +242,130 @@
     const url = '{% url 'games:comments' game_pk %}'
 
     try {
-        await aSend({
+        const res=await aSend({
             url: url,
             method: 'POST',
             is_token: true,
             body: form_data
         })
         
+        // 새로운 댓글 DOM에 추가
+        const new_comment = await res;
+        addCommentToDOM(new_comment, user);
+
+        // 입력 필드 초기화
+        form_tag.reset();
     } catch (error) {
         console.error('Error:', error);
         return false;
     }
-    window.location.href = "{% url 'games:game_detail_page' game_pk %}";
+}
+
+function addReplyToDOM(reply, user, root_id) {
+  const comment_div = document.querySelector(`div[data-comment-id="${root_id}"]`);
+  const reply_container = comment_div.querySelector('.replies') || document.createElement('div');
+  reply_container.classList.add('replies');
+
+  const reply_div = document.createElement('div');
+  reply_div.setAttribute('data-comment-id', reply.id)
+  reply_div.setAttribute("class", "comment d-flex justify-content-between mt-3");
+
+  const reply_arrow_div = document.createElement('div');
+  reply_arrow_div.setAttribute("class", "d-flex align-items-center");
+  reply_arrow_div.setAttribute("style", "width:2.5%");
+
+  const reply_user_div = document.createElement('div');
+  reply_user_div.setAttribute("class", "d-flex align-items-center");
+  reply_user_div.setAttribute("style", "width:10%");
+
+  const reply_subject_div = document.createElement('div');
+  reply_subject_div.setAttribute("class", "d-flex align-items-center justify-content-between");
+  reply_subject_div.setAttribute("style", "width:87.5%");
+
+  const reply_profile_div = document.createElement('a');
+  let url_reply_author = "{% url 'users:profile_page' 1 %}".replace('1', reply.author);
+  reply_profile_div.setAttribute("href", url_reply_author);
+  reply_profile_div.setAttribute("style", "text-decoration:none;");
+  reply_profile_div.setAttribute("class", "text-dark");
+
+  const reply_content_div = document.createElement('div');
+  const replydateDiv = document.createElement('div');
+
+  reply_div.appendChild(reply_arrow_div);
+  reply_div.appendChild(reply_user_div);
+  reply_div.appendChild(reply_subject_div);
+  reply_user_div.appendChild(reply_profile_div);
+  reply_subject_div.appendChild(reply_content_div);
+  reply_subject_div.appendChild(replydateDiv);
+
+  const indent_symbol = document.createElement('span');
+  indent_symbol.textContent = '↳';
+  indent_symbol.style.marginLeft = '10px';
+  indent_symbol.style.marginRight = '10px';
+  reply_arrow_div.appendChild(indent_symbol);
+
+  const reply_img_element = document.createElement('img');
+  if (reply.src) {
+    reply_img_element.src = reply.src;
+  } else {
+    reply_img_element.src = '{% static 'image/user.png' %}';
+  }
+  reply_img_element.style.width = '30px';
+  reply_img_element.alt = '';
+  reply_img_element.setAttribute("class", "me-1");
+  reply_profile_div.appendChild(reply_img_element);
+
+  const reply_author_span_element = document.createElement('span');
+  let reply_a_name = reply.author_name;
+  if (reply_a_name.length > 8){
+    reply_a_name = reply_a_name.substring(0,8)+"...";
+  }
+  reply_author_span_element.textContent = `${reply_a_name}`;
+  reply_profile_div.appendChild(reply_author_span_element);
+
+  const reply_content_span_element = document.createElement('span');
+  reply_content_span_element.textContent = `${reply.content}`;
+  reply_content_span_element.setAttribute('class', 'editable-comment-content');
+  reply_content_div.appendChild(reply_content_span_element);
+
+  const reply_created_at_span = document.createElement('span');
+  reply_created_at_span.textContent = `${formatTime(reply.created_at)}`;
+  reply_created_at_span.style.marginRight = '13px';
+  replydateDiv.appendChild(reply_created_at_span);
+  
+  const reply_edit_delete_div = document.createElement('div');
+  reply_div.appendChild(reply_edit_delete_div)
+  const reply_edit_btn = document.createElement('i');
+  const reply_delete_btn = document.createElement('i');
+  
+  if(reply.is_visible){
+    if (user) {
+        if (user.user_pk === reply.author || user.is_staff==true) {
+
+            reply_edit_btn.setAttribute('id', "replyEditBtn");
+            reply_delete_btn.setAttribute('id', "replyDeleteBtn");
+
+            reply_edit_btn.setAttribute('onclick', `commentEdit('${reply.id}');`);
+            reply_delete_btn.setAttribute('onclick', `commentDelete('${reply.id}');`);
+
+            reply_edit_btn.setAttribute('class', "bi bi-pencil-square btn");
+            reply_delete_btn.setAttribute('class', "bi bi-x-square btn");
+
+            reply_edit_btn.setAttribute('style', "padding:0; outline:none; border:none;");
+            reply_delete_btn.setAttribute('style', "padding:0; outline:none; border:none;");
+
+            reply_edit_delete_div.appendChild(reply_edit_btn);
+            reply_edit_delete_div.appendChild(reply_delete_btn);
+        }
+    }
+  }
+
+  reply_container.appendChild(reply_div);
+
+  if (!comment_div.querySelector('.replies')) {
+    comment_div.appendChild(reply_container);
+  }
+  
 }
 
 async function replyCreate(event, root_id) {
@@ -150,18 +387,22 @@ async function replyCreate(event, root_id) {
   const url = '{% url 'games:comments' game_pk %}'
 
   try {
-      await aSend({
+      const res=await aSend({
           url: url,
           method: 'POST',
           is_token: true,
           body: form_data
       })
-      
+
+      // 새로운 댓글 DOM에 추가
+      const new_reply = await res;
+      addReplyToDOM(new_reply, user, root_id);
+
+      reply_form.reset();
   } catch (error) {
       console.error('Error:', error);
       return false;
   }
-  window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
 function updateStarRating(newRating) {
