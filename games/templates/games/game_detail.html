@@ -164,6 +164,15 @@ async function replyCreate(event, root_id) {
   window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
+function updateStarRating(newRating) {
+  const starScoreSpan = document.getElementById('starScoreSpan');
+  if (newRating == null) {
+    starScoreSpan.textContent = `평점: 평점없음`;
+  } else {
+    starScoreSpan.textContent = `평점: ${newRating}`;
+  }
+}
+
 async function star(event) {
   event.preventDefault();  // 폼의 기본 제출 동작을 방지
 
@@ -173,18 +182,21 @@ async function star(event) {
   const url = '{% url 'games:game_star' game_pk %}'
 
   try {
-      await aSend({
+      let res = await aSend({
           url: url,
           method: 'POST',
           is_token: true,
           body: form_data
       })
-      
+      updateStarRating(res.avg_star);
+      const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal'));
+      if (modal) {
+        modal.hide();
+      }
   } catch (error) {
       console.error('Error:', error);
       return false;
   }
-  window.location.href = "{% url 'games:game_detail_page' game_pk %}";
 }
 
 async function like() {

@@ -284,7 +284,9 @@ class GameStarAPIView(APIView):
                 user=request.user,
                 game=game,
             )
-        return Response({"ok"}, status=status.HTTP_200_OK)
+        star_values=[item['star'] for item in game.stars.values()]
+        average_star = round(sum(star_values) / len(star_values),1)
+        return Response({"res":"ok","avg_star":average_star}, status=status.HTTP_200_OK)
 
 
 class CommentAPIView(APIView):
