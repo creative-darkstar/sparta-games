@@ -1,7 +1,9 @@
 # sparta-games.net
 팀 스파르타 AI 6기 최종 팀 프로젝트
 
-[Unity 게임 웹페이지](https://sparta-games.net/)
+<a href="https://sparta-games.net/" style="text-decoration: none; color: #007bff; font-weight: bold;">Unity 게임 웹페이지</a>
+
+<br>
 Unity 2D를 사용하여 게임을 제작하고 이를 업로드 및 관리할 수 있는 사이트
 
 ## FrontPage
