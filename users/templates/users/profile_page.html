@@ -13,7 +13,7 @@
                             <span class="btn btn-secondary mt-2">이미지 업로드</span>
                         </label>
                         <input type="file" name="image" accept="image/*" id="id_thumbnail" alt="..."
-                               style="display: none">
+                               style="display: none" onchange="previewThumbnail()">
                     </div>
                 </div>
                 <div>
@@ -86,7 +86,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method='PUT' id="profile_edit_password_form" onsubmit="return false">
+                    <form action="" method='PUT' id="profile_edit_password_form" onsubmit="editProfile(event);">
                         {% csrf_token %}
                         <label for="password">비밀번호</label>
                         <input type="password" id='password' name='password'>
@@ -108,7 +108,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="" method='PUT' id="password_edit_form" onsubmit="return false">
+                    <form action="" method='PUT' id="password_edit_form" onsubmit="editProfile(event);">
                         <label for="past_password">기존 비밀번호</label>
                         <input type="password" name="password" id="past_password">
                         <br>
@@ -164,14 +164,17 @@
 
             const url = "{% url 'users:profile' 1 %}".replace('1', page_user_id);
 
-            await aSend({
+            let res=await aSend({
                 url: url,
                 method: 'PUT',
                 is_token: true,
                 body: form_data
             })
-
-            window.location.href = "{% url 'users:profile_page' 1 %}".replace('1', page_user_id);
+            if (res.message=="회원 정보 수정 완료"){
+                window.location.href = "{% url 'users:profile_page' 1 %}".replace('1', page_user_id);
+            } else{
+                alert(res.message+"\n올바른 비밀번호를 입력해주세요.");
+            }
         }
 
         async function editPassword(event) {
@@ -195,6 +198,17 @@
             window.location.href = "{% url 'users:profile_page' 1 %}".replace('1', page_user_id);
         }
 
+        function previewThumbnail() {
+            const thumbnail_input = document.getElementById('id_thumbnail');
+            const selected_thumbnail = document.getElementById('user_profile_img');
+            const file = thumbnail_input.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selected_thumbnail.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
         window.addEventListener("load", async function pageLoad() {
             // context로 views.py에서 game_pk를 받아서 사용한다.
             const page_user_id = getPageUserId();
