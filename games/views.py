@@ -359,12 +359,16 @@ class TagAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        if request.user.is_staff is False:
+            return Response({"error": "권한이 없습니다"}, status=status.HTTP_400_BAD_REQUEST)
         serializer = TagSerailizer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return redirect("games:admin_tags")
 
     def delete(self, request):
+        if request.user.is_staff is False:
+            return Response({"error": "권한이 없습니다"}, status=status.HTTP_400_BAD_REQUEST)
         tag = get_object_or_404(Tag, pk=request.data['pk'])
         tag.delete()
         return Response({"message": "삭제를 완료했습니다"}, status=status.HTTP_200_OK)
