@@ -2,9 +2,9 @@
 
 {% block content %}
 <div class="container">
-    <form action="{% url 'games:tags' %}" method="POST">
+    <form method="POST" onsubmit="createTag();">
         {% csrf_token %}
-        <input type="text" maxlength="20" name="name">
+        <input id="new_tag_name" type="text" maxlength="20" name="name">
         <button type="submit" class="btn btn-secondary">생성</button>
     </form>
     <table class="table">
@@ -43,12 +43,39 @@
     }
     </script>
 <script>
+    function createTag() {
+        event.preventDefault();
+        
+        const new_tag = document.getElementById('new_tag_name');
+        const access = localStorage.getItem('access_token');
+        
+        fetch(`{% url 'games:tags' %}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access}`
+            },
+            body: JSON.stringify({ name: new_tag.value })
+        })
+        .then(response => response.json())
+        .then(data => {
+            window.location.reload();  // 페이지 새로고침
+        })
+        .catch(error => console.error('Error:', error));
+    }
+    
     function deleteTag(tagId) {
+        event.preventDefault();
+        
+        const access = localStorage.getItem('access_token');
+        
         fetch(`{% url 'games:tags' %}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${access}`
             },
             body: JSON.stringify({ pk: tagId })
         })
