@@ -369,7 +369,7 @@ class TagAPIView(APIView):
         serializer = TagSerailizer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return redirect("games:admin_tags")
+            return Response({"message": "태그를 추가했습니다"}, status=status.HTTP_200_OK)
 
     def delete(self, request):
         if request.user.is_staff is False:
