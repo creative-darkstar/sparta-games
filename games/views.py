@@ -399,7 +399,7 @@ def game_register(request, game_pk):
     )
 
     # S3에서 zip 파일을 읽어옴
-    zip_resp = s3.get_object(Bucket='sparta-games-static-bucket', Key=path)
+    zip_resp = s3.get_object(Bucket=config.AWS_S3_BUCKET_NAME, Key=path)
 
     # BytesIO를 사용하여 메모리에 파일 데이터를 읽음
     zip_data = io.BytesIO(zip_resp['Body'].read())
@@ -494,7 +494,7 @@ def game_register(request, game_pk):
 
             response = s3.put_object(
                 Body=new_zip_ref.open(file_name),
-                Bucket='sparta-games-static-bucket',
+                Bucket=config.AWS_S3_BUCKET_NAME,
                 Key=f"media/games/{game_folder}/{file_name}",
                 ContentType=(content_type if content_type else 'text/plain'),
                 ContentEncoding=(content_encoding if content_encoding else 'identity')
